@@ -1,0 +1,50 @@
+{
+ "name": "PawPixl",
+ "tagline": "Genshin builds & endgame guides",
+ "bio": "",
+ "avatar": "",
+ "accent": "Hydro",
+ "socials": [
+  {
+   "type": "tiktok",
+   "label": "TikTok",
+   "url": ""
+  },
+  {
+   "type": "youtube",
+   "label": "YouTube",
+   "url": ""
+  },
+  {
+   "type": "twitch",
+   "label": "Twitch",
+   "url": ""
+  }
+ ],
+ "games": [
+  {
+   "id": "genshin",
+   "name": "Genshin Impact",
+   "short": "Genshin",
+   "status": "live",
+   "el": "Hydro",
+   "sections": [
+    "builds",
+    "abyss",
+    "stygian",
+    "theatre",
+    "schedule"
+   ]
+  },
+  {
+   "id": "wuwa",
+   "name": "Wuthering Waves",
+   "short": "WuWa",
+   "status": "soon",
+   "el": "Electro"
+  }
+ ],
+ "auth": {},
+ "announcement": "",
+ "url": "https://pawpixl.com"
+}
