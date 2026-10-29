@@ -24,6 +24,11 @@
    "type": "instagram",
    "label": "Instagram",
    "url": "https://www.instagram.com/pawpixl/"
+  },
+  {
+   "type": "discord",
+   "label": "Discord",
+   "url": "https://discord.gg/9MP3fX2zkQ"
   }
  ],
  "games": [
