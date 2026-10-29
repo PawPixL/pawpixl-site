@@ -1,24 +1,29 @@
 {
  "name": "PawPixl",
- "tagline": "Genshin builds & endgame guides",
- "bio": "",
+ "tagline": "Gaming builds & guides",
+ "bio": "Lets build your characters!",
  "avatar": "",
- "accent": "Hydro",
+ "accent": "Anemo",
  "socials": [
   {
    "type": "tiktok",
    "label": "TikTok",
-   "url": ""
+   "url": "https://www.tiktok.com/@pawpixl"
   },
   {
    "type": "youtube",
    "label": "YouTube",
-   "url": ""
+   "url": "https://www.youtube.com/@PawPixl"
   },
   {
    "type": "twitch",
    "label": "Twitch",
-   "url": ""
+   "url": "https://www.twitch.tv/pawpixl"
+  },
+  {
+   "type": "instagram",
+   "label": "Instagram",
+   "url": "https://www.instagram.com/pawpixl/"
   }
  ],
  "games": [
@@ -45,6 +50,6 @@
   }
  ],
  "auth": {},
- "announcement": "",
+ "announcement": "LIVE Streams @4PM EST",
  "url": "https://pawpixl.com"
 }
