@@ -195,3 +195,32 @@ footer .row{justify-content:space-between}
 .fundpic img{display:block;width:100%;height:100%;border-radius:50%;object-fit:contain;padding:8px;background:radial-gradient(circle at 50% 40%,rgba(143,245,214,.45),rgba(24,201,160,.22) 45%,#0b1a1c 78%);animation:fundfloat 4.5s ease-in-out infinite}
 @keyframes fundfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 @media (prefers-reduced-motion:reduce){.fundpic img{animation:none}}
+
+/* line of the day: a sticker in the hero's top right that types out a joke, with an optional reply */
+.hero{grid-template-columns:auto 1fr auto}
+.qslot{align-self:start;width:340px}
+.qotd{position:relative;border:1px solid var(--line);border-radius:18px;background:var(--glass);padding:14px 14px 12px;overflow:hidden}
+.qotd::before{content:"";position:absolute;inset:0 0 auto;height:2px;background:linear-gradient(90deg,var(--q0),var(--q1),transparent)}
+.qh{display:flex;align-items:center;gap:8px;margin-bottom:10px}.qh .eyebrow{flex:1;font-size:11px}
+.qmore{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--tx);cursor:pointer;font-size:15px;line-height:1}
+.qmore:hover{border-color:var(--q1)}
+.qrow{display:flex;align-items:flex-end;gap:10px}.qrow+.qrow{margin-top:10px}.qrow.r{justify-content:flex-end;animation:qin .35s ease-out}
+.qst{flex:none;width:60px;height:60px;border-radius:50%;padding:3px;background:conic-gradient(from 200deg,var(--q0),var(--q1),var(--q0));box-shadow:0 0 0 rgba(0,0,0,0);transition:box-shadow .3s}
+.qst img,.qst span{display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:50%;object-fit:cover;background:#0d1224;font:400 26px var(--display);color:#fff}
+.qst.stk img{object-fit:contain;padding:3px}
+.qrow.r .qst{width:46px;height:46px}
+.qst.talk{animation:qbob .5s ease-in-out infinite;box-shadow:0 0 18px var(--q1)}
+.qb{position:relative;flex:1;min-width:0;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:14px 14px 14px 4px;padding:9px 12px}
+.qrow.r .qb{border-radius:14px 14px 4px 14px;background:rgba(255,255,255,.04)}
+.qt{margin:0;font-size:14px;line-height:1.45;min-height:1.45em}.qn{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.qbtn{padding:0;width:40px;border-radius:50%}.qbtn .qst{width:34px;height:34px;padding:2px;animation:qhop 6s ease-in-out infinite}
+.qbtn .qst span{font-size:15px}
+.qpop{width:min(360px,calc(100vw - 32px));padding:0;background:transparent;border:0;box-shadow:none}.qpop .qotd{box-shadow:0 20px 50px rgba(0,0,0,.5);background:var(--bg2)}
+@keyframes qbob{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-5px) rotate(-3deg)}60%{transform:translateY(-1px) rotate(2deg)}}
+@keyframes qhop{0%,88%,100%{transform:translateY(0)}92%{transform:translateY(-4px)}96%{transform:translateY(0)}}
+@keyframes qin{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+@media (max-width:1100px){.hero{grid-template-columns:auto 1fr}.qslot{grid-column:1/-1;width:100%;max-width:560px}}
+@media (max-width:820px){.hero{grid-template-columns:1fr}.qslot{justify-self:center;text-align:left}}
+@media (prefers-reduced-motion:reduce){.qst.talk,.qbtn .qst,.qrow.r{animation:none}}
+@media (max-width:400px){#qwrap{display:none}}
