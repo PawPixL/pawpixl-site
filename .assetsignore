@@ -5,3 +5,5 @@ wrangler.jsonc
 README.md
 supabase.sql
 node_modules
+worker.js
+_stats
