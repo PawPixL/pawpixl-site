@@ -55,5 +55,10 @@
  "auth": {},
  "announcement": "NEWS New Mitya + Valeriy guides are live ✦ NEXT STREAM 4PM EST",
  "url": "https://pawpixl.com",
- "stats": true
+ "stats": true,
+ "donate": {
+  "url": "https://ko-fi.com/pawpixl",
+  "label": "",
+  "text": "PawPixl guides will always be free. If you'd like to help support the site and future guides, you can toss a little something into the adventure fund. ♡"
+ }
 }
