@@ -185,3 +185,8 @@ footer .row{justify-content:space-between}
 .tstats span{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
 @media (max-width:820px){.tstats{grid-template-columns:repeat(2,1fr)}.tstats .ts:nth-child(3){border-left:0}.tstats .ts:nth-child(n+3){border-top:1px solid var(--line)}}
 @media (max-width:380px){.tstats .ts{padding:10px 12px}.tstats b{font-size:22px}.tstats span{font-size:9.5px}}
+
+/* support link: small and quiet, at the very bottom of the home page */
+.fund{text-align:center;margin:30px auto 0;max-width:520px}
+.fund p{margin:0 0 12px;color:var(--mut);font-size:13.5px;line-height:1.6}
+.fund .btn{height:40px;padding:0 18px;font-size:14px;border-radius:999px}
