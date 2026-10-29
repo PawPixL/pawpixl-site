@@ -190,3 +190,8 @@ footer .row{justify-content:space-between}
 .fund{text-align:center;margin:30px auto 0;max-width:520px}
 .fund p{margin:0 0 12px;color:var(--mut);font-size:13.5px;line-height:1.6}
 .fund .btn{height:40px;padding:0 18px;font-size:14px;border-radius:999px}
+
+.fundpic{width:148px;height:148px;margin:20px auto 0;border-radius:50%;padding:4px;background:conic-gradient(from 210deg,#18c9a0,#8ff5d6,#e2fff6,#8ff5d6,#18c9a0);box-shadow:0 0 28px rgba(24,201,160,.35)}
+.fundpic img{display:block;width:100%;height:100%;border-radius:50%;object-fit:contain;padding:8px;background:radial-gradient(circle at 50% 40%,rgba(143,245,214,.45),rgba(24,201,160,.22) 45%,#0b1a1c 78%);animation:fundfloat 4.5s ease-in-out infinite}
+@keyframes fundfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@media (prefers-reduced-motion:reduce){.fundpic img{animation:none}}
