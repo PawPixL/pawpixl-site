@@ -40,13 +40,6 @@
     "theatre",
     "schedule"
    ]
-  },
-  {
-   "id": "wuwa",
-   "name": "Wuthering Waves",
-   "short": "WuWa",
-   "status": "soon",
-   "el": "Electro"
   }
  ],
  "auth": {},
