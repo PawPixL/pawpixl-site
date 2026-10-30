@@ -14,7 +14,7 @@
   --bg:#080a14; --bg2:#0d1120; --glass:rgba(13,17,32,.72); --line:rgba(255,255,255,.12); --line2:rgba(255,255,255,.2);
   --tx:#eef1fa; --mut:#9aa3bd; --dim:#6d7591;
   --e0:#1e6fff; --e1:#5fd8ff; --e2:#c9f4ff;
-  --new:#ff5f9e; --good:#5fd98f;
+  --new:#d6286f; --good:#5fd98f;
   --display:Anton,Impact,'Arial Narrow',sans-serif; --body:Poppins,system-ui,-apple-system,'Segoe UI',sans-serif;
   --r:18px; color-scheme:dark;
 }
@@ -125,12 +125,12 @@ a.char:hover{background:rgba(255,255,255,.05);border-color:var(--line)}
 .char b{font-size:13.5px;font-weight:700;text-align:center;line-height:1.2}
 .char.off{cursor:default}
 .char.off .pic{filter:grayscale(1) brightness(.55);border-color:rgba(255,255,255,.15);box-shadow:none}
-.char.off b{color:var(--dim)}
+.char.off b{color:var(--mut)}
 .char .chip{position:absolute;top:2px;right:6px;font-size:9.5px;padding:4px 7px}
 .char .fav{position:absolute;top:4px;left:8px;color:var(--new)}
 .elgroup{margin-bottom:22px}
-.elgroup h3{display:flex;align-items:center;gap:10px;font:400 22px/1 var(--display);text-transform:uppercase;margin:0 0 10px;color:var(--c2)}
-.elgroup h3 small{font:600 13px var(--body);color:var(--mut);text-transform:none}
+.elgroup h2{display:flex;align-items:center;gap:10px;font:400 22px/1 var(--display);text-transform:uppercase;margin:0 0 10px;color:var(--c2)}
+.elgroup h2 small{font:600 13px var(--body);color:var(--mut);text-transform:none}
 
 /* viewer */
 .view{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:22px;align-items:start}
@@ -283,3 +283,29 @@ footer .row{justify-content:space-between}
 .hero .hsoc .soc{flex:none}
 @media (max-width:1100px){.hero .qslot{grid-row:auto;grid-column:1/-1}.hero .hsoc{grid-column:1/-1;flex-wrap:wrap}}
 @media (max-width:820px){.hero .hsoc{grid-column:1;grid-row:3;justify-content:center}.hero .qslot{grid-row:4}}
+
+/* The Paw Post sign-up, tucked under the Line of the Day */
+#qbox:empty{display:none}
+.nl{margin-top:12px;border:1px solid var(--line);border-radius:16px;background:var(--glass);overflow:hidden}
+.nl-t{display:flex;align-items:center;gap:12px;width:100%;padding:11px 14px;border:0;background:none;color:var(--tx);font:inherit;text-align:left;cursor:pointer}
+.nl-t:hover{background:rgba(255,255,255,.04)}
+.nl-t:focus-visible{outline:2px solid var(--e1);outline-offset:-2px;border-radius:16px}
+.nl-t>span:nth-child(2){flex:1;min-width:0;display:flex;flex-direction:column}
+.nl-t b{font-size:14px;line-height:1.2}
+.nl-t small{font-size:12px;color:var(--mut)}
+.nl-t>i{font-style:normal;font-weight:700;font-size:18px;color:var(--mut);transition:transform .2s}
+.nl.open .nl-t>i{transform:rotate(45deg)}
+.nl-i{flex:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--e1);background:color-mix(in srgb,var(--e1) 14%,transparent)}
+.nl-i svg{width:17px;height:17px}
+.nl-f{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px}
+.nl-f input[type=email]{height:42px;border-radius:10px;border:1px solid var(--line2);background:rgba(9,12,24,.6);color:var(--tx);padding:0 12px;font:inherit;font-size:14px}
+.nl-f input[type=email]:focus{outline:2px solid var(--e1);outline-offset:0}
+.nl-f fieldset{border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.nl-f legend{font-size:12px;color:var(--mut);margin-bottom:6px;padding:0}
+.nl-f fieldset label{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;cursor:pointer}
+.nl-f fieldset input{accent-color:var(--e1);margin:0}
+.nl-go{align-self:flex-start;height:40px}
+.nl-n{font-size:11.5px;color:var(--mut)}
+.nl-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.nl-st{margin:0;padding:0 14px 12px;font-size:13px;color:var(--e2)}
+.nl-st.bad{color:#ff8a95}
