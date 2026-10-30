@@ -246,3 +246,9 @@ footer .row{justify-content:space-between}
 .banner .sep{font-style:normal;color:var(--e1);opacity:.7;font-size:12px}
 @keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){.banner.tick .ttrack{animation:none;flex-wrap:wrap;white-space:normal;width:auto}.banner .dup,.banner .dup+.sep{display:none}.banner.tick .tview{-webkit-mask-image:none;mask-image:none}}
+
+/* home: game picker and stream schedule side by side, each with its own heading */
+.picks{display:flex;flex-wrap:wrap;gap:16px 24px;align-items:stretch}
+.picks .pgroup{flex:1 1 300px;min-width:0;display:flex;flex-direction:column}
+.picks .pgroup .games{flex:1}
+.picks .pgroup .games>.game{height:100%}
