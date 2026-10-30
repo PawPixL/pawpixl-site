@@ -267,3 +267,12 @@ footer .row{justify-content:space-between}
 @keyframes livepulse{0%{box-shadow:0 0 0 0 #e5304f88}70%{box-shadow:0 0 0 10px #e5304f00}100%{box-shadow:0 0 0 0 #e5304f00}}
 @media (max-width:480px){.livepill{margin-left:6px;padding:0 9px;font-size:11px}}
 @media (prefers-reduced-motion:reduce){.livepill.on{animation:none}}
+
+/* compact hero: photo sits beside the big name, links right underneath, ticker follows closely */
+.hero{align-items:start;padding-block:30px 0;row-gap:18px}
+.hero .avatar{margin-top:4px}
+.hero h1{margin:0}
+.hero .socials{margin-top:14px}
+.hero+.banner,.hero~.banner{margin-top:16px}
+@media (min-width:821px){.hero .avatar{width:132px;height:132px}}
+@media (max-width:820px){.hero{padding-top:22px}}
