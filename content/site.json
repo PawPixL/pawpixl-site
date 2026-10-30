@@ -66,5 +66,8 @@
   "items": [],
   "stickers": {}
  },
- "ticker": true
+ "ticker": true,
+ "news": {
+  "on": true
+ }
 }
