@@ -286,7 +286,7 @@ footer .row{justify-content:space-between}
 
 /* The Paw Post sign-up, tucked under the Line of the Day */
 #qbox:empty{display:none}
-.nl{margin-top:12px;border:1px solid var(--line);border-radius:16px;background:var(--glass);overflow:hidden}
+.nl{position:relative;margin-top:12px;border:1px solid var(--line);border-radius:16px;background:var(--glass)}
 .nl-t{display:flex;align-items:center;gap:12px;width:100%;padding:11px 14px;border:0;background:none;color:var(--tx);font:inherit;text-align:left;cursor:pointer}
 .nl-t:hover{background:rgba(255,255,255,.04)}
 .nl-t:focus-visible{outline:2px solid var(--e1);outline-offset:-2px;border-radius:16px}
@@ -297,6 +297,9 @@ footer .row{justify-content:space-between}
 .nl.open .nl-t>i{transform:rotate(45deg)}
 .nl-i{flex:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--e1);background:color-mix(in srgb,var(--e1) 14%,transparent)}
 .nl-i svg{width:17px;height:17px}
+/* the form opens as a floating panel, so the page layout never moves */
+.nl-pop{position:absolute;left:-1px;right:-1px;top:calc(100% + 8px);z-index:30;border:1px solid var(--line2);border-radius:16px;background:#0d1122;box-shadow:0 18px 50px rgba(0,0,0,.55);padding-top:12px}
+.nl-pop[hidden]{display:none}
 .nl-f{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px}
 .nl-f input[type=email]{height:42px;border-radius:10px;border:1px solid var(--line2);background:rgba(9,12,24,.6);color:var(--tx);padding:0 12px;font:inherit;font-size:14px}
 .nl-f input[type=email]:focus{outline:2px solid var(--e1);outline-offset:0}
@@ -307,5 +310,5 @@ footer .row{justify-content:space-between}
 .nl-go{align-self:flex-start;height:40px}
 .nl-n{font-size:11.5px;color:var(--mut)}
 .nl-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
-.nl-st{margin:0;padding:0 14px 12px;font-size:13px;color:var(--e2)}
+.nl-st{margin:0;padding:0 14px 14px;font-size:13px;color:var(--e2)}
 .nl-st.bad{color:#ff8a95}

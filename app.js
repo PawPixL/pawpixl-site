@@ -200,19 +200,22 @@ const qkey=n=>String(n||'').toLowerCase().replace(/[^a-z0-9]/g,'');
 /* ---------- The Paw Post: email sign-up under the Line of the Day ---------- */
 const newsOn=()=>!!(S.site.news&&S.site.news.on);
 const NEWS_T=[['schedule','Stream schedule'],['builds','New builds'],['guides','Endgame guides']];
-function newsBox(){const N=S.site.news||{};return'<div class="nl" id="nl"><button class="nl-t" type="button" aria-expanded="false" aria-controls="nlf"><span class="nl-i" aria-hidden="true">'+svg('mail')+'</span><span><b>'+esc(N.title||'The Paw Post')+'</b><small>Schedules, builds &amp; guides by email</small></span><i aria-hidden="true">+</i></button>'
- +'<form class="nl-f" id="nlf" hidden novalidate><label class="sr" for="nle">Email address</label><input type="email" id="nle" required autocomplete="email" placeholder="you@email.com" maxlength="254">'
+function newsBox(){const N=S.site.news||{};return'<div class="nl" id="nl"><button class="nl-t" type="button" aria-expanded="false" aria-controls="nlp"><span class="nl-i" aria-hidden="true">'+svg('mail')+'</span><span><b>'+esc(N.title||'The Paw Post')+'</b><small>Schedules, builds &amp; guides by email</small></span><i aria-hidden="true">+</i></button>'
+ +'<div class="nl-pop" id="nlp" hidden><form class="nl-f" id="nlf" novalidate><label class="sr" for="nle">Email address</label><input type="email" id="nle" required autocomplete="email" placeholder="you@email.com" maxlength="254">'
  +'<input class="nl-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">'
  +'<fieldset><legend>Send me</legend>'+NEWS_T.map(([k,v])=>'<label><input type="checkbox" value="'+k+'" checked> '+v+'</label>').join('')+'</fieldset>'
- +'<button class="btn nl-go" type="submit">Sign up</button><small class="nl-n">You’ll get one email to confirm. Unsubscribe any time.</small></form><p class="nl-st" role="status" hidden></p></div>'}
-function wireNews(){const box=$('#nl');if(!box)return;const t=box.querySelector('.nl-t'),f=box.querySelector('form'),st=box.querySelector('.nl-st'),say=(m,bad)=>{st.hidden=false;st.textContent=m;st.classList.toggle('bad',!!bad)};
- t.onclick=()=>{const o=f.hidden;f.hidden=!o;t.setAttribute('aria-expanded',String(o));box.classList.toggle('open',o);if(o)setTimeout(()=>$('#nle').focus(),30)};
+ +'<button class="btn nl-go" type="submit">Sign up</button><small class="nl-n">You’ll get one email to confirm. Unsubscribe any time.</small></form><p class="nl-st" role="status" hidden></p></div></div>'}
+function wireNews(){const box=$('#nl');if(!box)return;const t=box.querySelector('.nl-t'),pop=$('#nlp'),f=box.querySelector('form'),st=box.querySelector('.nl-st'),say=(m,bad)=>{st.hidden=false;st.textContent=m;st.classList.toggle('bad',!!bad)};
+ const show=o=>{pop.hidden=!o;t.setAttribute('aria-expanded',String(o));box.classList.toggle('open',o)};
+ t.onclick=()=>{const o=pop.hidden;show(o);if(o&&!f.hidden)setTimeout(()=>$('#nle').focus(),30)};
+ if(window.__nlOut)document.removeEventListener('click',window.__nlOut);window.__nlOut=e=>{if(!pop.hidden&&!box.contains(e.target))show(false)};document.addEventListener('click',window.__nlOut);
+ box.addEventListener('keydown',e=>{if(e.key==='Escape'&&!pop.hidden){show(false);t.focus()}});
  f.onsubmit=async e=>{e.preventDefault();const email=$('#nle').value.trim(),topics=[...f.querySelectorAll('fieldset input:checked')].map(x=>x.value);
   if(!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)){say('Please type a valid email address.',true);$('#nle').focus();return}
   if(!topics.length){say('Tick at least one thing to get.',true);return}
   const go=f.querySelector('.nl-go');go.disabled=true;say('Signing you up…');
   try{const r=await fetch('/api/news/subscribe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email,topics,website:f.querySelector('.nl-hp').value})});const j=await r.json().catch(()=>({}));
-   if(r.ok&&j.ok){f.hidden=true;t.setAttribute('aria-expanded','false');box.classList.remove('open');say('Almost done! Check your inbox for '+email+' and tap the confirm button.')}
+   if(r.ok&&j.ok){f.hidden=true;say('Almost done! Check your inbox for '+email+' and tap the confirm button.')}
    else say(j.error==='email'?'That email address doesn’t look right.':j.error==='not-ready'?'Email updates aren’t switched on yet. Please try again later.':j.error==='busy'?'Lots of sign-ups today. Please try again tomorrow.':'Couldn’t sign you up right now. Please try again later.',true)}
   catch(x){say('Couldn’t sign you up right now. Please try again later.',true)}go.disabled=false}}
 const qOn=()=>((S.site.quotes||{}).mode||'mix')!=='off';
