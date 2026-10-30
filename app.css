@@ -252,3 +252,7 @@ footer .row{justify-content:space-between}
 .picks .pgroup{flex:1 1 300px;min-width:0;display:flex;flex-direction:column}
 .picks .pgroup .games{flex:1}
 .picks .pgroup .games>.game{height:100%}
+
+/* Fresh off the stream: two even rows of 5 on desktop, 2 across on phones */
+.feed.f10{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media (max-width:720px){.feed.f10{grid-template-columns:repeat(2,minmax(0,1fr))}}
