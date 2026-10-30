@@ -256,3 +256,14 @@ footer .row{justify-content:space-between}
 /* Fresh off the stream: two even rows of 5 on desktop, 2 across on phones */
 .feed.f10{grid-template-columns:repeat(5,minmax(0,1fr))}
 @media (max-width:720px){.feed.f10{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* LIVE NOW pill next to the logo */
+.livepill{display:inline-flex;align-items:center;gap:7px;margin-left:10px;height:30px;padding:0 12px;border-radius:999px;font:800 12px var(--body);letter-spacing:.1em;text-decoration:none;color:#fff;white-space:nowrap}
+.livepill i{width:8px;height:8px;border-radius:50%;background:#fff}
+.livepill.on{background:#e5304f;box-shadow:0 0 0 0 #e5304f88;animation:livepulse 1.8s ease-out infinite}
+.livepill.soon{background:rgba(255,255,255,.08);border:1px solid #f0a31a;color:#ffd58a}.livepill.soon i{background:#f0a31a}
+.livepill:hover{filter:brightness(1.1)}
+.banner .chip.livechip{background:#e5304f;color:#fff}
+@keyframes livepulse{0%{box-shadow:0 0 0 0 #e5304f88}70%{box-shadow:0 0 0 10px #e5304f00}100%{box-shadow:0 0 0 0 #e5304f00}}
+@media (max-width:480px){.livepill{margin-left:6px;padding:0 9px;font-size:11px}}
+@media (prefers-reduced-motion:reduce){.livepill.on{animation:none}}
