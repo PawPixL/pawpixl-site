@@ -224,3 +224,25 @@ footer .row{justify-content:space-between}
 @media (max-width:820px){.hero{grid-template-columns:1fr}.qslot{justify-self:center;text-align:left}}
 @media (prefers-reduced-motion:reduce){.qst.talk,.qbtn .qst,.qrow.r{animation:none}}
 @media (max-width:400px){#qwrap{display:none}}
+
+/* schedule tile in the game picker: the latest schedule image peeks in from the right */
+.game.sched{overflow:hidden}
+.game.sched .sbg{position:absolute;inset:0 0 0 45%;background:center top/cover no-repeat;opacity:.55;-webkit-mask-image:linear-gradient(90deg,transparent,#000 55%);mask-image:linear-gradient(90deg,transparent,#000 55%);opacity:.38;transition:opacity .2s,transform .3s}
+.game.sched:hover .sbg{opacity:.6;transform:scale(1.03)}
+.game.sched .disp,.game.sched .meta,.game.sched .chip{position:relative;z-index:1}.game.sched .disp,.game.sched .meta{text-shadow:0 2px 12px rgba(0,0,0,.85)}
+.game.sched .chip{position:absolute}
+
+/* scrolling news ticker */
+.banner .tview{flex:1;min-width:0;overflow:hidden;position:relative}
+.banner.tick .tview{-webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+.banner .ttrack{display:flex;align-items:center;gap:18px;white-space:nowrap;width:max-content}
+.banner.tick .ttrack{animation:tick var(--dur,30s) linear infinite}
+.banner.tick:hover .ttrack,.banner.tick:focus-within .ttrack{animation-play-state:paused}
+.banner .dup{display:contents}
+.banner .ti{color:var(--tx);text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.banner a.ti:hover{color:var(--e1)}
+.banner .ti b{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--e1);border:1px solid color-mix(in srgb,var(--e1) 45%,transparent);border-radius:999px;padding:2px 8px}
+.banner .ti b.live{color:#fff;background:var(--new);border-color:var(--new)}
+.banner .sep{font-style:normal;color:var(--e1);opacity:.7;font-size:12px}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.banner.tick .ttrack{animation:none;flex-wrap:wrap;white-space:normal;width:auto}.banner .dup,.banner .dup+.sep{display:none}.banner.tick .tview{-webkit-mask-image:none;mask-image:none}}
