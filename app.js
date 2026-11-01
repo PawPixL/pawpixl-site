@@ -10,10 +10,186 @@ const SECT={builds:{t:'Character Builds',s:'Builds',d:'Weapons, artifacts, stats
  schedule:{t:'Stream Schedule',s:'Schedule',d:'When I’m live this week.'}};
 const SORDER=['builds','abyss','stygian','theatre','schedule'];
 const LANGS={en:'English',fr:'Français',es:'Español',ja:'日本語',zh:'中文'};
+/* ---------- site language: the picker at the top changes the site's own text, not just the cards ---------- */
+/* [English, Français, Español, 日本語, 中文] */
+const TR_ROWS=[
+['Character Builds','Builds de personnages','Builds de personajes','キャラクター育成','角色配装'],
+['Character builds','Builds de personnages','Builds de personajes','キャラクター育成','角色配装'],
+['Builds','Builds','Builds','育成','配装'],
+['Build','Build','Build','育成','配装'],
+['Spiral Abyss','Abîme spiralé','Abismo de Espiral','深境螺旋','深境螺旋'],
+['Abyss','Abîme','Abismo','深境螺旋','深渊'],
+['Stygian Onslaught','Assaut stygien','Asalto Estigio','幽境の激戦','幽境危战'],
+['Stygian','Stygien','Estigio','幽境','幽境'],
+['Imaginarium Theater','Théâtre Imaginarium','Teatro Imaginarium','幻想シアター','幻想真境剧诗'],
+['Theater','Théâtre','Teatro','シアター','剧诗'],
+['Stream Schedule','Horaires des lives','Horario de directos','配信スケジュール','直播时间表'],
+['Stream schedule','Horaires des lives','Horario de directos','配信スケジュール','直播时间表'],
+['Schedule','Horaires','Horario','スケジュール','时间表'],
+['Weapons, artifacts, stats, talents and teams for every character I cover.','Armes, artefacts, stats, aptitudes et équipes pour chaque personnage que je couvre.','Armas, artefactos, estadísticas, talentos y equipos para cada personaje que cubro.','私が扱う全キャラの武器・聖遺物・ステータス・天賦・編成。','我介绍的每个角色的武器、圣遗物、属性、天赋和配队。'],
+['Floor 12 bosses, mechanics and teams for each cycle.','Boss, mécaniques et équipes de l’étage 12 à chaque cycle.','Jefes, mecánicas y equipos del piso 12 en cada ciclo.','各期の第12層のボス・ギミック・編成。','每期第12层的首领、机制和配队。'],
+['Boss breakdowns and team picks for each Stygian run.','Analyse des boss et choix d’équipes pour chaque Assaut stygien.','Análisis de jefes y equipos para cada Asalto Estigio.','幽境の激戦ごとのボス解説とおすすめ編成。','每期幽境危战的首领解析和配队推荐。'],
+['Season cast, elements, bosses and suggested characters.','Distribution, éléments, boss et personnages conseillés de la saison.','Elenco, elementos, jefes y personajes recomendados de la temporada.','シーズンの出演キャラ・元素・ボス・おすすめキャラ。','本期演员、元素、首领和推荐角色。'],
+['When I’m live this week.','Quand je suis en live cette semaine.','Cuándo estoy en directo esta semana.','今週の配信予定。','本周直播时间。'],
+['Download slide','Télécharger l’image','Descargar imagen','この画像を保存','下载此图'],
+['Download all','Tout télécharger','Descargar todo','すべて保存','全部下载'],
+['Share','Partager','Compartir','共有','分享'],
+['Favorite','Favori','Favorito','お気に入り','收藏'],
+['Favorited','En favori','En favoritos','お気に入り済み','已收藏'],
+['Favorites','Favoris','Favoritos','お気に入り','收藏'],
+['Current','Actuel','Actual','開催中','当前'],
+['Archive','Archives','Archivo','アーカイブ','往期'],
+['New','Nouveau','Nuevo','NEW','新'],
+['Latest','Dernier','Último','最新','最新'],
+['See the current one →','Voir l’actuel →','Ver el actual →','開催中のものを見る →','查看当前 →'],
+['Fresh off the stream','Tout juste sorti du live','Recién salido del directo','配信から出来たて','直播新鲜出炉'],
+['Recently updated','Mis à jour récemment','Actualizado recientemente','最近の更新','最近更新'],
+['New builds','Nouveaux builds','Nuevos builds','新しい育成','新配装'],
+['Endgame guides','Guides de fin de jeu','Guías de endgame','エンドコンテンツ攻略','终局攻略'],
+['Choose your game','Choisis ton jeu','Elige tu juego','ゲームを選択','选择游戏'],
+['Guides & builds','Guides et builds','Guías y builds','攻略と育成','攻略与配装'],
+['Gaming builds & guides','Builds et guides de jeux','Builds y guías de juegos','ゲームの育成と攻略','游戏配装与攻略'],
+['Live','Live','Directo','配信','直播'],
+['Live now','En live','En directo','配信中','直播中'],
+['Live today','En live aujourd’hui','En directo hoy','今日配信','今天直播'],
+['LIVE NOW','EN LIVE','EN DIRECTO','配信中','直播中'],
+['Up next','À venir','A continuación','次の配信','即将开始'],
+['Coming up','Bientôt','Próximamente','近日','即将到来'],
+['Coming soon','Bientôt disponible','Muy pronto','近日公開','即将推出'],
+['This week','Cette semaine','Esta semana','今週','本周'],
+['Today','Aujourd’hui','Hoy','今日','今天'],
+['Tomorrow','Demain','Mañana','明日','明天'],
+['Yesterday','Hier','Ayer','昨日','昨天'],
+['Earlier','Plus tôt','Antes','以前','更早'],
+['All','Tout','Todos','すべて','全部'],
+['Other','Autre','Otro','その他','其他'],
+['Only show characters with a card','Afficher seulement les personnages avec une fiche','Mostrar solo personajes con tarjeta','カードのあるキャラのみ表示','只显示有卡片的角色'],
+['Search characters','Rechercher un personnage','Buscar personajes','キャラを検索','搜索角色'],
+['Filter by element','Filtrer par élément','Filtrar por elemento','元素で絞り込む','按元素筛选'],
+['No matches','Aucun résultat','Sin resultados','該当なし','没有结果'],
+['Try another element or name.','Essaie un autre élément ou nom.','Prueba otro elemento o nombre.','別の元素か名前を試してください。','试试其他元素或名字。'],
+['← All characters','← Tous les personnages','← Todos los personajes','← キャラ一覧','← 全部角色'],
+['Version history','Historique des versions','Historial de versiones','バージョン履歴','版本记录'],
+['Older version','Ancienne version','Versión anterior','以前のバージョン','旧版本'],
+['No slides in this language.','Pas d’images dans cette langue.','No hay imágenes en este idioma.','この言語の画像はありません。','没有此语言的图片。'],
+['Nothing here yet','Rien pour l’instant','Aún no hay nada','まだありません','暂无内容'],
+['The current one shows up here as soon as it’s published.','L’actuel apparaîtra ici dès sa publication.','El actual aparecerá aquí en cuanto se publique.','公開されるとここに表示されます。','发布后会显示在这里。'],
+['Nothing published yet','Rien de publié pour l’instant','Aún no hay nada publicado','まだ公開されていません','尚未发布'],
+['No guides yet','Pas encore de guides','Aún no hay guías','まだ攻略はありません','暂无攻略'],
+['Guides on the way','Guides en préparation','Guías en camino','攻略を準備中','攻略制作中'],
+['Check back soon.','Reviens bientôt.','Vuelve pronto.','また見に来てね。','请稍后再来。'],
+['New builds and guides show up here the moment they’re published.','Les nouveaux builds et guides apparaissent ici dès leur publication.','Los nuevos builds y guías aparecen aquí en cuanto se publican.','新しい育成や攻略は公開されるとすぐここに表示されます。','新配装和攻略发布后会立即出现在这里。'],
+['Character list not set up yet','Liste des personnages pas encore prête','Lista de personajes aún no configurada','キャラ一覧はまだ準備中です','角色列表尚未设置'],
+['It appears here once it’s synced from PawPixl Studio.','Elle apparaîtra ici une fois synchronisée depuis PawPixl Studio.','Aparecerá aquí cuando se sincronice desde PawPixl Studio.','PawPixl Studioから同期されるとここに表示されます。','从 PawPixl Studio 同步后会显示在这里。'],
+['That page isn’t here','Cette page n’existe pas','Esta página no existe','ページが見つかりません','页面不存在'],
+['Go to the home page','Aller à l’accueil','Ir al inicio','ホームへ','返回首页'],
+['Not found','Introuvable','No encontrado','見つかりません','未找到'],
+['Sign in','Se connecter','Iniciar sesión','ログイン','登录'],
+['Sign out','Se déconnecter','Cerrar sesión','ログアウト','退出登录'],
+['Sign up','S’inscrire','Suscribirse','登録','订阅'],
+['Your account','Ton compte','Tu cuenta','アカウント','你的账户'],
+['Account','Compte','Cuenta','アカウント','账户'],
+['Free account','Compte gratuit','Cuenta gratuita','無料アカウント','免费账户'],
+['Welcome back','Bon retour','Bienvenido de nuevo','おかえりなさい','欢迎回来'],
+['Optional. Save favorites and get a heads-up when they’re updated, on any device.','Facultatif. Garde tes favoris et sois prévenu quand ils sont mis à jour, sur tous tes appareils.','Opcional. Guarda favoritos y recibe aviso cuando se actualicen, en cualquier dispositivo.','任意です。お気に入りを保存し、更新時にどの端末でも通知を受け取れます。','可选。保存收藏，并在更新时于任何设备上收到提醒。'],
+['Continue with Google','Continuer avec Google','Continuar con Google','Googleで続ける','使用 Google 继续'],
+['Or get a sign-in link by email','Ou reçois un lien de connexion par e-mail','O recibe un enlace de acceso por correo','またはメールでログインリンクを受け取る','或通过邮件获取登录链接'],
+['Email me a link','M’envoyer un lien','Envíame un enlace','リンクを送信','发送链接给我'],
+['Check your email for a sign-in link','Vérifie tes e-mails pour le lien de connexion','Revisa tu correo para el enlace de acceso','ログインリンクをメールで確認してください','请查收邮件中的登录链接'],
+['Couldn’t send the link. Try again in a few minutes.','Impossible d’envoyer le lien. Réessaie dans quelques minutes.','No se pudo enviar el enlace. Inténtalo en unos minutos.','リンクを送信できませんでした。数分後にもう一度お試しください。','无法发送链接，请几分钟后再试。'],
+['Accounts aren’t switched on yet.','Les comptes ne sont pas encore activés.','Las cuentas aún no están activadas.','アカウント機能はまだ有効になっていません。','账户功能尚未开启。'],
+['Accounts unavailable','Comptes indisponibles','Cuentas no disponibles','アカウントは利用できません','账户不可用'],
+['You can still browse and download everything.','Tu peux toujours tout consulter et télécharger.','Aún puedes ver y descargar todo.','すべての閲覧とダウンロードは引き続き可能です。','你仍然可以浏览和下载所有内容。'],
+['Tap Favorite on any build or guide and it shows up here, with alerts when it’s updated.','Appuie sur Favori sur un build ou un guide pour le retrouver ici, avec une alerte à chaque mise à jour.','Pulsa Favorito en cualquier build o guía y aparecerá aquí, con avisos cuando se actualice.','育成や攻略でお気に入りを押すとここに表示され、更新時に通知されます。','在任意配装或攻略上点击收藏，它就会出现在这里，并在更新时提醒你。'],
+['Delete my saved data','Supprimer mes données','Borrar mis datos guardados','保存データを削除','删除我保存的数据'],
+['Click again to delete','Clique à nouveau pour supprimer','Haz clic de nuevo para borrar','もう一度クリックで削除','再次点击以删除'],
+['Your saved data was deleted','Tes données ont été supprimées','Tus datos se han borrado','保存データを削除しました','已删除你保存的数据'],
+['Added to favorites','Ajouté aux favoris','Añadido a favoritos','お気に入りに追加しました','已加入收藏'],
+['Added to favorites on this device. Sign in to keep them everywhere.','Ajouté aux favoris sur cet appareil. Connecte-toi pour les garder partout.','Añadido a favoritos en este dispositivo. Inicia sesión para tenerlos en todas partes.','この端末のお気に入りに追加しました。ログインするとどこでも使えます。','已在此设备上收藏。登录后可在所有设备同步。'],
+['Removed from favorites','Retiré des favoris','Quitado de favoritos','お気に入りから削除しました','已取消收藏'],
+['Link copied','Lien copié','Enlace copiado','リンクをコピーしました','链接已复制'],
+['Copy this link','Copie ce lien','Copia este enlace','このリンクをコピー','复制此链接'],
+['Preparing download…','Préparation du téléchargement…','Preparando la descarga…','ダウンロードを準備中…','正在准备下载…'],
+['What’s new','Quoi de neuf','Novedades','新着','最新动态'],
+['New since your last visit','Nouveau depuis ta dernière visite','Nuevo desde tu última visita','前回の訪問以降の新着','自上次访问以来的新内容'],
+['You’re all caught up','Tu es à jour','Estás al día','すべて確認済みです','你已全部看完'],
+['Mark all as seen','Tout marquer comme vu','Marcar todo como visto','すべて既読にする','全部标为已读'],
+['News','Actus','Noticias','ニュース','动态'],
+['The Paw Post','The Paw Post','The Paw Post','The Paw Post','The Paw Post'],
+['Schedules, builds & guides by email','Horaires, builds et guides par e-mail','Horarios, builds y guías por correo','スケジュール・育成・攻略をメールで','通过邮件接收时间表、配装和攻略'],
+['Send me','Envoie-moi','Envíame','受け取る内容','给我发送'],
+['Email address','Adresse e-mail','Correo electrónico','メールアドレス','邮箱地址'],
+['You’ll get one email to confirm. Unsubscribe any time.','Tu recevras un e-mail de confirmation. Désinscription à tout moment.','Recibirás un correo para confirmar. Puedes darte de baja cuando quieras.','確認メールが1通届きます。いつでも配信停止できます。','你会收到一封确认邮件，可随时退订。'],
+['Signing you up…','Inscription en cours…','Suscribiéndote…','登録中…','正在订阅…'],
+['Please type a valid email address.','Merci d’entrer une adresse e-mail valide.','Escribe un correo electrónico válido.','有効なメールアドレスを入力してください。','请输入有效的邮箱地址。'],
+['That email address doesn’t look right.','Cette adresse e-mail semble incorrecte.','Ese correo no parece correcto.','そのメールアドレスは正しくないようです。','这个邮箱地址似乎不正确。'],
+['Tick at least one thing to get.','Coche au moins un élément.','Marca al menos una opción.','少なくとも1つ選んでください。','请至少勾选一项。'],
+['Couldn’t sign you up right now. Please try again later.','Inscription impossible pour le moment. Réessaie plus tard.','No se pudo completar la suscripción. Inténtalo más tarde.','現在登録できません。後でもう一度お試しください。','暂时无法订阅，请稍后再试。'],
+['Lots of sign-ups today. Please try again tomorrow.','Beaucoup d’inscriptions aujourd’hui. Réessaie demain.','Muchas suscripciones hoy. Inténtalo mañana.','本日は登録が多いため、明日もう一度お試しください。','今天订阅人数较多，请明天再试。'],
+['Email updates aren’t switched on yet. Please try again later.','Les e-mails ne sont pas encore activés. Réessaie plus tard.','Las actualizaciones por correo aún no están activadas. Inténtalo más tarde.','メール配信はまだ有効になっていません。後でもう一度お試しください。','邮件更新尚未开启，请稍后再试。'],
+['Line of the day','Réplique du jour','Frase del día','今日のひとこと','今日台词'],
+['Show another line','Afficher une autre réplique','Mostrar otra frase','別のセリフを表示','换一句'],
+['Another one','Une autre','Otra','もう一つ','再来一句'],
+['Cyno’s joke of the day','La blague du jour de Cyno','El chiste del día de Cyno','セノの今日のジョーク','赛诺的今日冷笑话'],
+['Cyno’s joke','La blague de Cyno','El chiste de Cyno','セノのジョーク','赛诺的冷笑话'],
+['Card language','Langue','Idioma','言語','语言'],
+['Sections','Sections','Secciones','セクション','栏目'],
+['Next slide','Image suivante','Imagen siguiente','次の画像','下一张'],
+['Previous slide','Image précédente','Imagen anterior','前の画像','上一张'],
+['Privacy','Confidentialité','Privacidad','プライバシー','隐私'],
+['Your privacy','Ta confidentialité','Tu privacidad','プライバシーについて','你的隐私'],
+['You can browse and download everything here without an account.','Tu peux tout consulter et télécharger ici sans compte.','Puedes ver y descargar todo aquí sin cuenta.','アカウントなしですべて閲覧・ダウンロードできます。','无需账户即可浏览和下载这里的所有内容。'],
+['If you sign in, the site stores only your account email (or the Discord/Google account you chose), your favorites and the time you last checked for new posts, so it can show you what’s new. Nothing is sold or shared.','Si tu te connectes, le site enregistre seulement l’e-mail de ton compte (ou le compte Discord/Google choisi), tes favoris et l’heure de ta dernière visite des nouveautés, pour te montrer ce qui est nouveau. Rien n’est vendu ni partagé.','Si inicias sesión, el sitio solo guarda el correo de tu cuenta (o la cuenta de Discord/Google que elegiste), tus favoritos y la última vez que viste las novedades, para mostrarte lo nuevo. No se vende ni se comparte nada.','ログインすると、アカウントのメール（または選んだDiscord/Googleアカウント）、お気に入り、新着を最後に確認した日時だけを保存し、新着表示に使います。販売・共有は一切しません。','登录后，网站只会保存你的账户邮箱（或你选择的 Discord/Google 账户）、收藏以及上次查看新内容的时间，用来显示新内容。不会出售或分享任何信息。'],
+['Your language choice and last visit are also kept in your browser. You can delete your saved favorites and account data any time from the Account page.','Ton choix de langue et ta dernière visite sont aussi gardés dans ton navigateur. Tu peux supprimer tes favoris et données de compte à tout moment depuis la page Compte.','Tu idioma y tu última visita también se guardan en tu navegador. Puedes borrar tus favoritos y datos de cuenta cuando quieras desde la página Cuenta.','言語設定と最終訪問日時はブラウザにも保存されます。お気に入りとアカウントデータはアカウントページからいつでも削除できます。','你的语言选择和上次访问时间也保存在浏览器中。你可以随时在账户页面删除收藏和账户数据。'],
+['Visitor numbers are counted without cookies. The stats on the home page only add up totals (new visitors, guide views and which countries visitors come from); no IP addresses or personal details are stored.','Les visites sont comptées sans cookies. Les stats de l’accueil n’additionnent que des totaux (nouveaux visiteurs, vues des guides et pays d’origine) ; aucune adresse IP ni donnée personnelle n’est enregistrée.','Las visitas se cuentan sin cookies. Las estadísticas de inicio solo suman totales (visitantes nuevos, vistas de guías y países de origen); no se guardan IP ni datos personales.','訪問者数はCookieなしで集計しています。ホームの統計は合計値（新規訪問者、攻略の閲覧数、訪問国）のみで、IPアドレスや個人情報は保存しません。','访客数据不使用 Cookie 统计。首页统计只汇总总数（新访客、攻略浏览量和访客所在国家），不保存 IP 地址或个人信息。'],
+['Travelers Guided','Voyageurs guidés','Viajeros guiados','導いた旅人','已指引旅行者'],
+['Builds Consulted','Builds consultés','Builds consultados','閲覧された育成','配装浏览次数'],
+['Nations Reached','Nations atteintes','Naciones alcanzadas','届いた国','覆盖国家'],
+['Characters Built','Personnages couverts','Personajes creados','作成したキャラ','已制作角色'],
+['Anemo','Anémo','Anemo','風','风'],['Geo','Géo','Geo','岩','岩'],['Electro','Électro','Electro','雷','雷'],['Dendro','Dendro','Dendro','草','草'],['Hydro','Hydro','Hydro','水','水'],['Pyro','Pyro','Pyro','炎','火'],['Cryo','Cryo','Cryo','氷','冰'],
+['HYDRO','HYDRO','HYDRO','水','水']
+];
+const TR={fr:{},es:{},ja:{},zh:{}};TR_ROWS.forEach(r=>['fr','es','ja','zh'].forEach((l,i)=>{if(r[i+1])TR[l][r[0]]=r[i+1]}));
+const LOC={en:'en-US',fr:'fr-FR',es:'es-ES',ja:'ja-JP',zh:'zh-CN'};
+const T=s=>{const L=S.lang;if(!L||L==='en'||s==null)return s;const d=TR[L];return d&&d[s]!=null?d[s]:s};
+/* text that has numbers, names or dates inside it */
+const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Sept:8,Oct:9,Nov:10,Dec:11};
+function locDates(s){if(S.lang==='en')return s;return s.replace(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept?|Oct|Nov|Dec)[a-z]*\.? (\d{1,2})(?:, (\d{4}))?/g,(m,mo,d,y)=>{const dt=new Date(Date.UTC(+(y||2026),MON[mo.slice(0,3)]??MON[mo],+d,12));return dt.toLocaleDateString(LOC[S.lang],Object.assign({month:'short',day:'numeric',timeZone:'UTC'},y?{year:'numeric'}:{}))})
+ .replace(/\bSeason (\d+)/g,(m,n)=>({fr:'Saison '+n,es:'Temporada '+n,ja:'シーズン'+n,zh:'第'+n+'期'})[S.lang]||m)}
+const TRX=[
+ [/^Previous (.+)$/,{fr:(m,x)=>'Éditions précédentes · '+T(x),es:(m,x)=>'Ediciones anteriores · '+T(x),ja:(m,x)=>'過去の'+T(x),zh:(m,x)=>'往期'+T(x)}],
+ [/^(Imaginarium Theater|Spiral Abyss|Stygian Onslaught)\b(.*)$/,{fr:(m,a,b)=>T(a)+b,es:(m,a,b)=>T(a)+b,ja:(m,a,b)=>T(a)+b,zh:(m,a,b)=>T(a)+b}],
+ [/^(\d+) published$/,{fr:'$1 publiés',es:'$1 publicados',ja:'$1件公開',zh:'已发布 $1 篇'}],
+ [/^(\d+) of (\d+) characters$/,{fr:'$1 sur $2 personnages',es:'$1 de $2 personajes',ja:'$2人中$1人',zh:'$2 个角色中的 $1 个'}],
+ [/^(\d+) of (\d+) with cards$/,{fr:'$1 sur $2 avec fiche',es:'$1 de $2 con tarjeta',ja:'$2人中$1人がカードあり',zh:'$2 个中 $1 个有卡片'}],
+ [/^(\d+) of (\d+) characters have a card\. Greyed-out characters are on the way\.$/,{fr:'$1 personnages sur $2 ont une fiche. Les personnages grisés arrivent bientôt.',es:'$1 de $2 personajes tienen tarjeta. Los personajes en gris están en camino.',ja:'$2人中$1人にカードがあります。グレーのキャラは準備中です。',zh:'$2 个角色中有 $1 个已有卡片。灰色角色即将推出。'}],
+ [/^(\d+) guides and counting$/,{fr:'$1 guides et ce n’est pas fini',es:'$1 guías y contando',ja:'攻略$1件、まだまだ増加中',zh:'已有 $1 篇攻略，持续更新中'}],
+ [/^(\d+) days ago$/,{fr:'il y a $1 jours',es:'hace $1 días',ja:'$1日前',zh:'$1 天前'}],
+ [/^Posted (.+)$/,{fr:'Publié le $1',es:'Publicado el $1',ja:'$1 公開',zh:'发布于 $1'}],
+ [/^Updated (.+)$/,{fr:'Mis à jour le $1',es:'Actualizado el $1',ja:'$1 更新',zh:'更新于 $1'}],
+ [/^Live in (\d+) min$/,{fr:'Live dans $1 min',es:'Directo en $1 min',ja:'あと$1分で配信',zh:'$1 分钟后开播'}],
+ [/^Live now: (.+)$/,{fr:'En live : $1',es:'En directo: $1',ja:'配信中：$1',zh:'直播中：$1'}],
+ [/^Starting soon: (.+)$/,{fr:'Bientôt en live : $1',es:'Empieza pronto: $1',ja:'まもなく配信：$1',zh:'即将开播：$1'}],
+ [/^Build guide for (.+)$/,{fr:'Guide de build pour $1',es:'Guía de build de $1',ja:'$1の育成ガイド',zh:'$1 配装攻略'}],
+ [/^(.+) · (Imaginarium Theater|Spiral Abyss|Stygian Onslaught|Character Builds)$/,{fr:(m,a,b)=>T(a)+' · '+T(b),es:(m,a,b)=>T(a)+' · '+T(b),ja:(m,a,b)=>T(a)+' · '+T(b),zh:(m,a,b)=>T(a)+' · '+T(b)}],
+ [/^Showing ([^·(]+?)(?: \(not available in (.+?) yet\))?(?: · Also in: (.+))?$/,{fr:(m,a,b,c)=>'Affiché en '+a+(b?' (pas encore disponible en '+b+')':'')+(c?' · Aussi en : '+c:''),es:(m,a,b,c)=>'Mostrando en '+a+(b?' (aún no disponible en '+b+')':'')+(c?' · También en: '+c:''),ja:(m,a,b,c)=>a+'で表示中'+(b?'（'+b+'はまだありません）':'')+(c?' · 他の言語：'+c:''),zh:(m,a,b,c)=>'当前显示：'+a+(b?'（暂无'+b+'版本）':'')+(c?' · 其他语言：'+c:'')}],
+ [/^Almost done! Check your inbox for (.+)$/,{fr:'Presque fini ! Vérifie ta boîte mail : $1',es:'¡Casi listo! Revisa tu bandeja de entrada: $1',ja:'あと少し！$1 の受信箱を確認してください',zh:'就差一步！请查收 $1 的邮件'}]
+];
+function trText(s){if(S.lang==='en'||!s)return s;const k=s.trim();if(!k)return s;const pre=s.slice(0,s.indexOf(k[0])),post=s.slice(s.lastIndexOf(k[k.length-1])+1);
+ let r=TR[S.lang][k];if(r==null){for(const[re,m]of TRX){const f=m[S.lang];if(f&&re.test(k)){r=k.replace(re,f);break}}}
+ if(r==null){const d=locDates(k);if(d!==k)r=d}else r=locDates(r);return r==null?s:pre+r+post}
+/* walk the page: remember the English so switching back (or to another language) always starts from the original */
+function i18n(root){root=root||document.body;if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;
+ while((n=w.nextNode())){const p=n.parentElement;if(!p||p.closest('script,style,textarea,[data-nt],select'))continue;if(n.__en==null)n.__en=n.nodeValue;const v=trText(n.__en);if(n.nodeValue!==v)n.nodeValue=v}
+ (root.querySelectorAll?root.querySelectorAll('[aria-label],[placeholder],[title]'):[]).forEach(e=>{if(e.closest('[data-nt]'))return;['aria-label','placeholder','title'].forEach(a=>{if(!e.hasAttribute(a))return;const k='data-en-'+a;if(!e.hasAttribute(k))e.setAttribute(k,e.getAttribute(a));const v=trText(e.getAttribute(k));if(e.getAttribute(a)!==v)e.setAttribute(a,v)})})}
+let i18nObs=null;function i18nStart(){document.documentElement.lang=S.lang;i18n(document.body);if(i18nObs)return;i18nObs=new MutationObserver(ms=>{if(S.lang==='en')return;ms.forEach(m=>m.addedNodes.forEach(x=>{if(x.nodeType===1)i18n(x);else if(x.nodeType===3&&x.parentElement){const p=x.parentElement;if(!p.closest('script,style,textarea,[data-nt],select')){x.__en=x.nodeValue;const v=trText(x.__en);if(v!==x.nodeValue)x.nodeValue=v}}}))});i18nObs.observe(document.body,{childList:true,subtree:true})}
+/* a post's title in the viewer's language (translated when it was published), else English */
+const ttl=p=>(p&&p.tl&&p.tl[S.lang])||(p&&p.title)||'';
+
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const store={get(k,d){try{const v=localStorage.getItem('pp.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('pp.'+k,JSON.stringify(v))}catch(e){}}};
-const fmtDate=iso=>{if(!iso)return'';const d=new Date(iso);return isNaN(d)?'':d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})};
+const fmtDate=iso=>{if(!iso)return'';const d=new Date(iso);return isNaN(d)?'':d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})};
 const ago=iso=>{const d=(Date.now()-new Date(iso))/864e5;return d<1?'Today':d<2?'Yesterday':d<14?Math.floor(d)+' days ago':fmtDate(iso)};
 
 /* ---------- data ---------- */
@@ -27,7 +203,7 @@ function setTheme(el){const c=EL[el]||EL[(S.site&&S.site.accent)||'Hydro']||EL.H
 /* every post across a game as a flat list, newest first */
 function allPosts(gid){const g=S.games[gid];if(!g)return[];const out=[];
  Object.entries(g.posts.builds||{}).forEach(([k,c])=>{const v=(c.versions||[])[0];if(v)out.push({gid,sec:'builds',key:k,title:c.title,el:c.el,v,date:v.date,url:'/'+gid+'/builds/'+k,nofeed:!!c.nofeed})});
- SORDER.slice(1).forEach(sec=>(g.posts[sec]||[]).forEach((p,i)=>out.push({gid,sec,key:p.id,title:p.title,el:p.el,v:p,date:p.date,url:'/'+gid+'/'+sec+'/'+p.id,latest:i===0,nofeed:!!p.nofeed})));
+ SORDER.slice(1).forEach(sec=>(g.posts[sec]||[]).forEach((p,i)=>out.push({gid,sec,key:p.id,title:ttl(p),el:p.el,v:p,date:p.date,url:'/'+gid+'/'+sec+'/'+p.id,latest:i===0,nofeed:!!p.nofeed})));
  return out.sort((a,b)=>String(b.date).localeCompare(String(a.date)))}
 const isNew=iso=>S.seen?new Date(iso)>new Date(S.seen):(Date.now()-new Date(iso))<7*864e5;
 /* pick the slides for the viewer's language, falling back to English */
@@ -155,11 +331,17 @@ async function pChar(gid,key,ver){const g=gameMeta(gid);const d=await loadGame(g
 async function pSection(gid,sec){const g=gameMeta(gid);if(!g||!SECT[sec]||sec==='builds')return pMissing();setTheme(g.el);nav(gid,sec);meta(SECT[sec].t,SECT[sec].d);const d=await loadGame(gid);const L=d.posts[sec]||[];
  if(!L.length)return'<section><div class="shead"><div><div class="eyebrow">'+esc(g.name)+'</div><h1 class="disp" style="font-size:clamp(40px,6vw,64px)">'+SECT[sec].t+'</h1></div></div><div class="panel empty"><b>Nothing here yet</b>The current one shows up here as soon as it’s published.</div></section>';
  return pPost(gid,sec,L[0].id,true)}
-async function pPost(gid,sec,id,isLatestPage){const g=gameMeta(gid);const d=await loadGame(gid);const L=d.posts[sec]||[];const v=L.find(x=>x.id===id);if(!v)return pMissing();setTheme(v.el||g.el);nav(gid,sec);meta(v.title,SECT[sec].d);const fk=gid+'|'+sec+'|*';
- PAGE={v,title:v.title,file:'pawpixl-'+sec+'-'+id,fk};const latest=L[0]===v;
+/* the month a post belongs to: from its dates ("Season 29 · Nov 1 – Nov 30, 2026"), else when it was posted */
+function monthOf(p){const m=/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.? \d{1,2}/.exec(p.dateText||'');const y=/\b(20\d\d)\b/.exec(p.dateText||'');const d=new Date(p.date||Date.now());
+ const mo=m?MON[m[1]]:d.getMonth(),yr=y?+y[1]:d.getFullYear();return{k:yr*12+mo,label:new Date(Date.UTC(yr,mo,15)).toLocaleDateString(LOC[S.lang]||'en-US',{month:'long',year:'numeric',timeZone:'UTC'})}}
+/* right-hand archive: every post in this section, newest month first */
+function archList(gid,sec,L,cur){if(L.length<2)return'';const G=new Map();L.forEach(p=>{const m=monthOf(p);if(!G.has(m.k))G.set(m.k,{label:m.label,items:[]});G.get(m.k).items.push(p)});
+ return'<div class="panel arch"><div class="eyebrow">Archive</div>'+[...G.entries()].sort((a,b)=>b[0]-a[0]).map(([k,g])=>'<div class="arch-m" data-nt>'+esc(g.label)+'</div>'+g.items.map(p=>'<a class="arch-i'+(p===cur?' on':'')+'" href="/'+gid+'/'+sec+'/'+encodeURIComponent(p.id)+'" data-link'+(p===cur?' aria-current="page"':'')+'><img src="/'+esc(thumbOf(p))+'" alt="" loading="lazy"><span><b>'+esc(ttl(p))+'</b><small>'+esc(p.dateText||fmtDate(p.date))+'</small></span>'+(p===L[0]?'<i class="chip">Current</i>':'')+'</a>').join('')).join('')+'</div>'}
+async function pPost(gid,sec,id,isLatestPage){const g=gameMeta(gid);const d=await loadGame(gid);const L=d.posts[sec]||[];const v=L.find(x=>x.id===id);if(!v)return pMissing();setTheme(v.el||g.el);nav(gid,sec);meta(ttl(v),SECT[sec].d);const fk=gid+'|'+sec+'|*';
+ PAGE={v,title:ttl(v),file:'pawpixl-'+sec+'-'+id,fk};const latest=L[0]===v;
  const rest=L.filter(x=>x!==v);const byYear={};rest.forEach(x=>{const y=(x.date||'').slice(0,4)||'Earlier';(byYear[y]=byYear[y]||[]).push(x)});
- return'<section><div class="shead"><div><div class="eyebrow">'+esc(g.name)+' · '+SECT[sec].t+'</div></div></div><div class="view"><div>'+viewerHTML(v,v.title)+'</div><div class="side"><div class="panel"><div class="row" style="gap:8px"><span class="chip">'+(latest?'Current':'Archive')+'</span>'+(isNew(v.date)?'<span class="chip new">New</span>':'')+'</div><h1 class="disp" style="margin-top:14px;font-size:clamp(34px,5vw,54px)">'+esc(v.title)+'</h1><p class="muted" style="margin:6px 0 14px">'+esc(v.dateText||('Posted '+fmtDate(v.date)))+'</p>'+actions(fk)+(latest?'':'<p style="margin:14px 0 0"><a href="/'+gid+'/'+sec+'" data-link>See the current one →</a></p>')+'</div></div></div></section>'
- +(rest.length?'<section><div class="shead"><div><div class="eyebrow">Archive</div><h2 class="disp">Previous '+SECT[sec].s+'</h2></div></div>'+Object.keys(byYear).sort().reverse().map(y=>'<div class="yr">'+esc(y)+'</div><div class="archive">'+byYear[y].map(x=>tileHTML({v:x,sec,title:x.title,date:x.date,url:'/'+gid+'/'+sec+'/'+x.id},false)).join('')+'</div>').join('')+'</section>':'')}
+ return'<section><div class="shead"><div><div class="eyebrow">'+esc(g.name)+' · '+SECT[sec].t+'</div></div></div><div class="view"><div>'+viewerHTML(v,ttl(v))+'</div><div class="side"><div class="panel"><div class="row" style="gap:8px"><span class="chip">'+(latest?'Current':'Archive')+'</span>'+(isNew(v.date)?'<span class="chip new">New</span>':'')+'</div><h1 class="disp" style="margin-top:14px;font-size:clamp(34px,5vw,54px)">'+esc(ttl(v))+'</h1><p class="muted" style="margin:6px 0 14px">'+esc(v.dateText||('Posted '+fmtDate(v.date)))+'</p>'+actions(fk)+(latest?'':'<p style="margin:14px 0 0"><a href="/'+gid+'/'+sec+'" data-link>See the current one →</a></p>')+'</div>'+archList(gid,sec,L,v)+'</div></div></section>'
+ +(rest.length?'<section><div class="shead"><div><div class="eyebrow">Archive</div><h2 class="disp">Previous '+SECT[sec].s+'</h2></div></div>'+Object.keys(byYear).sort().reverse().map(y=>'<div class="yr">'+esc(y)+'</div><div class="archive">'+byYear[y].map(x=>tileHTML({v:x,sec,title:ttl(x),date:x.date,url:'/'+gid+'/'+sec+'/'+x.id},false)).join('')+'</div>').join('')+'</section>':'')}
 function pMissing(){nav(null);meta('Not found');return'<div class="panel empty" style="margin-top:40px"><b>That page isn’t here</b><a href="/" data-link>Go to the home page</a></div>'}
 function pPrivacy(){nav(null);meta('Privacy');return'<section class="prose"><div class="eyebrow">Privacy</div><h2 class="disp" style="font-size:44px;margin:10px 0 14px">Your privacy</h2><p>You can browse and download everything here without an account.</p><p>If you sign in, the site stores only your account email (or the Discord/Google account you chose), your favorites and the time you last checked for new posts, so it can show you what’s new. Nothing is sold or shared.</p><p>Your language choice and last visit are also kept in your browser. You can delete your saved favorites and account data any time from the Account page.</p><p>Visitor numbers are counted without cookies. The stats on the home page only add up totals (new visitors, guide views and which countries visitors come from); no IP addresses or personal details are stored.</p></section>'}
 
@@ -242,7 +424,7 @@ let PAGE=null;
 async function route(){const parts=location.pathname.replace(/\/+$/,'').split('/').filter(Boolean).map(decodeURIComponent);const m=$('#main');PAGE=null;let html;
  try{if(!parts.length)html=await pHome();else if(parts[0]==='account')html=pAccount();else if(parts[0]==='privacy')html=pPrivacy();
  else{const gid=parts[0];await loadGame(gid);if(parts.length===1)html=await pHub(gid);else if(parts[1]==='builds')html=parts[2]?await pChar(gid,parts[2],parts[3]):await pBuilds(gid);else html=parts[2]?await pPost(gid,parts[1],parts[2]):await pSection(gid,parts[1])}}catch(e){console.error(e);html=pMissing()}
- m.innerHTML=html;if(PAGE){wireViewer(PAGE.v,PAGE.title,PAGE.file);wireFav(PAGE.fk)}if(parts[1]==='builds'&&!parts[2])afterBuilds(parts[0]);if(parts[0]==='account')afterAccount();paintLive();if(!parts.length){fillStats();if(qOn())mountQuote($('#qbox'));wireNews()}qHeader();updateBell();track(parts)}
+ m.innerHTML=html;if(PAGE){wireViewer(PAGE.v,PAGE.title,PAGE.file);wireFav(PAGE.fk)}if(parts[1]==='builds'&&!parts[2])afterBuilds(parts[0]);if(parts[0]==='account')afterAccount();paintLive();if(!parts.length){fillStats();if(qOn())mountQuote($('#qbox'));wireNews()}qHeader();updateBell();i18nStart();track(parts)}
 document.addEventListener('click',e=>{const a=e.target.closest('a[data-link]');if(!a||e.metaKey||e.ctrlKey||e.shiftKey||a.target)return;e.preventDefault();if(a.getAttribute('href')!==location.pathname){history.pushState(null,'',a.getAttribute('href'));window.scrollTo(0,0)}route();const p=$('#bellPop');if(p)p.hidden=true});
 addEventListener('popstate',route);
 (async()=>{await loadSite();shell();setInterval(paintLive,60e3);setTheme(S.site.accent);S.favs=new Set(store.get('favs',[]));await route();if(!S.seen){S.seen=new Date(Date.now()-7*864e5).toISOString()}initAuth();

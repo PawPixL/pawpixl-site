@@ -312,3 +312,17 @@ footer .row{justify-content:space-between}
 .nl-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
 .nl-st{margin:0;padding:0 14px 14px;font-size:13px;color:var(--e2)}
 .nl-st.bad{color:#ff8a95}
+/* archive list on guide pages */
+.side .arch{padding:16px 14px;display:flex;flex-direction:column;gap:2px;max-height:min(70vh,640px);overflow:auto}
+.arch .eyebrow{margin:0 4px 6px}
+.arch-m{font:800 11px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--mut,rgba(255,255,255,.55));margin:12px 6px 6px}
+.arch-m:first-of-type{margin-top:4px}
+.arch-i{position:relative;display:flex;align-items:center;gap:12px;padding:8px;border-radius:12px;color:inherit;text-decoration:none;border:1px solid transparent;transition:background .15s,border-color .15s}
+.arch-i:hover{background:rgba(255,255,255,.05)}
+.arch-i.on{background:rgba(255,255,255,.07);border-color:var(--e1)}
+.arch-i img{width:40px;height:50px;object-fit:cover;border-radius:7px;flex:none;background:rgba(255,255,255,.06)}
+.arch-i span{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.arch-i b{font-size:14px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.arch-i small{font-size:12px;color:var(--mut,rgba(255,255,255,.6));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.arch-i .chip{position:static;font-size:9.5px;padding:4px 7px;flex:none}
+html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;overflow-wrap:anywhere}
