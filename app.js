@@ -110,9 +110,11 @@ const TR_ROWS=[
 ['Link copied','Lien copié','Enlace copiado','リンクをコピーしました','链接已复制'],
 ['Copy this link','Copie ce lien','Copia este enlace','このリンクをコピー','复制此链接'],
 ['Preparing download…','Préparation du téléchargement…','Preparando la descarga…','ダウンロードを準備中…','正在准备下载…'],
+['Clear this one','Effacer','Quitar','これを消す','清除这条'],
 ['What’s new','Quoi de neuf','Novedades','新着','最新动态'],
 ['New since your last visit','Nouveau depuis ta dernière visite','Nuevo desde tu última visita','前回の訪問以降の新着','自上次访问以来的新内容'],
 ['You’re all caught up','Tu es à jour','Estás al día','すべて確認済みです','你已全部看完'],
+['Clear this one','Effacer','Quitar','これを消す','清除此条'],['Clear this one','Effacer','Quitar','この通知を消す','清除此条'],
 ['Mark all as seen','Tout marquer comme vu','Marcar todo como visto','すべて既読にする','全部标为已读'],
 ['News','Actus','Noticias','ニュース','动态'],
 ['The Paw Post','The Paw Post','The Paw Post','The Paw Post','The Paw Post'],
@@ -233,7 +235,10 @@ const IC={
  link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
  bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
  user:'<circle cx="12" cy="8.5" r="3.8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+ check:'<path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>',
+ check:'<path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>',
  heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="currentColor"/>',
+ check:'<path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>',
  heartO:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="none" stroke="currentColor" stroke-width="2"/>',
  dl:'<path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
  share:'<path d="M8 12.5 16 8M8 11.5l8 4.5" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="12" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="6.5" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="17.5" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/>',
@@ -251,10 +256,18 @@ function shell(){document.body.innerHTML='<header class="top"><div class="wrap">
  document.addEventListener('click',e=>{const p=$('#bellPop');if(p&&!p.hidden&&!p.contains(e.target))p.hidden=true});
  if(S.site.auth&&S.site.auth.url&&S.site.auth.anon)$('#acctBtn').hidden=false}
 function nav(gid,cur){const n=$('#nav');if(!n)return;const g=gid&&gameMeta(gid);const secs=g?(g.sections||SORDER).filter(s=>s!=='schedule'):[];n.innerHTML=g?['<a href="/'+gid+'" data-link'+(cur==='hub'?' aria-current="page"':'')+'>'+esc(g.short||g.name)+'</a>'].concat(secs.map(s=>'<a href="/'+gid+'/'+s+'" data-link'+(cur===s?' aria-current="page"':'')+'>'+SECT[s].s+'</a>')).join(''):''}
-function bellItems(){const L=[];liveGames().forEach(g=>{if(S.games[g.id])allPosts(g.id).forEach(p=>{if(isNew(p.date)&&!p.nofeed)L.push(p)})});const fav=p=>S.favs.has(p.gid+'|'+p.sec+'|'+(p.sec==='builds'?p.key:'*'));return L.sort((a,b)=>(fav(b)-fav(a))||String(b.date).localeCompare(String(a.date)))}
+/* notifications you cleared one by one (kept in this browser) */
+const bellKey=p=>p.url+'@'+p.date;let DISM=new Set(store.get('dism',[]));
+function dismiss(p){DISM.add(bellKey(p));store.set('dism',[...DISM].slice(-300))}
+function bellItems(){const L=[];liveGames().forEach(g=>{if(S.games[g.id])allPosts(g.id).forEach(p=>{if(isNew(p.date)&&!p.nofeed&&!DISM.has(bellKey(p)))L.push(p)})});const fav=p=>S.favs.has(p.gid+'|'+p.sec+'|'+(p.sec==='builds'?p.key:'*'));return L.sort((a,b)=>(fav(b)-fav(a))||String(b.date).localeCompare(String(a.date)))}
 function updateBell(){const n=bellItems().length,d=$('#bellN');if(!d)return;d.hidden=!n;d.textContent=n>9?'9+':n}
-function renderBell(){const L=bellItems().slice(0,8),p=$('#bellPop');p.innerHTML='<h4>'+(L.length?'New since your last visit':'You’re all caught up')+'</h4>'+L.map(x=>'<a class="it" href="'+x.url+'" data-link><img src="/'+esc(thumbOf(x.v))+'" alt=""><span><b>'+esc(x.title)+'</b><small>'+SECT[x.sec].t+' · '+ago(x.date)+(S.favs.has(x.gid+'|'+x.sec+'|'+(x.sec==='builds'?x.key:'*'))?' · ♥ Favorite':'')+'</small></span></a>').join('')+(L.length?'<div class="row" style="padding:6px"><button class="btn" id="seenAll" style="height:36px">Mark all as seen</button></div>':'');
- const b=$('#seenAll');if(b)b.onclick=()=>{markSeen();p.hidden=true}}
+function renderBell(){const A=bellItems(),L=A.slice(0,12),p=$('#bellPop');
+ p.innerHTML='<div class="bellh"><h4>'+(L.length?'New since your last visit':'You’re all caught up')+'</h4>'+(L.length?'<button class="seenall" id="seenAll" type="button">'+svg('check')+'<span>Mark all as seen</span></button>':'')+'</div>'
+  +(L.length?'<div class="bell-l">'+L.map((x,i)=>'<div class="bi"><a class="it" href="'+x.url+'" data-link data-bi="'+i+'"><img src="/'+esc(thumbOf(x.v))+'" alt=""><span><b>'+esc(x.title)+'</b><small>'+SECT[x.sec].t+' · '+ago(x.date)+(S.favs.has(x.gid+'|'+x.sec+'|'+(x.sec==='builds'?x.key:'*'))?' · ♥ Favorite':'')+'</small></span></a><button class="bx" type="button" data-bx="'+i+'" aria-label="Clear this one" title="Clear this one">✕</button></div>').join('')+'</div>':'')
+  +(A.length>L.length?'<p class="muted" style="font-size:12px;margin:6px 8px 2px">+'+(A.length-L.length)+' more</p>':'');
+ const b=$('#seenAll');if(b)b.onclick=e=>{e.stopPropagation();markSeen();renderBell()};
+ p.querySelectorAll('[data-bx]').forEach(x=>x.onclick=e=>{e.preventDefault();e.stopPropagation();dismiss(L[+x.dataset.bx]);updateBell();renderBell()});
+ p.querySelectorAll('[data-bi]').forEach(x=>x.addEventListener('click',()=>{dismiss(L[+x.dataset.bi]);updateBell()}))}
 function markSeen(){S.seen=new Date().toISOString();store.set('seen',S.seen);if(S.user&&S.sb)S.sb.from('profiles').upsert({id:S.user.id,last_seen:S.seen}).then(()=>{});updateBell();route()}
 function toast(t){let e=$('.toast');if(!e){e=document.createElement('div');e.className='toast';e.setAttribute('role','status');document.body.appendChild(e)}e.textContent=t;e.hidden=false;clearTimeout(e._t);e._t=setTimeout(()=>e.hidden=true,2600)}
 function meta(title,desc){document.title=title?title+' · '+(S.site.name||'PawPixl'):(S.site.name||'PawPixl');const m=document.querySelector('meta[name=description]');if(m&&desc)m.setAttribute('content',desc);/* keep the canonical address in step with the page, for search engines */let c=document.querySelector('link[rel=canonical]');if(!c){c=document.createElement('link');c.rel='canonical';document.head.appendChild(c)}const b=String(S.site.url||location.origin).replace(/\/+$/,'');c.href=b+(location.pathname.replace(/\/+$/,'')||'/')}

@@ -340,3 +340,37 @@ html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;ov
 .view>*{min-width:0}
 .side h1{overflow-wrap:anywhere}
 .stage img{max-width:100%;height:auto;display:block}
+/* notifications: "mark all as seen" up top, clear one at a time */
+.bellh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 4px 8px}
+.bellh h4{margin:0}
+.seenall{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:999px;border:1px solid var(--line2);background:rgba(255,255,255,.06);color:var(--tx);font:700 12px var(--body);cursor:pointer;white-space:nowrap}
+.seenall:hover{border-color:var(--e1)}
+.seenall svg{width:14px;height:14px}
+.bell-l{max-height:min(60vh,460px);overflow:auto}
+.pop .bi{position:relative}
+.pop .bi a.it{padding-right:34px}
+.pop .bx{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;border:0;background:transparent;color:var(--mut);cursor:pointer;font-size:13px}
+.pop .bx:hover{background:rgba(255,255,255,.1);color:var(--tx)}
+/* notifications: "mark all as seen" at the top, clear one at a time */
+.bellh{display:flex;align-items:center;gap:8px;margin:2px 4px 6px}
+.bellh h4{margin:4px 2px;flex:1}
+.seenall{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 10px;border-radius:999px;border:1px solid var(--line2);background:rgba(255,255,255,.06);color:var(--tx);font:700 12px var(--body);cursor:pointer;white-space:nowrap}
+.seenall:hover{border-color:var(--e1);background:rgba(255,255,255,.1)}
+.seenall svg{width:15px;height:15px}
+.bell-l{max-height:min(60vh,460px);overflow:auto}
+.bi{position:relative}
+.bi .it{padding-right:34px!important}
+.bx{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;border:0;background:transparent;color:var(--mut);cursor:pointer;font-size:12px}
+.bx:hover{background:rgba(255,255,255,.1);color:var(--tx)}
+.pop{background:#0d1122;-webkit-backdrop-filter:none;backdrop-filter:none}
+/* notifications: header with Mark all as seen, a clear button on each item */
+.bellh{display:flex;align-items:center;gap:8px;margin:2px 4px 6px}
+.bellh h4{margin:0;flex:1}
+.seenall{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line2);background:rgba(255,255,255,.06);color:var(--tx);border-radius:999px;padding:5px 10px;font:700 12px/1 var(--body);cursor:pointer;white-space:nowrap}
+.seenall:hover{border-color:var(--e1);background:rgba(255,255,255,.1)}
+.seenall svg{width:14px;height:14px}
+.bell-l{max-height:min(60vh,520px);overflow:auto}
+.bi{position:relative}
+.bi .it{padding-right:36px!important}
+.bx{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;border:0;background:transparent;color:var(--mut);cursor:pointer;font-size:12px}
+.bx:hover{background:rgba(255,255,255,.1);color:var(--tx)}
