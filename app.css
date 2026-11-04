@@ -430,3 +430,11 @@ html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;ov
 @keyframes gsbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @media (prefers-reduced-motion:reduce){.gsoon img{animation:none}}
 .gpk-im span.soon{width:76px;height:76px;background-size:contain;background-color:transparent;border:0;box-shadow:none;border-radius:0;filter:drop-shadow(0 6px 12px rgba(0,0,0,.4))}
+.gim.gcov,.gpk-im .gcov{display:grid;place-items:center;background:radial-gradient(120% 90% at 30% 20%,rgba(255,255,255,.22),transparent 55%),linear-gradient(150deg,var(--c0),var(--c1));position:relative;overflow:hidden}
+.gim.gcov::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.06) 0 2px,transparent 2px 14px)}
+.gim.gcov svg{width:42%;height:42%;color:rgba(255,255,255,.92);filter:drop-shadow(0 6px 14px rgba(0,0,0,.25));position:relative;z-index:1}
+.gpk-im .gcov svg{width:56%;height:56%;color:#fff}
+.gim.gframe{position:relative;padding:11px;background:radial-gradient(120% 90% at 25% 15%,rgba(255,255,255,.35),transparent 60%),linear-gradient(150deg,color-mix(in srgb,var(--c0) 55%,#fff),color-mix(in srgb,var(--c1) 55%,#fff))}
+.gframe .gph{display:block;width:100%;height:100%;border-radius:14px;background:#0b0e1a center/cover no-repeat;border:4px solid #fff;box-shadow:0 6px 16px rgba(20,16,60,.28)}
+.gframe .gsp{position:absolute;top:4px;right:4px;width:26px;height:26px;fill:#fff;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25));transform:rotate(12deg);transition:transform .3s}
+.gcard:hover .gframe .gsp{transform:rotate(-8deg) scale(1.12)}
