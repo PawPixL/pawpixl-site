@@ -69,5 +69,13 @@
  "ticker": true,
  "news": {
   "on": true
+ },
+ "gear": {
+  "on": true,
+  "peek": true,
+  "title": "",
+  "intro": "",
+  "tag": "",
+  "items": []
  }
 }
