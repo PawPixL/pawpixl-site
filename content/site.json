@@ -94,5 +94,10 @@
     "img": "content/gear/mw2k95vhkvpy-mw2kdpom.webp"
    }
   ]
+ },
+ "db": {
+  "on": true,
+  "v": "2026-11-04",
+  "src": "genshin-db 5.2.14"
  }
 }
