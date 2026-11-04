@@ -471,3 +471,22 @@ html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;ov
 .zv .zc:empty{display:none}
 .zv .zt{position:absolute;bottom:max(18px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);white-space:nowrap;font:600 12.5px var(--body);color:#fff;background:rgba(9,12,24,.75);padding:7px 13px;border-radius:999px;transition:opacity .6s}
 .zv .zt.fade{opacity:0}
+/* clickable characters on cards */
+.hots{position:absolute;inset:0;pointer-events:none;z-index:1}
+.hot{position:absolute;pointer-events:auto;border-radius:11px;outline:none;transition:box-shadow .15s,background .15s}
+.hot:hover,.hot:focus-visible{box-shadow:0 0 0 2px #fff,0 0 16px 2px rgba(255,255,255,.45);background:rgba(255,255,255,.08)}
+.hot::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%) translateY(4px);white-space:nowrap;font:700 12px var(--body);color:#fff;background:rgba(9,12,24,.92);border:1px solid rgba(255,255,255,.15);padding:5px 9px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .15s,transform .15s}
+.hot:hover::after,.hot:focus-visible::after{opacity:1;transform:translateX(-50%) translateY(0)}
+.stage.mg-on .hot{pointer-events:none}
+.stage.mg-on .hot::after{display:none}
+.zv .zw{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+.zv .zw img{position:absolute;left:0;top:0;width:100%;height:100%;transform:none}
+.zv .hot::after{display:none}
+.zv.zhl .hot{box-shadow:0 0 0 2px rgba(255,255,255,.85),0 0 14px rgba(255,255,255,.5);animation:hotp 1.6s ease-out}
+@keyframes hotp{0%{box-shadow:0 0 0 0 rgba(255,255,255,0)}25%{box-shadow:0 0 0 3px #fff,0 0 18px rgba(255,255,255,.6)}100%{box-shadow:0 0 0 2px rgba(255,255,255,0)}}
+/* coming-soon character page */
+.csoon{margin-top:18px}
+.csoon h1{font-size:clamp(38px,7vw,58px);margin:0}
+.csoon-art{position:relative;display:inline-block}
+.csoon-face{position:absolute;right:-6px;bottom:18px;width:86px;height:86px;border-radius:50%;background:center/cover no-repeat,linear-gradient(160deg,var(--c1),var(--c0));border:3px solid #fff;box-shadow:0 10px 24px rgba(0,0,0,.45)}
+@media (max-width:520px){.csoon-face{width:68px;height:68px;right:-2px}}
