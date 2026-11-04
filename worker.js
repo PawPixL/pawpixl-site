@@ -1,5 +1,7 @@
 // PawPixl website worker.
 // 1) Traveler stats: two tiny endpoints for the home page (totals only, no cookies, no IP addresses stored).
+// 3) Guide feedback: visitors can send a comment, question or correction from any guide page; only
+//    PawPixl Studio (with the NEWS_KEY password) can read them.
 // 2) The Paw Post: email sign-ups (double opt-in), unsubscribe / change topics, and sending updates
 //    from PawPixl Studio. Emails go out through Resend (free plan: 100 a day). Needs two secrets on
 //    this Worker: RESEND_KEY (from resend.com) and NEWS_KEY (the password PawPixl Studio uses).
@@ -13,6 +15,8 @@ function init(db) {
     db.prepare('CREATE TABLE IF NOT EXISTS sent (issue TEXT NOT NULL, email TEXT NOT NULL, PRIMARY KEY (issue, email))'),
     db.prepare('CREATE TABLE IF NOT EXISTS sendlog (day TEXT PRIMARY KEY, n INTEGER NOT NULL DEFAULT 0)'),
     db.prepare('CREATE TABLE IF NOT EXISTS wanted (email TEXT PRIMARY KEY, topics TEXT NOT NULL)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS notes (id TEXT PRIMARY KEY, created TEXT NOT NULL, page TEXT NOT NULL, title TEXT NOT NULL DEFAULT \'\', kind TEXT NOT NULL, msg TEXT NOT NULL, contact TEXT NOT NULL DEFAULT \'\', done INTEGER NOT NULL DEFAULT 0)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS noterate (k TEXT PRIMARY KEY, n INTEGER NOT NULL DEFAULT 0, t TEXT NOT NULL)'),
   ]).catch(e => { ready = null; throw e; });
   return ready;
 }
@@ -174,6 +178,18 @@ async function news(req, env, url, ctx) {
     const last = (await db.prepare('SELECT id, topic, subject, created FROM issues ORDER BY created DESC LIMIT 5').all()).results;
     return json({ ok: true, total: all.length, unconfirmed: pend, topics: by, today: await used(db), daily: DAILY, mail: !!env.RESEND_KEY, from: info.from, issues: last }, 200, CORS);
   }
+  if (p === 'feedback') {
+    if (req.method === 'POST') {
+      let b = {}; try { b = await req.json(); } catch (e) {}
+      const id = String(b.id || '');
+      if (b.all === 'done') await db.prepare('UPDATE notes SET done = 1 WHERE done = 0').run();
+      else if (id && b.del) await db.prepare('DELETE FROM notes WHERE id = ?').bind(id).run();
+      else if (id) await db.prepare('UPDATE notes SET done = ? WHERE id = ?').bind(b.done ? 1 : 0, id).run();
+      return json({ ok: true }, 200, CORS);
+    }
+    const rows = (await db.prepare('SELECT * FROM notes ORDER BY created DESC LIMIT 300').all()).results;
+    return json({ ok: true, notes: rows, open: rows.filter(r => !r.done).length }, 200, CORS);
+  }
   if (p === 'preview') {
     let b = {}; try { b = await req.json(); } catch (e) {}
     return new Response(issueHtml(info, b, { token: 'preview' }), { headers: { 'content-type': 'text/html; charset=utf-8', ...CORS } });
@@ -200,6 +216,31 @@ export default {
     const url = new URL(req.url);
     if (url.pathname.startsWith('/api/news/')) {
       try { return await news(req, env, url, ctx); } catch (e) { return json({ ok: false, error: 'server' }, 500, CORS); }
+    }
+    if (url.pathname === '/api/feedback') {
+      if (req.method !== 'POST' || !env.DB) return json({ ok: false }, 405);
+      const origin = req.headers.get('origin');
+      if (origin && new URL(origin).host !== url.host) return json({ ok: false }, 403);
+      let b = {}; try { b = JSON.parse((await req.text()).slice(0, 4000)); } catch (e) {}
+      if (b.website) return json({ ok: true });                                   // hidden field filled in = bot
+      const clean = (v, n) => String(v || '').replace(/[\u0000-\u0008\u000b-\u001f]/g, '').trim().slice(0, n);
+      const msg = clean(b.msg, 1500), kind = ['comment', 'question', 'correction'].includes(b.kind) ? b.kind : 'comment';
+      const page = /^\/[a-z0-9/_.-]{0,160}$/i.test(String(b.page || '')) ? String(b.page) : '/';
+      if (msg.length < 3) return json({ ok: false, error: 'short' }, 400);
+      try {
+        await init(env.DB);
+        const day = new Date().toISOString().slice(0, 10), ip = req.headers.get('cf-connecting-ip') || '';
+        const hk = 'ip:' + day + ':' + [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(ip + day)))].slice(0, 8).map(x => x.toString(16).padStart(2, '0')).join('');
+        const mine = await env.DB.prepare('SELECT n FROM noterate WHERE k = ?').bind(hk).first(), all = await env.DB.prepare('SELECT n FROM noterate WHERE k = ?').bind('day:' + day).first();
+        if ((mine && mine.n >= 8) || (all && all.n >= 150)) return json({ ok: false, error: 'busy' }, 429);
+        await env.DB.batch([
+          env.DB.prepare('INSERT INTO notes (id, created, page, title, kind, msg, contact) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(token().slice(0, 16), new Date().toISOString(), page, clean(b.title, 140), kind, msg, clean(b.contact, 140)),
+          env.DB.prepare('INSERT INTO noterate (k, n, t) VALUES (?, 1, ?) ON CONFLICT(k) DO UPDATE SET n = n + 1').bind(hk, day),
+          env.DB.prepare('INSERT INTO noterate (k, n, t) VALUES (?, 1, ?) ON CONFLICT(k) DO UPDATE SET n = n + 1').bind('day:' + day, day),
+          env.DB.prepare('DELETE FROM noterate WHERE t < ?').bind(day),
+        ]);
+      } catch (e) { return json({ ok: false, error: 'server' }, 500); }
+      return json({ ok: true });
     }
     if (url.pathname === '/api/hit') {
       if (req.method !== 'POST' || !env.DB) return json({ ok: false }, 405);

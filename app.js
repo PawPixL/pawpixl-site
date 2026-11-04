@@ -237,6 +237,7 @@ const IC={
  user:'<circle cx="12" cy="8.5" r="3.8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
  check:'<path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>',
  check:'<path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>',
+ chat:'<path d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 3.5V16.5H5A1.5 1.5 0 0 1 3.5 15V7A1.5 1.5 0 0 1 5 5.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
  heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="currentColor"/>',
  check:'<path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>',
  heartO:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="none" stroke="currentColor" stroke-width="2"/>',
@@ -377,14 +378,54 @@ function viewerHTML(v,title){const{k,list}=slidesOf(v);const L=Object.keys(v.lan
  +'<p class="muted" style="font-size:13px;margin:8px 2px 0">Showing '+LANGS[k]+(k!==S.lang?' (not available in '+LANGS[S.lang]+' yet)':'')+(L.length>1?' · Also in: '+L.filter(x=>x!==k).map(x=>LANGS[x]||x).join(', '):'')+'</p>'}
 function wireViewer(v,title,fileBase){const{list}=slidesOf(v);let i=0;const img=$('#vimg');if(!img)return;
  const show=n=>{i=(n+list.length)%list.length;img.src='/'+list[i].img;img.alt=title+' slide '+(i+1);const c=$('#vc');if(c)c.textContent=(i+1)+' / '+list.length;document.querySelectorAll('#vth button').forEach((b,j)=>b.setAttribute('aria-current',String(j===i)))};
- const p=$('#vp'),n=$('#vn');if(p)p.onclick=()=>show(i-1);if(n)n.onclick=()=>show(i+1);document.querySelectorAll('#vth button').forEach(b=>b.onclick=()=>show(+b.dataset.i));
+ const p=$('#vp'),n=$('#vn');
  document.onkeydown=e=>{if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;if(e.key==='ArrowLeft')show(i-1);if(e.key==='ArrowRight')show(i+1)};
- /* swipe to change slide, but only a clear one-finger sideways flick at normal zoom: pinching, zoomed-in panning and slow drags never change the card */
- let T=null;const zoomed=()=>!!(window.visualViewport&&visualViewport.scale>1.05);
- img.addEventListener('touchstart',e=>{if(e.touches.length>1||zoomed()){T={multi:true};return}if(T&&T.multi)return;T={x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now()}},{passive:true});
- img.addEventListener('touchmove',e=>{if(T&&e.touches.length>1)T.multi=true},{passive:true});
- img.addEventListener('touchend',e=>{if(!T)return;if(e.touches.length){return}const g=T;T=null;if(g.multi||zoomed())return;const c=e.changedTouches[0],dx=c.clientX-g.x,dy=c.clientY-g.y;if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*2&&Date.now()-g.t<600)show(i+(dx<0?1:-1))});
- img.addEventListener('touchcancel',()=>{T=null},{passive:true});
+ /* phones: a pinch that touches the arrows or thumbnails must never count as a tap on them */
+ const st0=$('#stage');const MT=window.__ppMT||(window.__ppMT=(()=>{const o={seq:false,last:0};const tw=e=>{if(e.touches.length>1)o.seq=true;if(!e.touches.length){if(o.seq)o.last=Date.now();o.seq=false}};['touchstart','touchmove','touchend','touchcancel'].forEach(t=>document.addEventListener(t,tw,{passive:true,capture:true}));return o})());
+ const multiRecent=()=>MT.seq||Date.now()-MT.last<600;
+ const pageZoomed=()=>!!(window.visualViewport&&visualViewport.scale>1.05);
+ const guard=f=>()=>{if(multiRecent())return;f()};
+ if(p)p.onclick=guard(()=>show(i-1));if(n)n.onclick=guard(()=>show(i+1));document.querySelectorAll('#vth button').forEach(b=>b.onclick=guard(()=>show(+b.dataset.i)));
+ /* phones: tap the card to open a full-screen zoom view (pinch, drag, double-tap). Swiping to the next card only works when fully zoomed out, with one finger, and never right after a pinch */
+ const touchy=matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0&&!matchMedia('(pointer:fine)').matches;
+ if(touchy&&st0){if(!$('#vzhint'))st0.insertAdjacentHTML('afterend','<p class="zhint" id="vzhint">Tap the card to zoom in</p>');
+  img.style.touchAction='pan-y';/* a pinch on the card opens the zoom view instead of zooming the whole page */
+  let tap=null;img.addEventListener('touchstart',e=>{if(ZH){e.preventDefault();ZH.start(e);return}if(e.touches.length>=2&&!pageZoomed()){e.preventDefault();tap=null;zoomOpen(e);return}tap=e.touches.length===1&&!pageZoomed()?{x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now()}:null},{passive:false});
+  img.addEventListener('touchmove',e=>{if(ZH){e.preventDefault();ZH.move(e);return}if(tap&&(e.touches.length>1||Math.hypot(e.touches[0].clientX-tap.x,e.touches[0].clientY-tap.y)>10))tap=null},{passive:false});
+  img.addEventListener('touchend',e=>{if(ZH){ZH.end(e);return}if(tap&&!e.touches.length&&!multiRecent()&&Date.now()-tap.t<500){e.preventDefault();zoomOpen()}tap=null});
+  img.addEventListener('touchcancel',()=>{if(ZH)ZH.cancel()},{passive:true});}
+ let ZH=null;
+ function zoomOpen(ev0){const old=$('#zv');if(old)old.remove();
+  document.body.insertAdjacentHTML('beforeend','<div class="zv" id="zv" role="dialog" aria-label="Zoomed card"><img id="zvi" alt=""><button class="zx" id="zvx" aria-label="Close">✕</button>'+(list.length>1?'<button class="zn l" id="zvp" aria-label="Previous slide">'+svg('l')+'</button><button class="zn r" id="zvn" aria-label="Next slide">'+svg('r')+'</button>':'')+'<span class="zc" id="zvc"></span><span class="zt" id="zvt">Pinch or double-tap to zoom'+(list.length>1?' · swipe for the next card':'')+'</span></div>');
+  const Z=$('#zv'),I=$('#zvi');const ov=document.documentElement.style.overflow;document.documentElement.style.overflow='hidden';
+  let s=1,tx=0,ty=0,bw=0,bh=0,W=0,H=0;
+  const fit=()=>{W=Z.clientWidth;H=Z.clientHeight;const nw=I.naturalWidth||list[i].w||1080,nh=I.naturalHeight||list[i].h||1350,k=Math.min(W/nw,H/nh);bw=nw*k;bh=nh*k;I.style.width=bw+'px';I.style.height=bh+'px'};
+  const clamp=()=>{s=Math.max(1,Math.min(5,s));const sw=bw*s,sh=bh*s;tx=sw<=W?(W-sw)/2:Math.min(0,Math.max(W-sw,tx));ty=sh<=H?(H-sh)/2:Math.min(0,Math.max(H-sh,ty))};
+  const draw=(anim)=>{clamp();I.style.transition=anim?'transform .2s ease':'none';I.style.transform='translate('+tx+'px,'+ty+'px) scale('+s+')';Z.classList.toggle('zin',s>1.02)};
+  const reset=()=>{s=1;tx=0;ty=0;fit();draw(false)};
+  const load=()=>{I.src='/'+list[i].img;I.alt=title+' slide '+(i+1);const c=$('#zvc');if(c)c.textContent=list.length>1?(i+1)+' / '+list.length:'';if(I.complete)reset();else I.onload=reset};
+  const go=d=>{show(i+d);load()};load();
+  const zoomAt=(ns,cx,cy,anim)=>{const px=(cx-tx)/s,py=(cy-ty)/s;s=Math.max(1,Math.min(5,ns));tx=cx-px*s;ty=cy-py*s;draw(anim)};
+  let g=null,lastTap=0;const pts=e=>[...e.touches].map(t=>({x:t.clientX,y:t.clientY}));
+  const begin=e=>{const P=pts(e);if(P.length>=2){const d=Math.hypot(P[0].x-P[1].x,P[0].y-P[1].y)||1;g={pinch:true,multi:true,d0:d,s0:s,mx:(P[0].x+P[1].x)/2,my:(P[0].y+P[1].y)/2,px:((P[0].x+P[1].x)/2-tx)/s,py:((P[0].y+P[1].y)/2-ty)/s}}else if(P.length===1){g={pinch:false,multi:g?g.multi:false,x0:P[0].x,y0:P[0].y,tx0:tx,ty0:ty,t0:Date.now(),moved:false}}};
+  const onS=e=>{if(e.target.closest&&e.target.closest('button'))return;e.preventDefault();if(g&&e.touches.length>1)g.multi=true;const m=g&&g.multi;begin(e);if(m)g.multi=true};
+  const onM=e=>{if(!g)return;e.preventDefault();const P=pts(e);
+   if(g.pinch&&P.length>=2){const d=Math.hypot(P[0].x-P[1].x,P[0].y-P[1].y)||1,mx=(P[0].x+P[1].x)/2,my=(P[0].y+P[1].y)/2;s=Math.max(1,Math.min(5,g.s0*d/g.d0));tx=mx-g.px*s;ty=my-g.py*s;draw(false)}
+   else if(!g.pinch&&P.length===1){const dx=P[0].x-g.x0,dy=P[0].y-g.y0;if(Math.hypot(dx,dy)>8)g.moved=true;if(s>1.02){tx=g.tx0+dx;ty=g.ty0+dy;draw(false)}}};
+  const onE=e=>{if(!g)return;if(e.touches.length){begin(e);g.multi=true;return}
+   const G=g;g=null;if(G.pinch||G.multi){if(s<1.05)draw(true);return}
+   const c=e.changedTouches[0],dx=c.clientX-G.x0,dy=c.clientY-G.y0,dt=Date.now()-G.t0;
+   if(!G.moved&&dt<300){const now=Date.now();if(now-lastTap<320){lastTap=0;if(s>1.02){s=1;draw(true)}else zoomAt(2.6,c.clientX,c.clientY,true)}else lastTap=now;return}
+   if(s<=1.02&&list.length>1&&Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.8&&dt<700)go(dx<0?1:-1);
+   else if(s<=1.02&&dy>110&&Math.abs(dy)>Math.abs(dx)*1.8&&dt<700)close()};
+  Z.addEventListener('touchstart',onS,{passive:false});Z.addEventListener('touchmove',onM,{passive:false});Z.addEventListener('touchend',onE,{passive:true});Z.addEventListener('touchcancel',()=>{g=null},{passive:true});
+  ZH={start:onS,move:onM,end:onE,cancel:()=>{g=null}};if(ev0){fit();begin(ev0);if(g)g.multi=true}
+  Z.addEventListener('wheel',e=>{e.preventDefault();zoomAt(s*(e.deltaY<0?1.15:1/1.15),e.clientX,e.clientY,false)},{passive:false});
+  const onR=()=>{const r=s;fit();s=r;draw(false)};addEventListener('resize',onR);
+  const onK=e=>{if(e.key==='Escape')close();if(e.key==='ArrowLeft'&&list.length>1)go(-1);if(e.key==='ArrowRight'&&list.length>1)go(1)};document.addEventListener('keydown',onK,true);
+  function close(){ZH=null;removeEventListener('resize',onR);document.removeEventListener('keydown',onK,true);document.documentElement.style.overflow=ov;Z.remove()}
+  $('#zvx').onclick=close;const zp=$('#zvp'),zn=$('#zvn');if(zp)zp.onclick=()=>go(-1);if(zn)zn.onclick=()=>go(1);
+  setTimeout(()=>{const t=$('#zvt');if(t)t.classList.add('fade')},2600)}
  /* desktop magnifier: click the card (or the Magnify button) and a lens follows the mouse; scroll to zoom, click again or Esc to put it away */
  (()=>{const mb=$('#vmag'),L=$('#vlens'),st=$('#stage');ensureDefs();if(!mb||!L||!st)return;if(!matchMedia('(hover:hover) and (pointer:fine)').matches||matchMedia('(any-pointer:coarse)').matches&&!matchMedia('(any-pointer:fine)').matches||navigator.maxTouchPoints>0&&!matchMedia('(any-pointer:fine)').matches){mb.remove();L.remove();return}let on=false,z=2.4,last=null;
   const set=v=>{on=v;mb.setAttribute('aria-pressed',String(on));st.classList.toggle('mg-on',on);if(!on)L.hidden=true;else if(last)move(last)};
@@ -413,7 +454,20 @@ async function pChar(gid,key,ver){const g=gameMeta(gid);const d=await loadGame(g
  const vs=c.versions||[],v=vs.find(x=>x.id===ver)||vs[0];const sd=SEO.desc('builds',c.title,v.seo);meta(SEO.title('builds',c.title),sd);const fk=gid+'|builds|'+key;{const im=((slidesOf(v).list||[])[0]||{}).img;if(im)setLD(SEO.ld(S.site,'builds',c.title,sd,'/'+gid+'/builds/'+key,im,v.date,g.name,'Character Builds'))}
  PAGE={v,title:c.title,file:'pawpixl-'+key,fk};
  return'<section><a href="/'+gid+'/builds" data-link class="muted" style="font-weight:600;text-decoration:none">← All characters</a><div class="view" style="margin-top:14px"><div>'+viewerHTML(v,c.title+' build guide')+'<div class="sr">'+SEO.body('builds',c.title,v.seo,[],sd).replace(/^<h1>[\s\S]*?<\/h1>/,'')+'</div></div><div class="side"><div class="panel"><div class="row" style="gap:8px"><span class="chip">'+esc(c.el||r.el||'Build')+'</span>'+(v===vs[0]?'<span class="chip ghost">Latest</span>':'<span class="chip ghost">Older version</span>')+(isNew(v.date)?'<span class="chip new">New</span>':'')+'</div><h1 class="disp" style="margin-top:14px">'+esc(c.title)+'</h1><p class="muted" style="margin:6px 0 14px">Updated '+fmtDate(v.date)+'</p>'+actions(fk)+'</div>'
- +(vs.length>1?'<div class="panel"><div class="eyebrow" style="margin-bottom:12px">Version history</div><ul class="hist">'+vs.map((x,i)=>'<li><a href="/'+gid+'/builds/'+key+(i?'/'+x.id:'')+'" data-link aria-current="'+(x===v)+'"><span>'+(i?'Previous':'Latest')+'</span><span class="muted">'+fmtDate(x.date)+'</span></a></li>').join('')+'</ul></div>':'')+appearsHTML(gid,key,c.title)+'</div></div></section>'}
+ +(vs.length>1?'<div class="panel"><div class="eyebrow" style="margin-bottom:12px">Version history</div><ul class="hist">'+vs.map((x,i)=>'<li><a href="/'+gid+'/builds/'+key+(i?'/'+x.id:'')+'" data-link aria-current="'+(x===v)+'"><span>'+(i?'Previous':'Latest')+'</span><span class="muted">'+fmtDate(x.date)+'</span></a></li>').join('')+'</ul></div>':'')+appearsHTML(gid,key,c.title)+fbHTML(c.title+' build')+'</div></div></section>'}
+/* ---------- a quiet "send a note" box on guide pages: comments, questions and corrections go to PawPixl Studio only ---------- */
+const fbOn=()=>!!(S.site&&(S.site.stats||(S.site.news&&S.site.news.on)));
+function fbHTML(title){if(!fbOn())return'';return'<details class="fbk"><summary>'+svg('chat')+'<span>Spot something off, or have a question?</span></summary><form class="fbf" data-title="'+esc(title||'')+'" novalidate>'
+ +'<div class="fbk-k" role="radiogroup" aria-label="Kind of note">'+[['correction','Correction'],['question','Question'],['comment','Comment']].map(([k,t],i)=>'<label><input type="radio" name="kind" value="'+k+'"'+(i?'':' checked')+'><span>'+t+'</span></label>').join('')+'</div>'
+ +'<label class="sr" for="fbm">Your note</label><textarea id="fbm" name="msg" rows="3" maxlength="1500" placeholder="What did you notice? e.g. “The 2nd weapon should be…”" required></textarea>'
+ +'<label class="sr" for="fbc">Contact (optional)</label><input id="fbc" name="contact" maxlength="140" placeholder="Your name or @handle, if you’d like a reply (optional)">'
+ +'<input class="fbhp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">'
+ +'<div class="fbk-r"><small class="muted">Only PawPixl sees this.</small><button class="btn" type="submit">Send</button></div><p class="fbk-st" role="status" aria-live="polite"></p></form></details>'}
+document.addEventListener('submit',async e=>{const f=e.target.closest&&e.target.closest('.fbf');if(!f)return;e.preventDefault();const st=f.querySelector('.fbk-st'),bt=f.querySelector('button[type=submit]'),d=new FormData(f),msg=String(d.get('msg')||'').trim();
+ if(msg.length<3){st.textContent='Add a few words first.';return}bt.disabled=true;st.textContent='Sending…';
+ try{const r=await fetch('/api/feedback',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({kind:d.get('kind'),msg,contact:String(d.get('contact')||'').trim(),website:d.get('website')||'',page:location.pathname,title:f.dataset.title||document.title})});
+  const j=await r.json().catch(()=>({}));if(r.ok&&j.ok){f.innerHTML='<p class="fbk-ok">'+svg('check')+'Thank you! Your note was sent.</p>'}else{st.textContent=j.error==='busy'?'That’s a lot of notes today. Please try again tomorrow.':'Couldn’t send right now. Please try again in a bit.';bt.disabled=false}}
+ catch(x){st.textContent='Couldn’t send right now. Please try again in a bit.';bt.disabled=false}});
 async function pSection(gid,sec){const g=gameMeta(gid);if(!g||!SECT[sec]||sec==='builds')return pMissing();setTheme(g.el);nav(gid,sec);meta(SECT[sec].t,SECT[sec].d);const d=await loadGame(gid);const L=d.posts[sec]||[];
  if(!L.length)return'<section><div class="shead"><div><div class="eyebrow">'+esc(g.name)+'</div><h1 class="disp" style="font-size:clamp(40px,6vw,64px)">'+SECT[sec].t+'</h1></div></div><div class="panel empty"><b>Nothing here yet</b>The current one shows up here as soon as it’s published.</div></section>';
  return pPost(gid,sec,L[0].id,true)}
@@ -426,7 +480,7 @@ function archList(gid,sec,L,cur){if(L.length<2)return'';const G=new Map();L.forE
 async function pPost(gid,sec,id,isLatestPage){const g=gameMeta(gid);const d=await loadGame(gid);const L=d.posts[sec]||[];const v=L.find(x=>x.id===id);if(!v)return pMissing();setTheme(v.el||g.el);nav(gid,sec);const cn=(v.chars||[]).map(k=>((d.roster||[]).find(r=>r.id===k)||{}).name).filter(Boolean),sd=SEO.desc(sec,ttl(v),null,cn,v.dateText);meta(SEO.title(sec,ttl(v),v.dateText),sd);{const im=((slidesOf(v).list||[])[0]||{}).img;if(im)setLD(SEO.ld(S.site,sec,ttl(v),sd,'/'+gid+'/'+sec+'/'+v.id,im,v.date,g.name,SECTNAME(sec)))}const fk=gid+'|'+sec+'|*';
  PAGE={v,title:ttl(v),file:'pawpixl-'+sec+'-'+id,fk};const latest=L[0]===v;
  const rest=L.filter(x=>x!==v);const byYear={};rest.forEach(x=>{const y=(x.date||'').slice(0,4)||'Earlier';(byYear[y]=byYear[y]||[]).push(x)});
- return'<section><div class="shead"><div><div class="eyebrow">'+esc(g.name)+' · '+SECT[sec].t+'</div></div></div><div class="view"><div>'+viewerHTML(v,ttl(v))+(cn.length?'<div class="sr">'+SEO.body(sec,ttl(v),null,cn,sd).replace(/^<h1>[\s\S]*?<\/h1>/,'')+'</div>':'')+'</div><div class="side"><div class="panel"><div class="row" style="gap:8px"><span class="chip">'+(latest?'Current':'Archive')+'</span>'+(isNew(v.date)?'<span class="chip new">New</span>':'')+'</div><h1 class="disp" style="margin-top:14px;font-size:clamp(34px,5vw,54px)">'+esc(ttl(v))+'</h1><p class="muted" style="margin:6px 0 14px">'+esc(v.dateText||('Posted '+fmtDate(v.date)))+'</p>'+actions(fk)+(latest?'':'<p style="margin:14px 0 0"><a href="/'+gid+'/'+sec+'" data-link>See the current one →</a></p>')+'</div>'+archList(gid,sec,L,v)+'</div></div></section>'
+ return'<section><div class="shead"><div><div class="eyebrow">'+esc(g.name)+' · '+SECT[sec].t+'</div></div></div><div class="view"><div>'+viewerHTML(v,ttl(v))+(cn.length?'<div class="sr">'+SEO.body(sec,ttl(v),null,cn,sd).replace(/^<h1>[\s\S]*?<\/h1>/,'')+'</div>':'')+'</div><div class="side"><div class="panel"><div class="row" style="gap:8px"><span class="chip">'+(latest?'Current':'Archive')+'</span>'+(isNew(v.date)?'<span class="chip new">New</span>':'')+'</div><h1 class="disp" style="margin-top:14px;font-size:clamp(34px,5vw,54px)">'+esc(ttl(v))+'</h1><p class="muted" style="margin:6px 0 14px">'+esc(v.dateText||('Posted '+fmtDate(v.date)))+'</p>'+actions(fk)+(latest?'':'<p style="margin:14px 0 0"><a href="/'+gid+'/'+sec+'" data-link>See the current one →</a></p>')+'</div>'+archList(gid,sec,L,v)+fbHTML(ttl(v))+'</div></div></section>'
  +(rest.length?'<section><div class="shead"><div><div class="eyebrow">Archive</div><h2 class="disp">Previous '+SECT[sec].s+'</h2></div></div>'+Object.keys(byYear).sort().reverse().map(y=>'<div class="yr">'+esc(y)+'</div><div class="archive">'+byYear[y].map(x=>tileHTML({v:x,sec,title:ttl(x),date:x.date,url:'/'+gid+'/'+sec+'/'+x.id},false)).join('')+'</div>').join('')+'</section>':'')}
 function pMissing(){nav(null);meta('Not found');return'<div class="panel empty" style="margin-top:40px"><b>That page isn’t here</b><a href="/" data-link>Go to the home page</a></div>'}
 /* ---------- PawPixl Picks: favorite gear, Genshin merch and gaming things (some links are Amazon affiliate links) ---------- */
