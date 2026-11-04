@@ -401,8 +401,8 @@ html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;ov
 .stage .mg-btn[aria-pressed="true"]{background:linear-gradient(90deg,var(--e0),var(--e1));border-color:transparent;opacity:1}
 .stage #vimg{cursor:zoom-in}
 .stage.mg-on #vimg{cursor:none}
-.mg-lens{position:absolute;width:210px;height:210px;border-radius:50%;pointer-events:auto;cursor:none;background:#05060c no-repeat;border:3px solid rgba(255,255,255,.9);box-shadow:0 0 0 4px rgba(var(--e1rgb,95,216,255),.35),0 14px 36px rgba(0,0,0,.55);z-index:3}
-.mg-lens .mg-sp{position:absolute;right:-10px;bottom:-6px;width:48px;height:48px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.45));animation:mgbob 2.6s ease-in-out infinite}
+.mg-lens{position:absolute;width:420px;height:420px;border-radius:14px;pointer-events:auto;cursor:none;background:#05060c no-repeat;border:3px solid rgba(255,255,255,.9);box-shadow:0 0 0 4px rgba(var(--e1rgb,95,216,255),.35),0 14px 36px rgba(0,0,0,.55);z-index:3}
+.mg-lens .mg-sp{position:absolute;right:-14px;bottom:-12px;width:64px;height:64px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.45));animation:mgbob 2.6s ease-in-out infinite}
 @keyframes mgbob{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-4px) rotate(6deg)}}
 @media (prefers-reduced-motion:reduce){.mg-lens .mg-sp{animation:none}}
 }
