@@ -920,6 +920,9 @@ async function pArtifact(gid,id){if(!dbOn())return pDbSoon(gid,'Artifacts');let 
    iw / ia: which characters use each weapon / artifact set, best rank first. */
 let CB=null;
 async function cbGet(gid){if(CB&&CB.gid===gid)return CB;let d=null;try{d=await getJSON('/content/'+gid+'/db/builds.json')}catch(e){}const o={gid,d:d||{chars:{}},iw:{},ia:{}};
+ /* only show builds that fit the character: their weapon type, and no goblet for another element */
+ try{const [C,W]=await Promise.all([dbGet(gid,'chars'),dbGet(gid,'weapons')]);const EL=['Pyro','Hydro','Electro','Cryo','Anemo','Geo','Dendro'];
+  Object.entries(o.d.chars||{}).forEach(([cid,v])=>{const c=C.list.find(c=>c.id===cid);if(!c||!v)return;v.builds=(v.builds||[]).filter(b=>{const ws=(b.w||[]).map(id=>W.list.find(w=>w.id===id)).filter(Boolean);if(ws.length&&ws.filter(w=>w.t!==c.wt).length*2>=ws.length)return false;const g=String((b.main||[])[1]||''),els=EL.filter(e=>g.includes(e));return !els.length||els.includes(c.el)}).map(b=>Object.assign({},b,{w:(b.w||[]).filter(id=>{const w=W.list.find(w=>w.id===id);return !w||w.t===c.wt})}))})}catch(e){}
  Object.entries(o.d.chars||{}).forEach(([cid,c])=>(c.builds||[]).forEach((b,bi)=>{(b.w||[]).forEach((w,r)=>{const L=o.iw[w]||(o.iw[w]=[]);const x=L.find(x=>x.c===cid);if(!x)L.push({c:cid,r,bi});else if(r<x.r){x.r=r;x.bi=bi}});
   (b.a||[]).forEach((op,r)=>(op||[]).forEach(a=>{const L=o.ia[a]||(o.ia[a]=[]);const x=L.find(x=>x.c===cid);if(!x)L.push({c:cid,r,bi,two:op.length>1});else if(r<x.r){x.r=r;x.bi=bi;x.two=op.length>1}}))}));
  Object.values(o.iw).forEach(L=>L.sort((a,b)=>a.r-b.r));Object.values(o.ia).forEach(L=>L.sort((a,b)=>a.r-b.r));CB=o;return o}

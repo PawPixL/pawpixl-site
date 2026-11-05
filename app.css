@@ -326,7 +326,8 @@ footer .row{justify-content:space-between}
 .nl-st{margin:0;padding:0 14px 14px;font-size:13px;color:var(--e2)}
 .nl-st.bad{color:#ff8a95}
 /* archive list on guide pages */
-.side .arch{padding:16px 14px;display:flex;flex-direction:column;gap:2px;max-height:min(70vh,640px);overflow:auto}
+.arch{padding:16px 14px;display:flex;flex-direction:column;gap:2px}
+.side .arch{max-height:min(70vh,640px);overflow:auto}
 .arch .eyebrow{margin:0 4px 6px}
 .arch-m{font:800 11px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--mut,rgba(255,255,255,.55));margin:12px 6px 6px}
 .arch-m:first-of-type{margin-top:4px}
