@@ -1,5 +1,7 @@
 // PawPixl website worker.
 // 1) Traveler stats: two tiny endpoints for the home page (totals only, no cookies, no IP addresses stored).
+// 4) Visitor insights: daily totals only (country, region, language, device, browser, where people came from,
+//    which pages, what hour in Eastern time). No cookies, no IP addresses, nothing that identifies a person.
 // 3) Guide feedback: visitors can send a comment, question or correction from any guide page; only
 //    PawPixl Studio (with the NEWS_KEY password) can read them.
 // 2) The Paw Post: email sign-ups (double opt-in), unsubscribe / change topics, and sending updates
@@ -17,8 +19,53 @@ function init(db) {
     db.prepare('CREATE TABLE IF NOT EXISTS wanted (email TEXT PRIMARY KEY, topics TEXT NOT NULL)'),
     db.prepare('CREATE TABLE IF NOT EXISTS notes (id TEXT PRIMARY KEY, created TEXT NOT NULL, page TEXT NOT NULL, title TEXT NOT NULL DEFAULT \'\', kind TEXT NOT NULL, msg TEXT NOT NULL, contact TEXT NOT NULL DEFAULT \'\', done INTEGER NOT NULL DEFAULT 0)'),
     db.prepare('CREATE TABLE IF NOT EXISTS noterate (k TEXT PRIMARY KEY, n INTEGER NOT NULL DEFAULT 0, t TEXT NOT NULL)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS ins (d TEXT NOT NULL, k TEXT NOT NULL, v TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (d, k, v))'),
   ]).catch(e => { ready = null; throw e; });
   return ready;
+}
+/* ---------------- Visitor insights (totals per day, nothing personal) ---------------- */
+const nyDay = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+const nyHour = () => +new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', hourCycle: 'h23' }).format(new Date()) % 24;
+function uaBits(ua) {
+  const device = /iPad|Tablet|Android(?!.*Mobile)/i.test(ua) ? 'Tablet' : /Mobi|iPhone|iPod|Android/i.test(ua) ? 'Phone' : 'Computer';
+  const os = /iPhone|iPad|iPod/i.test(ua) ? 'iOS / iPadOS' : /Android/i.test(ua) ? 'Android' : /Windows/i.test(ua) ? 'Windows' : /CrOS/i.test(ua) ? 'ChromeOS' : /Mac OS X|Macintosh/i.test(ua) ? 'macOS' : /Linux/i.test(ua) ? 'Linux' : 'Other';
+  const app = /musical_ly|BytedanceWebview|TikTok/i.test(ua) ? 'TikTok app' : /Instagram/i.test(ua) ? 'Instagram app' : /FBAN|FBAV/i.test(ua) ? 'Facebook app' : /Discord/i.test(ua) ? 'Discord app' : '';
+  const browser = app || (/Edg\//.test(ua) ? 'Edge' : /OPR\/|Opera/.test(ua) ? 'Opera' : /SamsungBrowser/.test(ua) ? 'Samsung Internet' : /Firefox|FxiOS/.test(ua) ? 'Firefox' : /Chrome|CriOS/.test(ua) ? 'Chrome' : /Safari/.test(ua) ? 'Safari' : 'Other');
+  return { device, os, browser, app };
+}
+function sourceOf(ref, app, host) {
+  const h = String(ref || '').toLowerCase().replace(/^www\./, '');
+  if (h && host && h === host.replace(/^www\./, '')) return '';
+  if (/tiktok/.test(h) || (!h && app === 'TikTok app')) return 'TikTok';
+  if (/youtube|youtu\.be/.test(h)) return 'YouTube';
+  if (/twitch/.test(h)) return 'Twitch';
+  if (/instagram/.test(h) || (!h && app === 'Instagram app')) return 'Instagram';
+  if (/discord/.test(h) || (!h && app === 'Discord app')) return 'Discord';
+  if (/(^|\.)google\./.test(h)) return 'Google';
+  if (/bing\.com/.test(h)) return 'Bing';
+  if (/duckduckgo/.test(h)) return 'DuckDuckGo';
+  if (/facebook|fb\.com/.test(h) || (!h && app === 'Facebook app')) return 'Facebook';
+  if (/(^|\.)(x|twitter)\.com$|t\.co$/.test(h)) return 'X / Twitter';
+  if (/reddit/.test(h)) return 'Reddit';
+  if (!h) return 'Direct or unknown';
+  return h.slice(0, 60);
+}
+async function insight(db, req, b, url) {
+  const d = nyDay(), q = [], add = (k, v) => { v = String(v == null ? '' : v).slice(0, 120); if (v !== '') q.push(db.prepare('INSERT INTO ins (d, k, v, n) VALUES (?, ?, ?, 1) ON CONFLICT(d, k, v) DO UPDATE SET n = n + 1').bind(d, k, v)) };
+  const cf = req.cf || {}, ua = req.headers.get('user-agent') || '', u = uaBits(ua);
+  const page = String(b.p || '').split('?')[0].replace(/[^\w\-\/%.]/g, '').slice(0, 120);
+  if (page) { add('views', 'all'); add('page', page) }
+  if (b.s) {
+    const c = /^[A-Z]{2}$/.test(cf.country || '') && cf.country !== 'XX' && cf.country !== 'T1' ? cf.country : '';
+    add('visits', 'all'); add('country', c || '??'); if (c && cf.region) add('region', c + '|' + String(cf.region).slice(0, 60));
+    add('device', u.device); add('os', u.os); add('browser', u.browser);
+    add('lang', /^[a-z]{2}$/.test(b.l || '') ? b.l : 'en');
+    const bl = (req.headers.get('accept-language') || '').split(',')[0].trim().slice(0, 12); if (/^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,4})?$/.test(bl)) add('blang', bl.toLowerCase());
+    const src = sourceOf(b.r, u.app, url.host); if (src) add('source', src);
+    add('who', b.v ? 'New' : 'Returning'); add('hour', String(nyHour()));
+  }
+  if (Math.random() < 0.01) { const old = new Date(Date.now() - 400 * 864e5).toISOString().slice(0, 10); q.push(db.prepare('DELETE FROM ins WHERE d < ?').bind(old)) }
+  return q;
 }
 const json = (o, s = 200, extra = {}) => new Response(JSON.stringify(o), { status: s, headers: { 'content-type': 'application/json', ...extra } });
 const bump = (db, k) => db.prepare('INSERT INTO counters (k, n) VALUES (?, 1) ON CONFLICT(k) DO UPDATE SET n = n + 1').bind(k);
@@ -178,6 +225,20 @@ async function news(req, env, url, ctx) {
     const last = (await db.prepare('SELECT id, topic, subject, created FROM issues ORDER BY created DESC LIMIT 5').all()).results;
     return json({ ok: true, total: all.length, unconfirmed: pend, topics: by, today: await used(db), daily: DAILY, mail: !!env.RESEND_KEY, from: info.from, issues: last }, 200, CORS);
   }
+  if (p === 'insights') {
+    const days = Math.max(1, Math.min(400, +url.searchParams.get('days') || 30));
+    const since = new Date(Date.now() - (days - 1) * 864e5).toISOString().slice(0, 10);
+    const [tot, daily, first, allc, cnt] = await db.batch([
+      db.prepare('SELECT k, v, SUM(n) AS n FROM ins WHERE d >= ? GROUP BY k, v').bind(since),
+      db.prepare("SELECT d, k, SUM(n) AS n FROM ins WHERE d >= ? AND k IN ('visits', 'views') GROUP BY d, k ORDER BY d").bind(since),
+      db.prepare('SELECT MIN(d) AS d FROM ins'),
+      db.prepare('SELECT c, n FROM countries'),
+      db.prepare('SELECT k, n FROM counters'),
+    ]);
+    const allTime = { countries: {}, totals: {} }; for (const r of allc.results) allTime.countries[r.c] = r.n; for (const r of cnt.results) allTime.totals[r.k] = r.n;
+    const by = {}; for (const r of tot.results) (by[r.k] = by[r.k] || {})[r.v] = r.n;
+    return json({ ok: true, days, since, first: (first.results[0] || {}).d || null, today: nyDay(), data: by, daily: daily.results, allTime }, 200, CORS);
+  }
   if (p === 'feedback') {
     if (req.method === 'POST') {
       let b = {}; try { b = await req.json(); } catch (e) {}
@@ -247,7 +308,7 @@ export default {
       const origin = req.headers.get('origin');
       if (origin && new URL(origin).host !== url.host) return json({ ok: false }, 403);
       let b = {};
-      try { b = JSON.parse((await req.text()).slice(0, 200)); } catch (e) {}
+      try { b = JSON.parse((await req.text()).slice(0, 600)); } catch (e) {}
       const ua = req.headers.get('user-agent') || '';
       if (/bot|crawl|spider|slurp|preview|headless/i.test(ua)) return json({ ok: true });
       try {
@@ -260,6 +321,7 @@ export default {
             q.push(env.DB.prepare('INSERT INTO countries (c, n) VALUES (?, 1) ON CONFLICT(c) DO UPDATE SET n = n + 1').bind(c));
         }
         if (b.g) q.push(bump(env.DB, 'views'));
+        if (b.s || b.p) q.push(...await insight(env.DB, req, b, url));
         if (q.length) await env.DB.batch(q);
       } catch (e) { return json({ ok: false }, 500); }
       return json({ ok: true });
