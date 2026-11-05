@@ -670,3 +670,30 @@ html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;ov
 .gdis.top{max-width:none;margin:0 0 20px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--mut,#b9c0da);font-size:13px;line-height:1.5}
 .gdis.top>span:first-child{color:#fff;font-weight:600}
 .gdis:not(.top){margin-top:18px}
+/* community builds */
+.pop-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.pop-c{display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03);text-decoration:none;color:inherit;min-width:0}
+.pop-c:hover{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.06)}
+.pop-c span{display:flex;flex-direction:column;min-width:0}.pop-c b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pop-c small{font-size:11px;color:var(--muted,#9aa3c4)}
+.dbic.xs{width:38px;height:38px;border-radius:9px}
+.lab-pop{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.lab-pop>small{font:700 11.5px var(--body);color:color-mix(in srgb,var(--e1) 55%,#b8c0dc);min-width:84px}
+.lab-pop>div{display:flex;gap:6px;flex-wrap:wrap}
+.lab-pop button{padding:2px;border-radius:11px;border:1.5px solid transparent;background:none;cursor:pointer;display:inline-flex;align-items:center;gap:2px;position:relative}
+.lab-pop button[aria-pressed="true"]{border-color:var(--e1);box-shadow:0 0 0 2px color-mix(in srgb,var(--e1) 35%,transparent)}
+.lab-pop button:hover{border-color:rgba(255,255,255,.4)}
+.lab-pop button.pa i{font-style:normal;font:800 9px var(--body);color:#fff;background:rgba(9,12,24,.8);border-radius:6px;padding:1px 4px;position:absolute;bottom:-4px;right:-4px}
+.lab-pcs{margin-top:10px}.lab-pcs summary{cursor:pointer;font:700 13px var(--body);color:var(--muted,#9aa3c4)}
+.lab-pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-top:10px}
+.lab-pc{border:1px solid var(--line);border-radius:12px;padding:8px;background:rgba(255,255,255,.03);display:flex;flex-direction:column;gap:5px}
+.lab-pc>b{font-size:12px;color:var(--e1)}
+.lab-pc select,.lab-pc input{height:32px;border-radius:8px;border:1px solid var(--line);background:var(--bg2,#11142a);color:#fff;padding:0 6px;font:600 12.5px var(--body);min-width:0;width:100%}
+.lab-mn{height:32px;display:flex;align-items:center;gap:6px;font:700 12.5px var(--body);padding:0 6px;border-radius:8px;background:rgba(255,255,255,.05)}
+.lab-sr{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr);gap:4px}
+.cpop-l{margin-top:8px}.cpop-l>small{display:block;font:700 11.5px var(--body);color:var(--muted,#9aa3c4);margin-bottom:6px}
+.cpop-w{display:flex;gap:6px;flex-wrap:wrap}
+.cpop-s{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.cpop-s a{display:inline-flex;align-items:center;gap:7px;text-decoration:none;color:inherit;font-size:12.5px;font-weight:600}
+.cpop-s i{font-style:normal;color:var(--muted,#9aa3c4)}
+.cpop .btn{width:auto;display:inline-flex}
+.bnote{margin:8px 0 0;max-width:720px;font-size:12.5px;line-height:1.5;color:var(--muted,#9aa3c4);padding-left:10px;border-left:2px solid color-mix(in srgb,var(--e1) 55%,transparent)}
