@@ -155,7 +155,158 @@ const TR_ROWS=[
 ['Nations Reached','Nations atteintes','Naciones alcanzadas','届いた国','覆盖国家'],
 ['Characters Built','Personnages couverts','Personajes creados','作成したキャラ','已制作角色'],
 ['Anemo','Anémo','Anemo','風','风'],['Geo','Géo','Geo','岩','岩'],['Electro','Électro','Electro','雷','雷'],['Dendro','Dendro','Dendro','草','草'],['Hydro','Hydro','Hydro','水','水'],['Pyro','Pyro','Pyro','炎','火'],['Cryo','Cryo','Cryo','氷','冰'],
-['HYDRO','HYDRO','HYDRO','水','水']
+['HYDRO','HYDRO','HYDRO','水','水'],
+["HP", "PV", "Vida", "HP", "生命值"],
+["ATK", "ATQ", "ATQ", "攻撃力", "攻击力"],
+["DEF", "DÉF", "DEF", "防御力", "防御力"],
+["HP%", "PV %", "Vida %", "HP%", "生命值%"],
+["ATK%", "ATQ %", "ATQ %", "攻撃力%", "攻击力%"],
+["DEF%", "DÉF %", "DEF %", "防御力%", "防御力%"],
+["CRIT Rate", "Taux CRIT", "Prob. CRIT", "会心率", "暴击率"],
+["CRIT DMG", "DGT CRIT", "Daño CRIT", "会心ダメージ", "暴击伤害"],
+["Energy Recharge", "Recharge d'énergie", "Recarga de Energía", "元素チャージ効率", "元素充能效率"],
+["Elemental Mastery", "Maîtrise élémentaire", "Maestría Elemental", "元素熟知", "元素精通"],
+["Healing Bonus", "Bonus de soins", "Bono de Curación", "与える治療効果", "治疗加成"],
+["Physical DMG Bonus", "Bonus de DGT physiques", "Bono de Daño Físico", "物理ダメージ", "物理伤害加成"],
+["Physical DMG", "DGT physiques", "Daño Físico", "物理ダメージ", "物理伤害"],
+["DMG Bonus", "Bonus de DGT", "Bono de Daño", "ダメージバフ", "伤害加成"],
+["Elemental Skill DMG", "DGT de compétence élémentaire", "Daño de Habilidad Elemental", "元素スキルダメージ", "元素战技伤害"],
+["Elemental Burst DMG", "DGT de déchaînement élémentaire", "Daño de Habilidad Definitiva", "元素爆発ダメージ", "元素爆发伤害"],
+["Normal Attack DMG", "DGT des attaques normales", "Daño de Ataque Normal", "通常攻撃ダメージ", "普通攻击伤害"],
+["Charged Attack DMG", "DGT des attaques chargées", "Daño de Ataque Cargado", "重撃ダメージ", "重击伤害"],
+["Plunging Attack DMG", "DGT d'attaque plongeante", "Daño de Ataque Descendente", "落下攻撃ダメージ", "下落攻击伤害"],
+["Elemental Skill DMG Bonus", "Bonus de DGT de compétence élémentaire", "Bono de Daño de Habilidad Elemental", "元素スキルダメージバフ", "元素战技伤害加成"],
+["Elemental Burst DMG Bonus", "Bonus de DGT de déchaînement élémentaire", "Bono de Daño de Habilidad Definitiva", "元素爆発ダメージバフ", "元素爆发伤害加成"],
+["Normal Attack DMG Bonus", "Bonus de DGT des attaques normales", "Bono de Daño de Ataque Normal", "通常攻撃ダメージバフ", "普通攻击伤害加成"],
+["Charged Attack DMG Bonus", "Bonus de DGT des attaques chargées", "Bono de Daño de Ataque Cargado", "重撃ダメージバフ", "重击伤害加成"],
+["Plunging Attack DMG Bonus", "Bonus de DGT d'attaque plongeante", "Bono de Daño de Ataque Descendente", "落下攻撃ダメージバフ", "下落攻击伤害加成"],
+["No substat", "Aucune stat secondaire", "Sin estadística secundaria", "サブステータスなし", "无副属性"],
+["(from Max HP)", "(selon les PV max)", "(según la Vida máx.)", "(HP上限から)", "(基于生命值上限)"],
+["(from Energy Recharge)", "(selon la Recharge d'énergie)", "(según la Recarga de Energía)", "(元素チャージ効率から)", "(基于元素充能效率)"],
+["Sword", "Épée", "Espada", "片手剣", "单手剑"],
+["Claymore", "Épée à deux mains", "Mandoble", "両手剣", "双手剑"],
+["Polearm", "Arme d'hast", "Lanza", "長柄武器", "长柄武器"],
+["Bow", "Arc", "Arco", "弓", "弓"],
+["Catalyst", "Catalyseur", "Catalizador", "法器", "法器"],
+["Flower of Life", "Fleur de la vie", "Flor de la Vida", "生の花", "生之花"],
+["Plume of Death", "Plume de la mort", "Pluma de la Muerte", "死の羽", "死之羽"],
+["Sands of Eon", "Sables du temps", "Arenas del Eón", "時の砂", "时之沙"],
+["Goblet of Eonothem", "Coupe d'Eonothem", "Cáliz de Eonothem", "空の杯", "空之杯"],
+["Circlet of Logos", "Diadème de Logos", "Tiara de Logos", "理の冠", "理之冠"],
+["Sands", "Sables", "Arenas", "時の砂", "时之沙"],
+["Goblet", "Coupe", "Cáliz", "空の杯", "空之杯"],
+["Circlet", "Diadème", "Tiara", "理の冠", "理之冠"],
+["Gacha", "Vœux", "Gachapón", "祈願", "祈愿"],
+["Craft", "Forge", "Forja", "鍛造", "锻造"],
+["Battle Pass", "Passe de combat", "Pase de Batalla", "紀行", "纪行"],
+["Event", "Événement", "Evento", "イベント", "活动"],
+["Free", "Gratuit", "Gratis", "無料", "免费"],
+["Starglitter", "Éclats étincelants", "Brillo Astral", "スターグリッター", "星辉"],
+["Fishing", "Pêche", "Pesca", "釣り", "钓鱼"],
+["Shop", "Boutique", "Tienda", "ショップ", "商店"],
+["Signature", "Exclusive", "Exclusiva", "モチーフ", "专武"],
+["Weapons", "Armes", "Armas", "武器", "武器"],
+["Artifacts", "Artéfacts", "Artefactos", "聖遺物", "圣遗物"],
+["Build Lab", "Labo de builds", "Laboratorio de builds", "ビルドラボ", "配装实验室"],
+["Genshin Build Lab", "Labo de builds Genshin", "Laboratorio de builds de Genshin", "原神ビルドラボ", "原神配装实验室"],
+["Try any build", "Testez n'importe quel build", "Prueba cualquier build", "好きなビルドを試そう", "试试任意配装"],
+["Try any character with any weapon and artifacts, and see the numbers", "Essayez n'importe quel personnage avec n'importe quelle arme et quels artéfacts, et voyez les chiffres", "Prueba cualquier personaje con cualquier arma y artefactos, y mira los números", "好きなキャラに好きな武器と聖遺物を装備して、数値を確認しよう", "为任意角色搭配任意武器和圣遗物，查看数值"],
+["weapons. Tap one for its stats and passive.", "armes. Touchez-en une pour voir ses stats et son effet.", "armas. Toca una para ver sus estadísticas y su pasiva.", "件の武器。タップするとステータスと効果を表示します。", "把武器。点击查看属性和被动效果。"],
+["artifact sets. Tap one for its set bonuses.", "sets d'artéfacts. Touchez-en un pour voir ses bonus.", "conjuntos de artefactos. Toca uno para ver sus bonificaciones.", "種類の聖遺物セット。タップするとセット効果を表示します。", "套圣遗物。点击查看套装效果。"],
+["Search weapons", "Rechercher une arme", "Buscar armas", "武器を検索", "搜索武器"],
+["Search artifact sets", "Rechercher un set d'artéfacts", "Buscar conjuntos de artefactos", "聖遺物セットを検索", "搜索圣遗物套装"],
+["Try another type or name.", "Essayez un autre type ou un autre nom.", "Prueba con otro tipo o nombre.", "別の種類か名前で試してください。", "试试其他类型或名称。"],
+["Try another name.", "Essayez un autre nom.", "Prueba con otro nombre.", "別の名前で試してください。", "试试其他名称。"],
+["← All weapons", "← Toutes les armes", "← Todas las armas", "← すべての武器", "← 全部武器"],
+["← All artifacts", "← Tous les artéfacts", "← Todos los artefactos", "← すべての聖遺物", "← 全部圣遗物"],
+["Stats", "Statistiques", "Estadísticas", "ステータス", "属性"],
+["Base ATK", "ATQ de base", "ATQ base", "基礎攻撃力", "基础攻击力"],
+["Lv", "Niv.", "Nv.", "Lv.", "等级"],
+["Signature weapon", "Arme exclusive", "Arma exclusiva", "モチーフ武器", "专属武器"],
+["Made for", "Conçue pour", "Creada para", "この武器の持ち主:", "专属角色："],
+["How to get it", "Comment l'obtenir", "Cómo conseguirla", "入手方法", "获取方式"],
+["Where to get it", "Où l'obtenir", "Dónde conseguirlo", "入手方法", "获取途径"],
+["PawPixl’s note", "Note de PawPixl", "Nota de PawPixl", "PawPixlのメモ", "PawPixl的备注"],
+["Used in these PawPixl builds", "Utilisé dans ces builds PawPixl", "Usado en estos builds de PawPixl", "PawPixlの育成で使用", "用于这些PawPixl配装"],
+["Try it in the Build Lab", "Essayer dans le Labo de builds", "Probar en el Laboratorio de builds", "ビルドラボで試す", "在配装实验室中试用"],
+["1-piece", "1 pièce", "1 pieza", "1セット", "1件套"],
+["2-piece", "2 pièces", "2 piezas", "2セット", "2件套"],
+["4-piece", "4 pièces", "4 piezas", "4セット", "4件套"],
+["This part of the site is still being set up. Check back soon!", "Cette partie du site est en cours de préparation. Revenez bientôt !", "Esta parte del sitio aún se está preparando. ¡Vuelve pronto!", "このページは準備中です。またのぞいてみてね！", "这部分内容还在准备中，敬请期待！"],
+["Back to the guides", "Retour aux guides", "Volver a las guías", "ガイドに戻る", "返回攻略"],
+["see weapon", "voir l'arme", "ver arma", "武器を見る", "查看武器"],
+["see set", "voir le set", "ver conjunto", "セットを見る", "查看套装"],
+["open card", "ouvrir la fiche", "abrir ficha", "カードを開く", "打开卡片"],
+["Try any character with any weapon and artifacts. Stats come straight from the game data; damage numbers are samples.", "Essayez n'importe quel personnage avec n'importe quelle arme et quels artéfacts. Les stats viennent directement des données du jeu ; les dégâts sont des exemples.", "Prueba cualquier personaje con cualquier arma y artefactos. Las estadísticas vienen de los datos del juego; los números de daño son ejemplos.", "好きなキャラに好きな武器と聖遺物を装備できます。ステータスはゲームデータそのまま、ダメージは目安です。", "为任意角色搭配任意武器和圣遗物。属性直接来自游戏数据，伤害数值仅供参考。"],
+["Loading…", "Chargement…", "Cargando…", "読み込み中…", "加载中…"],
+["Character", "Personnage", "Personaje", "キャラクター", "角色"],
+["Level", "Niveau", "Nivel", "レベル", "等级"],
+["Constellation", "Constellation", "Constelación", "命ノ星座", "命之座"],
+["Constellations", "Constellations", "Constelaciones", "命ノ星座", "命之座"],
+["Normal Attack", "Attaque normale", "Ataque Normal", "通常攻撃", "普通攻击"],
+["Skill", "Compétence", "Habilidad", "スキル", "战技"],
+["Burst", "Déchaînement", "Definitiva", "爆発", "爆发"],
+["Elemental Skill", "Compétence élémentaire", "Habilidad Elemental", "元素スキル", "元素战技"],
+["Elemental Burst", "Déchaînement élémentaire", "Habilidad Definitiva", "元素爆発", "元素爆发"],
+["Weapon", "Arme", "Arma", "武器", "武器"],
+["Refinement", "Raffinement", "Refinamiento", "精錬", "精炼"],
+["Equipped", "Équipés", "Equipados", "装備中", "已装备"],
+["Sets", "Sets", "Conjuntos", "セット", "套装"],
+["Set (4 pieces)", "Set (4 pièces)", "Conjunto (4 piezas)", "セット (4つ)", "套装 (4件)"],
+["First set (2 pieces)", "Premier set (2 pièces)", "Primer conjunto (2 piezas)", "1つ目のセット (2つ)", "第一套 (2件)"],
+["Second set (2 pieces)", "Second set (2 pièces)", "Segundo conjunto (2 piezas)", "2つ目のセット (2つ)", "第二套 (2件)"],
+["Substats", "Stats secondaires", "Estadísticas secundarias", "サブステータス", "副词条"],
+["Typical", "Standard", "Típicas", "標準", "普通"],
+["Good", "Bonnes", "Buenas", "良い", "优秀"],
+["Great", "Excellentes", "Excelentes", "最高", "极品"],
+["Edit substats (totals across all 5 pieces)", "Modifier les stats secondaires (total des 5 pièces)", "Editar estadísticas secundarias (total de las 5 piezas)", "サブステータスを編集（5つの合計）", "编辑副词条（5件合计）"],
+["5-star pieces at +20: HP 4,780 flower, ATK 311 plume. Substat presets are made-up but realistic rolls.", "Pièces 5★ au niveau +20 : fleur 4 780 PV, plume 311 ATQ. Les préréglages de stats secondaires sont inventés mais réalistes.", "Piezas de 5★ a +20: flor con 4780 de Vida, pluma con 311 de ATQ. Los ajustes de estadísticas secundarias son inventados pero realistas.", "★5の+20：生の花 HP4,780、死の羽 攻撃力311。サブステータスのプリセットは架空ですが現実的な数値です。", "5星+20：生之花生命值4,780，死之羽攻击力311。副词条预设为虚构但贴近实际的数值。"],
+["Enemy", "Ennemi", "Enemigo", "敵", "敌人"],
+["Enemy level", "Niveau de l'ennemi", "Nivel del enemigo", "敵のレベル", "敌人等级"],
+["Enemy RES %", "RÉS de l'ennemi %", "RES del enemigo %", "敵の耐性 %", "敌人抗性 %"],
+["Copy link", "Copier le lien", "Copiar enlace", "リンクをコピー", "复制链接"],
+["Copied!", "Copié !", "¡Copiado!", "コピーしました！", "已复制！"],
+["Copy the address bar", "Copiez la barre d'adresse", "Copia la barra de direcciones", "アドレスバーをコピーしてください", "请复制地址栏"],
+["Scaling", "Multiplicateur", "Escalado", "倍率", "倍率"],
+["Non-crit", "Sans CRIT", "Sin CRIT", "会心なし", "未暴击"],
+["Crit", "CRIT", "CRIT", "会心", "暴击"],
+["Average", "Moyenne", "Promedio", "期待値", "期望"],
+["Passive talents", "Aptitudes passives", "Talentos pasivos", "固有天賦", "固有天赋"],
+["About these numbers", "À propos de ces chiffres", "Sobre estos números", "この数値について", "关于这些数值"],
+["Stats add up the character, weapon and artifacts, plus the weapon and set bonuses that are always on, exactly as the game data lists them. Damage is a sample: one hit on the enemy set above, with no reactions, teammate buffs, conditional weapon or set effects, character passives or constellation effects beyond the +3 talent levels. Your in-game numbers will usually be higher.", "Les stats additionnent le personnage, l'arme et les artéfacts, plus les bonus d'arme et de set toujours actifs, exactement selon les données du jeu. Les dégâts sont un exemple : un coup sur l'ennemi choisi ci-dessus, sans réactions, buffs d'équipe, effets conditionnels d'arme ou de set, aptitudes passives ni effets de constellation autres que les +3 niveaux d'aptitude. Vos chiffres en jeu seront généralement plus élevés.", "Las estadísticas suman el personaje, el arma y los artefactos, más las bonificaciones de arma y conjunto que siempre están activas, tal como aparecen en los datos del juego. El daño es un ejemplo: un golpe al enemigo elegido arriba, sin reacciones, mejoras del equipo, efectos condicionales de arma o conjunto, talentos pasivos ni efectos de constelación aparte de los +3 niveles de talento. Tus números en el juego normalmente serán más altos.", "ステータスはキャラ・武器・聖遺物に、常時発動する武器効果とセット効果を加えたもので、ゲームデータの数値どおりです。ダメージは目安で、上で設定した敵への1ヒット分です。元素反応、味方のバフ、条件付きの武器・セット効果、固有天賦、天賦レベル+3以外の命ノ星座の効果は含みません。実際のゲーム内の数値はたいていこれより高くなります。", "属性为角色、武器、圣遗物，加上始终生效的武器和套装加成之和，与游戏数据一致。伤害仅供参考：对上方设置的敌人造成的一次伤害，不含元素反应、队友增益、条件触发的武器或套装效果、固有天赋，以及除天赋等级+3以外的命之座效果。游戏内的实际数值通常会更高。"],
+["Change", "Changer", "Cambiar", "変更", "更换"],
+["Guide", "Guide", "Guía", "ガイド", "攻略"],
+["Starting from PawPixl’s build card", "D'après la fiche build de PawPixl", "Basado en la ficha de build de PawPixl", "PawPixlの育成カードから開始", "基于PawPixl的配装卡片"],
+["Pick a character", "Choisir un personnage", "Elige un personaje", "キャラクターを選択", "选择角色"],
+["Pick a weapon", "Choisir une arme", "Elige un arma", "武器を選択", "选择武器"],
+["Pick an artifact set", "Choisir un set d'artéfacts", "Elige un conjunto de artefactos", "聖遺物セットを選択", "选择圣遗物套装"],
+["Pick another character", "Choisir un autre personnage", "Elegir otro personaje", "別のキャラクターを選択", "选择其他角色"],
+["Search by name or effect", "Rechercher par nom ou effet", "Buscar por nombre o efecto", "名前や効果で検索", "按名称或效果搜索"],
+["No set", "Aucun set", "Sin conjunto", "セットなし", "无套装"],
+["Leave this empty", "Laisser vide", "Dejar vacío", "空にする", "留空"],
+["Tap to pick a set", "Touchez pour choisir un set", "Toca para elegir un conjunto", "タップしてセットを選択", "点击选择套装"],
+["2-piece adds stats", "Le bonus 2 pièces ajoute des stats", "El bonus de 2 piezas suma estadísticas", "2セット効果でステータス上昇", "2件套增加属性"],
+["2-piece is an effect", "Le bonus 2 pièces est un effet", "El bonus de 2 piezas es un efecto", "2セット効果は特殊効果", "2件套为特殊效果"],
+["counted", "compté", "contado", "計算済み", "已计入"],
+["not counted", "non compté", "no contado", "未計算", "未计入"],
+["Counted from the weapon", "Compté depuis l'arme", "Contado del arma", "武器から計算", "来自武器"],
+["Counted from the 4-piece", "Compté depuis le bonus 4 pièces", "Contado del bonus de 4 piezas", "4セット効果から計算", "来自4件套"],
+["Passive effects that depend on a condition are not counted.", "Les effets passifs qui dépendent d'une condition ne sont pas comptés.", "Los efectos pasivos que dependen de una condición no se cuentan.", "条件付きの効果は計算に含まれません。", "需要条件触发的效果不计入。"],
+["Pick a character, weapon and artifacts to see their stats and sample damage numbers.", "Choisissez un personnage, une arme et des artéfacts pour voir leurs stats et des exemples de dégâts.", "Elige un personaje, un arma y artefactos para ver sus estadísticas y ejemplos de daño.", "キャラ・武器・聖遺物を選んで、ステータスとダメージの目安を確認しよう。", "选择角色、武器和圣遗物，查看属性和伤害参考值。"],
+["Pyro DMG Bonus", "Bonus de DGT Pyro", "Bono de Daño Pyro", "炎元素ダメージ", "火元素伤害加成"],
+["Pyro DMG", "DGT Pyro", "Daño Pyro", "炎元素ダメージ", "火元素伤害"],
+["Hydro DMG Bonus", "Bonus de DGT Hydro", "Bono de Daño Hydro", "水元素ダメージ", "水元素伤害加成"],
+["Hydro DMG", "DGT Hydro", "Daño Hydro", "水元素ダメージ", "水元素伤害"],
+["Anemo DMG Bonus", "Bonus de DGT Anémo", "Bono de Daño Anemo", "風元素ダメージ", "风元素伤害加成"],
+["Anemo DMG", "DGT Anémo", "Daño Anemo", "風元素ダメージ", "风元素伤害"],
+["Electro DMG Bonus", "Bonus de DGT Électro", "Bono de Daño Electro", "雷元素ダメージ", "雷元素伤害加成"],
+["Electro DMG", "DGT Électro", "Daño Electro", "雷元素ダメージ", "雷元素伤害"],
+["Cryo DMG Bonus", "Bonus de DGT Cryo", "Bono de Daño Cryo", "氷元素ダメージ", "冰元素伤害加成"],
+["Cryo DMG", "DGT Cryo", "Daño Cryo", "氷元素ダメージ", "冰元素伤害"],
+["Geo DMG Bonus", "Bonus de DGT Géo", "Bono de Daño Geo", "岩元素ダメージ", "岩元素伤害加成"],
+["Geo DMG", "DGT Géo", "Daño Geo", "岩元素ダメージ", "岩元素伤害"],
+["Dendro DMG Bonus", "Bonus de DGT Dendro", "Bono de Daño Dendro", "草元素ダメージ", "草元素伤害加成"],
+["Dendro DMG", "DGT Dendro", "Daño Dendro", "草元素ダメージ", "草元素伤害"],
 ];
 const TR={fr:{},es:{},ja:{},zh:{}};TR_ROWS.forEach(r=>['fr','es','ja','zh'].forEach((l,i)=>{if(r[i+1])TR[l][r[0]]=r[i+1]}));
 const LOC={en:'en-US',fr:'fr-FR',es:'es-ES',ja:'ja-JP',zh:'zh-CN'};
@@ -380,9 +531,9 @@ function wireViewer(v,title,fileBase){const{list}=slidesOf(v);let i=0;const img=
  /* clickable characters on the card: the Studio saves where each team portrait sits; tapping one opens that character's card (or their coming-soon page) */
  const gidW=location.pathname.split('/')[1]||'genshin',here=location.pathname.replace(/\/+$/,'');
  const nk=x=>String(x||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().split(' ').filter(Boolean).sort().join(' ');
- const linkOf=(nm,kind)=>{if(kind){/* weapons and artifacts: only once the item database is published, and only on an exact name match */if(!dbOn())return null;const L=(DBC[gidW+'/'+(kind==='w'?'weapons':'artifacts')]||{}).list;if(!L)return null;const n0=norm(nm);const it=L.find(x=>norm(x.n)===n0||(kind==='a'&&Object.values(x.p||{}).some(p=>norm(p.n)===n0)));if(!it)return null;return{href:'/'+gidW+'/'+(kind==='w'?'weapons':'artifacts')+'/'+it.id,name:it.n,on:true,tip:it.n+(kind==='w'?' · see weapon':' · see set')}}
+ const linkOf=(nm,kind)=>{if(kind){/* weapons and artifacts: only once the item database is published, and only on an exact name match */if(!dbOn())return null;const L=(DBC[gidW+'/'+(kind==='w'?'weapons':'artifacts')]||{}).list;if(!L)return null;const n0=norm(nm);const it=L.find(x=>norm(x.n)===n0||(kind==='a'&&Object.values(x.p||{}).some(p=>norm(p.n)===n0)));if(!it)return null;return{href:'/'+gidW+'/'+(kind==='w'?'weapons':'artifacts')+'/'+it.id,name:N(it),on:true,tip:N(it)+' · '+tt(kind==='w'?'see weapon':'see set')}}
   const d=S.games[gidW]||{},R=d.roster||[],k=nk(nm);if(!k)return null;const r=R.find(x=>nk(x.name)===k);if(!r)return null;const href='/'+gidW+'/builds/'+r.id;if(here===href||here.startsWith(href+'/'))return null;return{href,name:r.name,on:!!(((d.posts||{}).builds||{})[r.id])}};
- const hotsOf=sl=>(sl&&sl.links||[]).map(l=>{const t=linkOf(l.n,l.k);if(!t||!Array.isArray(l.r)||l.r.length!==4)return'';const[x,y,w,h]=l.r.map(Number);if(![x,y,w,h].every(isFinite)||w<=0||h<=0||x<0||y<0||x+w>1.001||y+h>1.001)return'';return'<a class="hot" href="'+esc(t.href)+'" data-link style="left:'+x*100+'%;top:'+y*100+'%;width:'+w*100+'%;height:'+h*100+'%" aria-label="'+esc(t.tip||t.name+(t.on?' build card':' · card coming soon'))+'" data-tip="'+esc(t.tip||t.name+(t.on?' · open card':' · coming soon'))+'"></a>'}).join('');
+ const hotsOf=sl=>(sl&&sl.links||[]).map(l=>{const t=linkOf(l.n,l.k);if(!t||!Array.isArray(l.r)||l.r.length!==4)return'';const[x,y,w,h]=l.r.map(Number);if(![x,y,w,h].every(isFinite)||w<=0||h<=0||x<0||y<0||x+w>1.001||y+h>1.001)return'';return'<a class="hot" href="'+esc(t.href)+'" data-link style="left:'+x*100+'%;top:'+y*100+'%;width:'+w*100+'%;height:'+h*100+'%" aria-label="'+esc(t.tip||t.name+' · '+tt(t.on?'open card':'coming soon'))+'" data-tip="'+esc(t.tip||t.name+' · '+tt(t.on?'open card':'coming soon'))+'"></a>'}).join('');
  const touchy0=matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0&&!matchMedia('(pointer:fine)').matches;
  const hp=()=>{let h=$('#vhots');if(!h){img.insertAdjacentHTML('afterend','<div class="hots" id="vhots"></div>');h=$('#vhots')}h.innerHTML=touchy0?'':hotsOf(list[i])};hp();if(dbOn()&&list.some(x=>(x.links||[]).some(l=>l.k))){Promise.all([dbGet(gidW,'weapons'),dbGet(gidW,'artifacts')]).then(()=>{if($('#vimg')===img)hp()}).catch(()=>{})}
  const show=n=>{i=(n+list.length)%list.length;img.src='/'+list[i].img;hp();img.alt=title+' slide '+(i+1);const c=$('#vc');if(c)c.textContent=(i+1)+' / '+list.length;document.querySelectorAll('#vth button').forEach((b,j)=>b.setAttribute('aria-current',String(j===i)))};
@@ -602,7 +753,41 @@ let PAGE=null;
    Data is published from PawPixl Studio (Website tab > Item database) to /content/<game>/db/. */
 const DBI={w:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 3H21v6.5L10 20.5l-1.5-1.5L7 20.5 3.5 17 5 15.5 3.5 14z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 12.5l5.5 5.5" stroke="currentColor" stroke-width="1.8"/></svg>',a:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c1.8 2.6 1.8 5 0 7.5C10.2 8 10.2 5.6 12 3zM12 21c-1.8-2.6-1.8-5 0-7.5 1.8 2.5 1.8 4.9 0 7.5zM3 12c2.6-1.8 5-1.8 7.5 0C8 13.8 5.6 13.8 3 12zM21 12c-2.6 1.8-5 1.8-7.5 0 2.5-1.8 4.9-1.8 7.5 0z" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg>',l:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v5.5L4.5 18.5A1.8 1.8 0 0 0 6 21h12a1.8 1.8 0 0 0 1.5-2.5L14 8.5V3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M7.2 15h9.6" stroke="currentColor" stroke-width="1.8"/></svg>'};
 const norm=x=>String(x||'').toLowerCase().replace(/[^a-z0-9]/g,'');const DB={};const dbOn=()=>!!(S.site&&S.site.db&&S.site.db.on);
-const DBC={};async function dbGet(gid,k){const key=gid+'/'+k;if(DB[key])return DB[key];DB[key]=getJSON('/content/'+gid+'/db/'+k+'.json').then(d=>{DBC[key]=d;return d}).catch(e=>{delete DB[key];throw e});return DB[key]}
+/* Reads the always-on stat bonuses out of a weapon passive or 4-piece text (with the refinement numbers already filled in).
+   Anything that depends on a condition (stacks, "after using a skill", "when HP is below"...) is left out on purpose. */
+(function(g){
+const COND=/\b(when|whenever|after|while|within|for \d|stacks?|if|upon|each time|every|nearby|party|on-field|off-field|on the field|hits?|triggers?|based on|nightsoul|moonsign|bond of life|teammates?|opponents?|enemies|cooldown|duration|lasts|seconds|consum\w*|obtain\w*|exceeds?|below|above|less than|more than|at least|charge level|lunar|reactions?|shield|sprint|dash|plunge|swap|switch|healed|heals|regenerat\w*|energy is|current hp|cast|casting|using|uses|use|attacks?|defeat\w*|can be triggered|once|times)\b|\d+(\.\d+)?s\b/i;
+const EL=['pyro','hydro','anemo','electro','cryo','geo','dendro'];
+const ST={'atk':['atk_','atk'],'hp':['hp_','hp'],'max hp':['hp_','hp'],'def':['def_','def'],'crit rate':['cr','cr'],'crit dmg':['cd','cd'],'elemental mastery':['em','em'],'energy recharge':['er','er'],'healing bonus':['heal','heal'],'physical dmg':['phys','phys'],'physical dmg bonus':['phys','phys']};
+const SN='(ATK|Max HP|HP|DEF|CRIT Rate|CRIT DMG|Elemental Mastery|Energy Recharge|Healing Bonus|Physical DMG Bonus|Physical DMG)';
+const TY={'normal attack':['na'],'charged attack':['ca'],'normal and charged attack':['na','ca'],'elemental skill':['skill'],'elemental burst':['burst'],'plunging attack':['plunge']};
+const TN='(Normal and Charged Attack|Normal Attack|Charged Attack|Elemental Skill|Elemental Burst|Plunging Attack)';
+const num=(v,p)=>p?+v/100:+v;
+function stat(o,name,v,p){const m=ST[name.toLowerCase()];if(!m)return;const k=p?m[0]:m[1];if(!p&&['cr','cd','er','heal','phys'].includes(k))return;o[k]=(o[k]||0)+num(v,p&&true)}
+function sentence(s,o){s=s.trim().replace(/^Additionally,\s*/i,'');if(!s||COND.test(s))return;/* "by 28% of Energy Recharge" style bonuses are conversions, not flat stats */if(/\d%?\s+of\b/i.test(s))return;let m;
+ if((m=s.match(new RegExp('^(?:Increases |Gain (?:a |an )?)(?:the equipping character\'s |the wielder\'s )?'+SN+' (?:is )?(?:by )?\\+?([\\d.]+)(%?)(?=[ .,]|$)','i'))))return stat(o,m[1],m[2],m[3]);
+ if((m=s.match(new RegExp('^'+SN+' (?:is )?(?:increased by |\\+)([\\d.]+)(%?)(?=[ .,]|$)','i'))))return stat(o,m[1],m[2],m[3]);
+ if((m=s.match(/^(?:Gain (?:a |an )?([\d.]+)% (?:All )?Elemental DMG Bonus(?: for all elements)?|Increases (?:All )?Elemental DMG Bonus by ([\d.]+)%|Increases all Elemental DMG Bonus(?:es)? by ([\d.]+)%)(?=[ .,]|$)/i))){const v=+(m[1]||m[2]||m[3])/100;EL.forEach(e=>o[e]=(o[e]||0)+v);return}
+ if((m=s.match(/^(?:Gain (?:a |an )?([\d.]+)% (Pyro|Hydro|Anemo|Electro|Cryo|Geo|Dendro) DMG Bonus|(Pyro|Hydro|Anemo|Electro|Cryo|Geo|Dendro) DMG Bonus (?:is )?(?:increased by |\+)([\d.]+)%)(?=[ .,]|$)/i))){const e=(m[2]||m[3]).toLowerCase();o[e]=(o[e]||0)+ +(m[1]||m[4])/100;return}
+ if((m=s.match(new RegExp('^(?:Increases |Increases the equipping character\'s )'+TN+' DMG by ([\\d.]+)%(?=[ .,]|$)','i')))||(m=s.match(new RegExp('^'+TN+' DMG (?:is increased by |\\+)([\\d.]+)%(?=[ .,]|$)','i')))){(TY[m[1].toLowerCase()]||[]).forEach(k=>o[k]=(o[k]||0)+ +m[2]/100);return}
+ if((m=s.match(/^Increases DMG (?:dealt )?(?:by the character equipping this weapon )?by ([\d.]+)%(?=[ .,]|$)/i))){o.dmg=(o.dmg||0)+ +m[1]/100;return}}
+function passiveStats(text){const o={};String(text||'').replace(/\n/g,' ').split(/(?<=\.)\s+|;\s+/).forEach(s=>sentence(s,o));return o}
+/* a few 4-piece bonuses that are always on but worded differently */
+function special4(text,ctx,o){const t=String(text||'');let m;
+ if((m=t.match(/If the wielder of this artifact set uses an? ([A-Za-z ,]+?), increases their Normal Attack DMG by (\d+)%/i))){const L=m[1].split(/,\s*|\s+or\s+/).map(x=>x.trim().toLowerCase());if(ctx.wt&&L.includes(ctx.wt.toLowerCase()))o.na=(o.na||0)+ +m[2]/100}
+ if((m=t.match(/Increases Elemental Burst DMG by (\d+)% of Energy Recharge\. A maximum of (\d+)% bonus DMG can be obtained/i)))o._burstER=[+m[1]/100,+m[2]/100];
+ return o}
+/* weapon bonuses that convert one stat into another and are always on */
+function specialW(text,o){const t=String(text||'').replace(/\n/g,' ');let m;
+ if((m=t.match(/ATK increased by ([\d.]+)% of Energy Recharge over the base 100%\. You can gain a maximum bonus of ([\d.]+)% ATK/i)))o._atkER=[+m[1]/100,+m[2]/100];
+ t.split(/(?<=\.)\s+/).forEach(s=>{const x=s.replace(/^Additionally,\s*/i,'');const mm=x.match(/^provides an ATK Bonus based on ([\d.]+)% of the wielder's Max HP\.?$/i);if(mm)o._atkHP=(o._atkHP||0)+ +mm[1]/100});return o}
+g.ppPassive={passiveStats,special4,specialW};if(typeof module!=='undefined')module.exports={passiveStats,special4,specialW};
+})(window);
+
+const DBC={};const tt=x=>S.lang==='en'?x:trText(x);
+async function dbGet(gid,k){const lg=S.lang||'en',key=gid+'/'+k+'/'+lg;if(DB[key])return DB[key];
+ DB[key]=getJSON('/content/'+gid+'/db/'+k+'.json').then(async d=>{if(lg!=='en'){let o=null;try{o=await getJSON('/content/'+gid+'/db/'+k+'.'+lg+'.json')}catch(e){}if(o)d.list.forEach(x=>{const t=o[x.id];if(t)x._t=typeof t==='string'?{n:t}:t})}DBC[gid+'/'+k]=d;return d}).catch(e=>{delete DB[key];throw e});return DB[key]}
+const N=x=>(x&&x._t&&x._t.n)||(x&&x.n)||'';const TX=(x,f)=>(x&&x._t&&x._t[f])||(x&&x[f])||'';
 const RAR={5:['#a8692f','#e0a54e'],4:['#6b4f9e','#a681d6'],3:['#3d6c99','#6aa6d6'],2:['#3f7a5b','#6fb48d'],1:['#5c636e','#8b939e']};
 const dbIc=(gid,ic)=>ic?'/content/'+gid+'/db/i/'+encodeURIComponent(ic)+'.webp':'';
 const icHTML=(gid,ic,r,alt,cls)=>{const R=RAR[r]||RAR[3];return'<span class="dbic'+(cls?' '+cls:'')+'" style="--r0:'+R[0]+';--r1:'+R[1]+'">'+(ic?'<img src="'+esc(dbIc(gid,ic))+'" alt="'+esc(alt||'')+'" loading="lazy" onerror="this.remove()">':'')+'</span>'};
@@ -618,41 +803,41 @@ const usedHTML=(gid,L,what)=>L.length?'<div class="panel"><div class="eyebrow" s
 const dbTabs=(gid,cur)=>'<div class="dbtabs"><a href="/'+gid+'/weapons" data-link'+(cur==='w'?' aria-current="page"':'')+'>Weapons</a><a href="/'+gid+'/artifacts" data-link'+(cur==='a'?' aria-current="page"':'')+'>Artifacts</a><a href="/'+gid+'/lab" data-link'+(cur==='l'?' aria-current="page"':'')+'>Build Lab</a></div>';
 let WF={t:'',r:0,q:''};
 async function pWeapons(gid){if(!dbOn())return pDbSoon(gid,'Weapons');setTheme(gameMeta(gid)&&gameMeta(gid).el);nav(gid,'');meta('Genshin Impact Weapons','Every weapon with its base ATK, substat and passive at each refinement.');let D;try{D=await dbGet(gid,'weapons')}catch(e){return pDbSoon(gid,'Weapons')}
- return'<section>'+dbTabs(gid,'w')+'<div class="shead"><div><div class="eyebrow">'+esc((gameMeta(gid)||{}).name||'')+'</div><h1 class="disp" style="font-size:clamp(40px,6vw,64px)">Weapons</h1><p class="muted" style="margin:6px 0 0">'+D.list.length+' weapons. Tap one for its stats and passive.</p></div></div>'
+ return'<section>'+dbTabs(gid,'w')+'<div class="shead"><div><div class="eyebrow">'+esc((gameMeta(gid)||{}).name||'')+'</div><h1 class="disp" style="font-size:clamp(40px,6vw,64px)">Weapons</h1><p class="muted" style="margin:6px 0 0"><span>'+D.list.length+'</span> <span>weapons. Tap one for its stats and passive.</span></p></div></div>'
  +'<div class="etabs" role="group" aria-label="Weapon type"><button class="etab" data-wt="" aria-pressed="'+(!WF.t)+'" style="--c0:#3a4366;--c1:#6d7aa8">All</button>'+WTYPES.map(t=>'<button class="etab" data-wt="'+t+'" aria-pressed="'+(WF.t===t)+'" style="--c0:#3a4366;--c1:#6d7aa8">'+t+'</button>').join('')+'</div>'
  +'<div class="row" style="margin-bottom:18px;gap:8px;flex-wrap:wrap"><input class="search" id="dbq" type="search" placeholder="Search weapons" value="'+esc(WF.q)+'" aria-label="Search weapons">'+[5,4,3].map(r=>'<button class="etab dbr" data-r="'+r+'" aria-pressed="'+(WF.r===r)+'" style="--c0:'+RAR[r][0]+';--c1:'+RAR[r][1]+'">'+r+'★</button>').join('')+'</div><div class="dbgrid" id="dbgrid"></div></section>'}
-function afterWeapons(gid){const D=DB[gid+'/weapons'];if(!D)return;D.then(D=>{const grid=$('#dbgrid');if(!grid)return;const draw=()=>{const q=WF.q.trim().toLowerCase();const L=D.list.filter(w=>(!WF.t||w.t===WF.t)&&(!WF.r||(WF.r===3?w.r<=3:w.r===WF.r))&&(!q||w.n.toLowerCase().includes(q)));grid.innerHTML=L.length?L.map(w=>'<a class="dbcard" href="/'+gid+'/weapons/'+esc(w.id)+'" data-link>'+icHTML(gid,w.ic,w.r,'')+'<b>'+esc(w.n)+'</b><small>'+esc(w.t)+(w.ms?' · '+esc(STN[w.ms]||w.ms):'')+'</small></a>').join(''):'<div class="panel empty"><b>No matches</b>Try another type or name.</div>'};draw();
+function afterWeapons(gid){const D=dbGet(gid,'weapons');D.then(D=>{const grid=$('#dbgrid');if(!grid)return;const draw=()=>{const q=WF.q.trim().toLowerCase();const L=D.list.filter(w=>(!WF.t||w.t===WF.t)&&(!WF.r||(WF.r===3?w.r<=3:w.r===WF.r))&&(!q||w.n.toLowerCase().includes(q)||N(w).toLowerCase().includes(q)));grid.innerHTML=L.length?L.map(w=>'<a class="dbcard" href="/'+gid+'/weapons/'+esc(w.id)+'" data-link>'+icHTML(gid,w.ic,w.r,'')+'<b data-nt>'+esc(N(w))+'</b><small><span>'+esc(w.t)+'</span>'+(w.ms?' · <span>'+esc(STN[w.ms]||w.ms)+'</span>':'')+'</small></a>').join(''):'<div class="panel empty"><b>No matches</b>Try another type or name.</div>'};draw();
  document.querySelectorAll('[data-wt]').forEach(b=>b.onclick=()=>{WF.t=b.dataset.wt;document.querySelectorAll('[data-wt]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));draw()});
  document.querySelectorAll('.dbr').forEach(b=>b.onclick=()=>{const r=+b.dataset.r;WF.r=WF.r===r?0:r;document.querySelectorAll('.dbr').forEach(x=>x.setAttribute('aria-pressed',String(+x.dataset.r===WF.r)));draw()});
  const q=$('#dbq');if(q)q.oninput=()=>{WF.q=q.value;draw()}})}
 const lvLabel=(L,A,list)=>L+(list.some(b=>b[0]===L&&b[1]===A-1)?'+':'');
-function passiveHTML(w,ri){const vals=(w.ref[ri]||w.ref[0]||[]);let t=esc(w.tpl||'');vals.forEach((v,i)=>{t=t.split('{'+i+'}').join('<b class="dbv">'+esc(v)+'</b>')});return t.replace(/\n/g,'<br>')}
+function passiveHTML(w,ri){const T=w._t&&w._t.tpl?w._t:w;const vals=((T.ref||w.ref)[ri]||(T.ref||w.ref)[0]||[]);let t=esc(T.tpl||'');vals.forEach((v,i)=>{t=t.split('{'+i+'}').join('<b class="dbv">'+esc(v)+'</b>')});return t.replace(/\n/g,'<br>')}
 async function pWeapon(gid,id){if(!dbOn())return pDbSoon(gid,'Weapons');let D;try{D=await dbGet(gid,'weapons')}catch(e){return pDbSoon(gid,'Weapons')}const w=D.list.find(x=>x.id===id);if(!w)return pMissing();nav(gid,'');
  meta(w.n+' · Genshin Impact weapon',w.n+': '+w.r+'-star '+w.t+'. Base ATK, '+(STN[w.ms]||'substat')+' and passive "'+w.ef+'" at every refinement.');
  const top=w.lv[w.lv.length-1],low=w.lv[0];let chars=[];try{const C=await dbGet(gid,'chars');chars=(w.sig||[]).map(k=>C.list.find(c=>c.id===k)).filter(Boolean)}catch(e){}
  const used=usedIn(gid,x=>(x.weapons||[]).some(n=>norm(n)===norm(w.n)));const R=RAR[w.r]||RAR[3];
- return'<section>'+dbTabs(gid,'w')+'<a href="/'+gid+'/weapons" data-link class="muted" style="font-weight:600;text-decoration:none">← All weapons</a><div class="view dbview" style="margin-top:14px"><div><div class="panel dbhero" style="--r0:'+R[0]+';--r1:'+R[1]+'">'+icHTML(gid,w.ic,w.r,w.n,'big')+'</div></div><div class="side">'
- +'<div class="panel"><div class="row" style="gap:8px;flex-wrap:wrap">'+stars(w.r)+'<span class="chip">'+esc(w.t)+'</span>'+(w.tag?'<span class="chip ghost">'+esc(w.tag)+'</span>':'')+'</div><h1 class="disp" style="margin-top:12px">'+esc(w.n)+'</h1>'+(w.d?'<p class="muted" style="margin:6px 0 0;line-height:1.5">'+esc(w.d)+'</p>':'')+'</div>'
- +'<div class="panel"><div class="row"><div class="eyebrow">Stats</div><span class="sp"></span><select id="wlv" aria-label="Weapon level">'+w.lv.map((b,i)=>'<option value="'+i+'"'+(i===w.lv.length-1?' selected':'')+'>Lv '+lvLabel(b[0],b[1],w.lv)+'</option>').join('')+'</select></div><div class="dbstats" id="wst"><div><small>Base ATK</small><b>'+Math.round(top[2])+'</b></div>'+(w.ms?'<div><small>'+esc(STN[w.ms]||w.ms)+'</small><b>'+fmtSt(w.ms,top[3])+'</b></div>':'')+'</div><p class="muted" style="font-size:12.5px;margin:8px 0 0">Lv 1: '+Math.round(low[2])+' ATK'+(w.ms?', '+fmtSt(w.ms,low[3])+' '+esc(STN[w.ms]||''):'')+'</p></div>'
- +(w.ef?'<div class="panel"><div class="row"><div class="eyebrow">'+esc(w.ef)+'</div><span class="sp"></span>'+(w.ref.length>1?'<div class="dbref" role="group" aria-label="Refinement">'+w.ref.map((_,i)=>'<button type="button" data-ri="'+i+'" aria-pressed="'+(i===0)+'">R'+(i+1)+'</button>').join('')+'</div>':'')+'</div><p id="wpas" style="margin:10px 0 0;line-height:1.6">'+passiveHTML(w,0)+'</p></div>':'')
- +(w.note?'<div class="panel"><div class="eyebrow" style="margin-bottom:8px">PawPixl’s note</div><p style="margin:0;line-height:1.6">'+esc(w.note)+'</p></div>':'')+(chars.length?'<div class="panel"><div class="eyebrow" style="margin-bottom:8px">Signature weapon</div><p style="margin:0">Made for '+chars.map(c=>'<a href="/'+gid+'/builds/'+esc(c.id)+'" data-link><b>'+esc(c.n)+'</b></a>').join(', ')+'.</p></div>':'')
+ return'<section>'+dbTabs(gid,'w')+'<a href="/'+gid+'/weapons" data-link class="muted" style="font-weight:600;text-decoration:none">← All weapons</a><div class="view dbview" style="margin-top:14px"><div><div class="panel dbhero" style="--r0:'+R[0]+';--r1:'+R[1]+'">'+icHTML(gid,w.ic,w.r,N(w),'big')+'</div></div><div class="side">'
+ +'<div class="panel"><div class="row" style="gap:8px;flex-wrap:wrap">'+stars(w.r)+'<span class="chip">'+esc(w.t)+'</span>'+(w.tag?'<span class="chip ghost">'+esc(w.tag)+'</span>':'')+'</div><h1 class="disp" style="margin-top:12px" data-nt>'+esc(N(w))+'</h1>'+(TX(w,'d')?'<p class="muted" style="margin:6px 0 0;line-height:1.5" data-nt>'+esc(TX(w,'d'))+'</p>':'')+'</div>'
+ +'<div class="panel"><div class="row"><div class="eyebrow">Stats</div><span class="sp"></span><select id="wlv" aria-label="Weapon level">'+w.lv.map((b,i)=>'<option value="'+i+'"'+(i===w.lv.length-1?' selected':'')+'>'+tt('Lv')+' '+lvLabel(b[0],b[1],w.lv)+'</option>').join('')+'</select></div><div class="dbstats" id="wst"><div><small>Base ATK</small><b>'+Math.round(top[2])+'</b></div>'+(w.ms?'<div><small>'+esc(STN[w.ms]||w.ms)+'</small><b>'+fmtSt(w.ms,top[3])+'</b></div>':'')+'</div><p class="muted" style="font-size:12.5px;margin:8px 0 0"><span>Lv</span> 1: '+Math.round(low[2])+' <span>ATK</span>'+(w.ms?', '+fmtSt(w.ms,low[3])+' <span>'+esc(STN[w.ms]||'')+'</span>':'')+'</p></div>'
+ +(w.ef?'<div class="panel"><div class="row"><div class="eyebrow" data-nt>'+esc(TX(w,'ef'))+'</div><span class="sp"></span>'+(w.ref.length>1?'<div class="dbref" role="group" aria-label="Refinement">'+w.ref.map((_,i)=>'<button type="button" data-ri="'+i+'" aria-pressed="'+(i===0)+'">R'+(i+1)+'</button>').join('')+'</div>':'')+'</div><p id="wpas" style="margin:10px 0 0;line-height:1.6" data-nt>'+passiveHTML(w,0)+'</p></div>':'')
+ +(w.note?'<div class="panel"><div class="eyebrow" style="margin-bottom:8px">PawPixl’s note</div><p style="margin:0;line-height:1.6">'+esc(w.note)+'</p></div>':'')+(chars.length?'<div class="panel"><div class="eyebrow" style="margin-bottom:8px">Signature weapon</div><p style="margin:0"><span>Made for</span> '+chars.map(c=>'<a href="/'+gid+'/builds/'+esc(c.id)+'" data-link><b data-nt>'+esc(N(c))+'</b></a>').join(', ')+'</p></div>':'')
  +(w.loc?'<div class="panel"><div class="eyebrow" style="margin-bottom:8px">How to get it</div><p style="margin:0">'+esc(w.loc)+'</p></div>':'')
  +usedHTML(gid,used)+'<a class="btn" href="/'+gid+'/lab?w='+esc(w.id)+'" data-link style="align-self:flex-start">Try it in the Build Lab</a>'+fbHTML(w.n+' (weapon)')+'</div></div></section>'}
-function afterWeapon(gid,id){const D=DB[gid+'/weapons'];if(!D)return;D.then(D=>{const w=D.list.find(x=>x.id===id);if(!w)return;const s=$('#wlv');if(s)s.onchange=()=>{const b=w.lv[+s.value];$('#wst').innerHTML='<div><small>Base ATK</small><b>'+Math.round(b[2])+'</b></div>'+(w.ms?'<div><small>'+esc(STN[w.ms]||w.ms)+'</small><b>'+fmtSt(w.ms,b[3])+'</b></div>':'')};
+function afterWeapon(gid,id){const D=dbGet(gid,'weapons');D.then(D=>{const w=D.list.find(x=>x.id===id);if(!w)return;const s=$('#wlv');if(s)s.onchange=()=>{const b=w.lv[+s.value];$('#wst').innerHTML='<div><small>Base ATK</small><b>'+Math.round(b[2])+'</b></div>'+(w.ms?'<div><small>'+esc(STN[w.ms]||w.ms)+'</small><b>'+fmtSt(w.ms,b[3])+'</b></div>':'')};
  document.querySelectorAll('[data-ri]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-ri]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('#wpas').innerHTML=passiveHTML(w,+b.dataset.ri)})})}
 let AF={q:''};
 async function pArtifacts(gid){if(!dbOn())return pDbSoon(gid,'Artifacts');setTheme(gameMeta(gid)&&gameMeta(gid).el);nav(gid,'');meta('Genshin Impact Artifact Sets','Every artifact set with its 2-piece and 4-piece bonuses.');let D;try{D=await dbGet(gid,'artifacts')}catch(e){return pDbSoon(gid,'Artifacts')}
- return'<section>'+dbTabs(gid,'a')+'<div class="shead"><div><div class="eyebrow">'+esc((gameMeta(gid)||{}).name||'')+'</div><h1 class="disp" style="font-size:clamp(40px,6vw,64px)">Artifacts</h1><p class="muted" style="margin:6px 0 0">'+D.list.length+' artifact sets. Tap one for its set bonuses.</p></div></div><div class="row" style="margin-bottom:18px"><input class="search" id="dbq" type="search" placeholder="Search artifact sets" value="'+esc(AF.q)+'" aria-label="Search artifact sets"></div><div class="dbgrid art" id="dbgrid"></div></section>'}
-function afterArtifacts(gid){const D=DB[gid+'/artifacts'];if(!D)return;D.then(D=>{const grid=$('#dbgrid');if(!grid)return;const draw=()=>{const q=AF.q.trim().toLowerCase();const L=D.list.filter(a=>!q||a.n.toLowerCase().includes(q)||Object.values(a.p||{}).some(p=>p.n.toLowerCase().includes(q)));grid.innerHTML=L.length?L.map(a=>{const r=Math.max(...(a.rl.length?a.rl:[4]));return'<a class="dbcard" href="/'+gid+'/artifacts/'+esc(a.id)+'" data-link>'+icHTML(gid,(a.p.flower||a.p.circlet||{}).ic,r,'')+'<b>'+esc(a.n)+'</b><small>'+esc(a.e2||a.e1||'')+'</small></a>'}).join(''):'<div class="panel empty"><b>No matches</b>Try another name.</div>'};draw();const q=$('#dbq');if(q)q.oninput=()=>{AF.q=q.value;draw()}})}
+ return'<section>'+dbTabs(gid,'a')+'<div class="shead"><div><div class="eyebrow">'+esc((gameMeta(gid)||{}).name||'')+'</div><h1 class="disp" style="font-size:clamp(40px,6vw,64px)">Artifacts</h1><p class="muted" style="margin:6px 0 0"><span>'+D.list.length+'</span> <span>artifact sets. Tap one for its set bonuses.</span></p></div></div><div class="row" style="margin-bottom:18px"><input class="search" id="dbq" type="search" placeholder="Search artifact sets" value="'+esc(AF.q)+'" aria-label="Search artifact sets"></div><div class="dbgrid art" id="dbgrid"></div></section>'}
+function afterArtifacts(gid){const D=dbGet(gid,'artifacts');D.then(D=>{const grid=$('#dbgrid');if(!grid)return;const draw=()=>{const q=AF.q.trim().toLowerCase();const L=D.list.filter(a=>!q||a.n.toLowerCase().includes(q)||N(a).toLowerCase().includes(q)||Object.values(a.p||{}).some(p=>p.n.toLowerCase().includes(q)));grid.innerHTML=L.length?L.map(a=>{const r=Math.max(...(a.rl.length?a.rl:[4]));return'<a class="dbcard" href="/'+gid+'/artifacts/'+esc(a.id)+'" data-link>'+icHTML(gid,(a.p.flower||a.p.circlet||{}).ic,r,'')+'<b data-nt>'+esc(N(a))+'</b><small data-nt>'+esc(TX(a,'e2')||TX(a,'e1'))+'</small></a>'}).join(''):'<div class="panel empty"><b>No matches</b>Try another name.</div>'};draw();const q=$('#dbq');if(q)q.oninput=()=>{AF.q=q.value;draw()}})}
 const PCN={flower:'Flower of Life',plume:'Plume of Death',sands:'Sands of Eon',goblet:'Goblet of Eonothem',circlet:'Circlet of Logos'};
 async function pArtifact(gid,id){if(!dbOn())return pDbSoon(gid,'Artifacts');let D;try{D=await dbGet(gid,'artifacts')}catch(e){return pDbSoon(gid,'Artifacts')}const a=D.list.find(x=>x.id===id);if(!a)return pMissing();nav(gid,'');
  meta(a.n+' · Genshin Impact artifact set',a.n+' artifact set: '+(a.e2?'2-piece: '+a.e2+' ':'')+(a.e4?'4-piece: '+a.e4:'')+(a.src?' Where to get: '+a.src:''));
  const r=Math.max(...(a.rl.length?a.rl:[4]));const used=usedIn(gid,x=>(x.arts||[]).some(o=>(o.sets||[]).some(n=>norm(n)===norm(a.n))));
- return'<section>'+dbTabs(gid,'a')+'<a href="/'+gid+'/artifacts" data-link class="muted" style="font-weight:600;text-decoration:none">← All artifacts</a><div class="view dbview" style="margin-top:14px"><div><div class="panel"><div class="dbpcs">'+Object.keys(PCN).filter(k=>a.p[k]).map(k=>'<div>'+icHTML(gid,a.p[k].ic,r,a.p[k].n)+'<b>'+esc(a.p[k].n)+'</b><small>'+PCN[k]+'</small></div>').join('')+'</div></div></div><div class="side">'
- +'<div class="panel"><div class="row" style="gap:8px;flex-wrap:wrap">'+(a.rl.length?'<span class="chip">'+a.rl.join('–')+'★</span>':'')+'</div><h1 class="disp" style="margin-top:12px">'+esc(a.n)+'</h1></div>'
- +(a.e1?'<div class="panel"><div class="eyebrow" style="margin-bottom:8px">1-piece</div><p style="margin:0;line-height:1.6">'+esc(a.e1)+'</p></div>':'')
- +(a.e2?'<div class="panel"><div class="eyebrow" style="margin-bottom:8px">2-piece</div><p style="margin:0;line-height:1.6">'+esc(a.e2)+'</p></div>':'')
- +(a.e4?'<div class="panel"><div class="eyebrow" style="margin-bottom:8px">4-piece</div><p style="margin:0;line-height:1.6">'+esc(a.e4)+'</p></div>':'')
+ return'<section>'+dbTabs(gid,'a')+'<a href="/'+gid+'/artifacts" data-link class="muted" style="font-weight:600;text-decoration:none">← All artifacts</a><div class="view dbview" style="margin-top:14px"><div><div class="panel"><div class="dbpcs">'+Object.keys(PCN).filter(k=>a.p[k]).map(k=>'<div>'+icHTML(gid,a.p[k].ic,r,a.p[k].n)+'<b data-nt>'+esc((a._t&&a._t.p&&a._t.p[k])||a.p[k].n)+'</b><small>'+PCN[k]+'</small></div>').join('')+'</div></div></div><div class="side">'
+ +'<div class="panel"><div class="row" style="gap:8px;flex-wrap:wrap">'+(a.rl.length?'<span class="chip">'+a.rl.join('–')+'★</span>':'')+'</div><h1 class="disp" style="margin-top:12px" data-nt>'+esc(N(a))+'</h1></div>'
+ +(a.e1?'<div class="panel"><div class="eyebrow" style="margin-bottom:8px">1-piece</div><p style="margin:0;line-height:1.6" data-nt>'+esc(TX(a,'e1'))+'</p></div>':'')
+ +(a.e2?'<div class="panel"><div class="eyebrow" style="margin-bottom:8px">2-piece</div><p style="margin:0;line-height:1.6" data-nt>'+esc(TX(a,'e2'))+'</p></div>':'')
+ +(a.e4?'<div class="panel"><div class="eyebrow" style="margin-bottom:8px">4-piece</div><p style="margin:0;line-height:1.6" data-nt>'+esc(TX(a,'e4'))+'</p></div>':'')
  +(a.note?'<div class="panel"><div class="eyebrow" style="margin-bottom:8px">PawPixl’s note</div><p style="margin:0;line-height:1.6">'+esc(a.note)+'</p></div>':'')+(a.src?'<div class="panel"><div class="eyebrow" style="margin-bottom:8px">Where to get it</div><p style="margin:0">'+esc(a.src)+'</p></div>':'')
  +usedHTML(gid,used)+'<a class="btn" href="/'+gid+'/lab?a='+esc(a.id)+'" data-link style="align-self:flex-start">Try it in the Build Lab</a>'+fbHTML(a.n+' (artifact set)')+'</div></div></section>'}
 
@@ -674,12 +859,17 @@ function labStats(L){const cd=L.cd,lv=cd.lv[L.li],w=L.w,wl=w?w.lv[Math.min(L.wli
  const add=(k,v)=>{if(k==='el')k=cd.el.toLowerCase();s[k]=(s[k]||0)+v};
  if(cd.sub){if(cd.sub==='cr'||cd.sub==='cd')s[cd.sub]=lv[5];else if(cd.sub==='er')s.er+=lv[5];else add(cd.sub,lv[5])}
  if(wl&&w.ms)add(w.ms,wl[3]);
+ const got=[];const note=(src,o)=>Object.entries(o).forEach(([k,v])=>{if(k[0]==='_')return;add(k,v);got.push([src,k,v])});
+ if(w&&w.tpl){const vals=w.ref[Math.min(L.ri||0,w.ref.length-1)]||[];let t=w.tpl;vals.forEach((v,i)=>{t=t.split('{'+i+'}').join(v)});const o=ppPassive.passiveStats(t);ppPassive.specialW(t,o);note('w',o);s._atkHP=o._atkHP||0;s._atkER=o._atkER||null}
  if(L.art){add('hp',MAIN5.hp);add('atk',MAIN5.atk);add(L.sands,MAIN5[L.sands]);add(L.goblet,L.goblet==='phys'?MAIN5.phys:ELK2.includes(L.goblet)?MAIN5.el:MAIN5[L.goblet]);add(L.circlet,MAIN5[L.circlet]);SUBK.forEach(k=>add(k,+L.subs[k]||0))}
- const sets=[];if(L.s1)sets.push(L.s1);if(L.mode==='22'&&L.s2&&L.s2!==L.s1)sets.push(L.s2);(L.sets||[]).filter(a=>sets.includes(a.id)).forEach(a=>{if(a.b2)Object.entries(a.b2).forEach(([k,v])=>add(k,v))});
- return{B,s,HP:B.hp*(1+s.hp_)+s.hp,ATK:B.atk*(1+s.atk_)+s.atk,DEF:B.def*(1+s.def_)+s.def}}
+ const sets=[];if(L.art){if(L.s1)sets.push(L.s1);if(L.mode==='22'&&L.s2&&L.s2!==L.s1)sets.push(L.s2)}(L.sets||[]).filter(a=>sets.includes(a.id)).forEach(a=>{if(a.b2)Object.entries(a.b2).forEach(([k,v])=>{add(k,v);got.push(['a2',k,v,a.id])});if(L.mode==='4'&&a.e4){const o=ppPassive.passiveStats(a.e4);ppPassive.special4(a.e4,{wt:cd.wt},o);note('a4',o);if(o._burstER)s._burstER=o._burstER}});
+ if(s._atkER){const v=Math.min(s._atkER[1],Math.max(0,s.er-1)*s._atkER[0]);s.atk_+=v;got.push(['w','atk_',v,'er'])}
+ const HP=B.hp*(1+s.hp_)+s.hp;let ATK=B.atk*(1+s.atk_)+s.atk;if(s._atkHP){const v=HP*s._atkHP;ATK+=v;got.push(['w','atk',v,'hp'])}
+ if(s._burstER){const v=Math.min(s._burstER[1],s.er*s._burstER[0]);s.burst=(s.burst||0)+v;got.push(['a4','burst',v,'er'])}
+ return{B,s,got,HP,ATK,DEF:B.def*(1+s.def_)+s.def}}
 function labDmg(L,R,t,label,hit){const cd=L.cd;const nm=label.toLowerCase();const cat=t.k==='e'?'skill':t.k==='q'?'burst':/charged|aimed/.test(nm)?'ca':/plung/.test(nm)?'plunge':'na';
  const el=(t.k!=='na'||cd.wt==='Catalyst')?cd.el.toLowerCase():(/aimed shot charge level 1|charged aimed|fully-charged/i.test(nm)&&cd.wt==='Bow'?cd.el.toLowerCase():'phys');
- const stat={atk:R.ATK,hp:R.HP,def:R.DEF,em:R.s.em};const base=hit.terms.reduce((a,x)=>a+x.v*stat[x.st],0);const bonus=1+(R.s[el]||0)+(R.s[cat]||0);
+ const stat={atk:R.ATK,hp:R.HP,def:R.DEF,em:R.s.em};const base=hit.terms.reduce((a,x)=>a+x.v*stat[x.st],0);const bonus=1+(R.s[el]||0)+(R.s[cat]||0)+(R.s.dmg||0);
  const Lc=L.cd.lv[L.li][0],Le=+L.elv||90,defM=(Lc+100)/((Lc+100)+(Le+100)),res=(+L.res||0)/100,resM=res<0?1-res/2:res<.75?1-res:1/(4*res+1);
  const nc=base*bonus*defM*resM,cr=Math.min(1,Math.max(0,R.s.cr));return{nc,c:nc*(1+R.s.cd),avg:nc*(1+cr*R.s.cd),el}}
 async function pLab(gid){if(!dbOn())return pDbSoon(gid,'Build Lab');nav(gid,'');meta('Build Lab · try any Genshin build','Pick a character, weapon and artifacts to see their stats and sample damage numbers.');
@@ -691,7 +881,7 @@ function labPick(o){const old=document.querySelector('.lpk');if(old)old.remove()
  m.innerHTML='<div class="lpk-b" role="dialog" aria-modal="true" aria-label="'+esc(o.title)+'"><div class="lpk-h"><b>'+esc(o.title)+'</b><button type="button" class="lpk-x" aria-label="Close">✕</button></div><div class="lpk-s"><input class="search" type="search" placeholder="Search by name or effect" aria-label="Search">'+(o.tabs?'<div class="dbref lpk-t"><button type="button" data-t="" aria-pressed="true">All</button>'+o.tabs.map(t=>'<button type="button" data-t="'+esc(t)+'" aria-pressed="false">'+esc(t)+'</button>').join('')+'</div>':'')+'</div><div class="lpk-g"></div></div>';
  document.body.appendChild(m);const ov=document.documentElement.style.overflow;document.documentElement.style.overflow='hidden';let tab='';const g=m.querySelector('.lpk-g'),q=m.querySelector('input');
  const close=()=>{document.documentElement.style.overflow=ov;m.remove();document.removeEventListener('keydown',onK,true)};const onK=e=>{if(e.key==='Escape')close()};document.addEventListener('keydown',onK,true);
- const drawG=()=>{const s=q.value.trim().toLowerCase();const L=o.items.filter(x=>(!tab||x.tab===tab||x.id==='')&&(!s||x.n.toLowerCase().includes(s)||(x.sub||'').toLowerCase().includes(s)));g.innerHTML=L.length?L.map(x=>'<button type="button" data-id="'+esc(x.id)+'"'+(x.id===o.cur?' class="on" aria-current="true"':'')+'>'+x.ic+'<b>'+esc(x.n)+'</b>'+(x.sub?'<small>'+esc(x.sub)+'</small>':'')+'</button>').join(''):'<p class="muted" style="grid-column:1/-1">No matches</p>'};drawG();
+ const drawG=()=>{const s=q.value.trim().toLowerCase();const L=o.items.filter(x=>(!tab||x.tab===tab||x.id==='')&&(!s||x.n.toLowerCase().includes(s)||(x.en||'').toLowerCase().includes(s)||(x.sub||'').toLowerCase().includes(s)));g.innerHTML=L.length?L.map(x=>'<button type="button" data-id="'+esc(x.id)+'"'+(x.id===o.cur?' class="on" aria-current="true"':'')+'>'+x.ic+'<b data-nt>'+esc(x.n)+'</b>'+(x.sub?'<small data-nt>'+esc(x.sub)+'</small>':'')+'</button>').join(''):'<p class="muted" style="grid-column:1/-1">No matches</p>'};drawG();
  q.oninput=drawG;m.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;m.querySelectorAll('[data-t]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));drawG()});
  g.onclick=e=>{const b=e.target.closest('[data-id]');if(!b)return;close();o.onPick(b.dataset.id)};m.onclick=e=>{if(e.target===m)close()};m.querySelector('.lpk-x').onclick=close;
  if(matchMedia('(pointer:fine)').matches)setTimeout(()=>q.focus(),30);const cur=g.querySelector('.on');if(cur)cur.scrollIntoView({block:'center'})}
@@ -701,7 +891,7 @@ async function afterLab(gid){const box=$('#lab');if(!box)return;let C,W,A;try{[C
  const st=LAB&&LAB.gid===gid?LAB:{gid,c:'',li:-1,cons:0,tl:{na:9,e:9,q:9},w:'',wli:99,ri:0,art:true,mode:'4',s1:'',s2:'',sands:'atk_',goblet:'el',circlet:'cr',preset:'typical',subs:null,elv:90,res:10};LAB=st;
  if(q.get('c'))st.c=q.get('c');if(q.get('w'))st.w=q.get('w');if(q.get('a'))st.s1=q.get('a');
  const wq=q.get('w')&&W.list.find(w=>w.id===q.get('w'));if(!st.c){const pick=wq?(wq.sig&&wq.sig[0])||(C.list.find(c=>c.wt===wq.t)||{}).id:'';st.c=pick||((C.list.find(c=>c.id==='zibai')||C.list[0]||{}).id)}
- const loadChar=async id=>{try{return await getJSON('/content/'+gid+'/db/c/'+encodeURIComponent(id)+'.json')}catch(e){return null}};
+ const loadChar=async id=>{let c=null;try{c=await getJSON('/content/'+gid+'/db/c/'+encodeURIComponent(id)+'.json')}catch(e){return null}if(S.lang!=='en'){try{c._t=await getJSON('/content/'+gid+'/db/c/'+encodeURIComponent(id)+'.'+S.lang+'.json')}catch(e){}}return c};
  let cd=await loadChar(st.c);if(!cd){st.c=C.list[0].id;cd=await loadChar(st.c)}if(!cd){box.innerHTML='<div class="panel empty"><b>Couldn’t load the character data</b>Please try again later.</div>';return}
  const setChar=async(id,keep)=>{const x=await loadChar(id);if(!x)return;cd=x;st.c=id;if(!keep||st.li<0||st.li>=cd.lv.length)st.li=cd.lv.findIndex(b=>b[0]===90&&b[1]===6);if(st.li<0)st.li=cd.lv.length-1;const okW=W.list.find(w=>w.id===st.w&&w.t===cd.wt);if(!okW){const sig=W.list.find(w=>(w.sig||[]).includes(cd.id));st.w=(sig||W.list.find(w=>w.t===cd.wt&&w.r===5)||W.list.find(w=>w.t===cd.wt)||{}).id||''}
   if(!keep||!st.subs||st.c!==st._filled){const sc=scaleOf(cd);st.scale=sc;st.sands=sc==='em'?'em':sc+'_';st.goblet='el';st.circlet='cr';st.subs=presetSubs(st.preset,sc);fromCard()}draw()};
@@ -714,39 +904,40 @@ async function afterLab(gid){const box=$('#lab');if(!box)return;let C,W,A;try{[C
  const roster=nm=>R0.find(r=>norm(r.name)===norm(nm));
  const draw=()=>{const w=W.list.find(x=>x.id===st.w)||null;const L=Object.assign({},st,{cd,w,sets:A.list});const R=labStats(L);const eff=k=>Math.min(15,(st.tl[k]||1)+(st.cons>=3&&cd.c3===k?3:0)+(st.cons>=5&&cd.c5===k?3:0));
   const rr=roster(cd.n);const E=EL[cd.el]||['#556','#778','#99a'];
-  const pkBtn=(id,ic,name,sub)=>'<button type="button" class="lab-pk" id="'+id+'">'+ic+'<span><b>'+esc(name)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</span><i>Change</i></button>';
-  const setBtn=(id,v)=>{const a=A.list.find(x=>x.id===v);return pkBtn(id,a?icHTML(gid,(a.p.flower||a.p.circlet||{}).ic,Math.max(...(a.rl.length?a.rl:[4])),'','sm'):'<span class="dbic sm none"></span>',a?a.n:'No set',a?(a.b2?'2-piece adds stats':'2-piece is an effect'):'Tap to pick a set')};
+  const pkBtn=(id,ic,name,sub)=>'<button type="button" class="lab-pk" id="'+id+'">'+ic+'<span data-nt><b>'+esc(name)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</span><i>Change</i></button>';
+  const setBtn=(id,v)=>{const a=A.list.find(x=>x.id===v);return pkBtn(id,a?icHTML(gid,(a.p.flower||a.p.circlet||{}).ic,Math.max(...(a.rl.length?a.rl:[4])),'','sm'):'<span class="dbic sm none"></span>',a?N(a):tt('No set'),a?tt(a.b2?'2-piece adds stats':'2-piece is an effect'):tt('Tap to pick a set'))};
   const elKey=cd.el.toLowerCase();
+  const gotHTML=src=>{const L=R.got.filter(g=>g[0]===src);if(!L.length)return src==='w'&&w&&w.ef?'<p class="lab-note lab-got off"><span>Passive effects that depend on a condition are not counted.</span></p>':'';return'<p class="lab-note lab-got"><span>'+(src==='w'?'Counted from the weapon':'Counted from the 4-piece')+'</span>: '+L.map(g=>'<b>'+(PCT(g[1])?'+'+fmtSt(g[1],g[2]):'+'+Math.round(g[2]).toLocaleString())+'</b> <span>'+esc(STN[g[1]]||(g[1]==='dmg'?'DMG Bonus':g[1]))+'</span>'+(g[3]==='hp'?' <span>(from Max HP)</span>':g[3]==='er'?' <span>(from Energy Recharge)</span>':'')).join(', ')+'</p>'};
   const rows=[['HP',Math.round(R.HP).toLocaleString(),Math.round(R.B.hp).toLocaleString()+' + '+Math.round(R.HP-R.B.hp).toLocaleString()],['ATK',Math.round(R.ATK).toLocaleString(),Math.round(R.B.atk).toLocaleString()+' + '+Math.round(R.ATK-R.B.atk).toLocaleString()],['DEF',Math.round(R.DEF).toLocaleString(),Math.round(R.B.def).toLocaleString()+' + '+Math.round(R.DEF-R.B.def).toLocaleString()],['Elemental Mastery',Math.round(R.s.em).toLocaleString()],['CRIT Rate',fmtSt('cr',R.s.cr)],['CRIT DMG',fmtSt('cd',R.s.cd)],['Energy Recharge',fmtSt('er',R.s.er)],[cd.el+' DMG Bonus',fmtSt('x',R.s[elKey]||0)],['Physical DMG Bonus',fmtSt('x',R.s.phys)],['Healing Bonus',fmtSt('x',R.s.heal)]].concat(['skill','burst','na','ca','plunge'].filter(k=>R.s[k]).map(k=>[STN[k]+' Bonus',fmtSt('x',R.s[k])]));
-  const wsel=W.list.filter(x=>x.t===cd.wt);const lvO=cd.lv.map((b,i)=>opt(i,'Lv '+lvLabel(b[0],b[1],cd.lv),i===st.li)).join('');
+  const wsel=W.list.filter(x=>x.t===cd.wt);const lvO=cd.lv.map((b,i)=>opt(i,tt('Lv')+' '+lvLabel(b[0],b[1],cd.lv),i===st.li)).join('');const CT=cd._t||{};
   const setO=(v)=>opt('','None',!v)+A.list.map(a=>opt(a.id,a.n,a.id===v)).join('');
-  const tal=(cd.t||[]).map(t=>{const lv=eff(t.k),boosted=lv>(st.tl[t.k]||1);const TC={na:['#3c5a99','#7fa6ff'],e:[E[0],E[1]],q:['#b0457e','#ff8fc8']}[t.k]||E;return'<div class="panel lab-t lab-sec" style="--e0:'+TC[0]+';--e1:'+TC[1]+'"><div class="row"><div><div class="eyebrow">'+(t.k==='na'?'Normal Attack':t.k==='e'?'Elemental Skill':'Elemental Burst')+'</div><b>'+esc(t.n)+'</b></div><span class="sp"></span><span class="chip'+(boosted?' new':'')+'">Lv '+lv+(boosted?' (C'+(cd.c3===t.k?3:5)+' +3)':'')+'</span></div><table class="lab-tb"><thead><tr><th></th><th>Scaling</th><th>Non-crit</th><th>Crit</th><th>Average</th></tr></thead><tbody>'+t.lab.map(l=>{const[nm,f]=l.split('|');if(!f)return'';const txt=fmtParam(f,t.p,lv);const isD=/DMG/i.test(nm)&&!/Bonus|Reduction|Increase|Stamina|RES\b|Absorption|Shield|Healing|Regenerat/i.test(nm);const H=isD?hitsOf(f,t.p,lv):[];
+  const tal=(cd.t||[]).map((t,ti)=>{const tT=(CT.t||[])[ti]||null;const lv=eff(t.k),boosted=lv>(st.tl[t.k]||1);const TC={na:['#3c5a99','#7fa6ff'],e:[E[0],E[1]],q:['#b0457e','#ff8fc8']}[t.k]||E;return'<div class="panel lab-t lab-sec" style="--e0:'+TC[0]+';--e1:'+TC[1]+'"><div class="row"><div><div class="eyebrow">'+(t.k==='na'?'Normal Attack':t.k==='e'?'Elemental Skill':'Elemental Burst')+'</div><b data-nt>'+esc((tT&&tT.n)||t.n)+'</b></div><span class="sp"></span><span class="chip'+(boosted?' new':'')+'"><span>Lv</span> '+lv+(boosted?' (+'+(lv-(st.tl[t.k]||1))+')':'')+'</span></div><table class="lab-tb"><thead><tr><th></th><th>Scaling</th><th>Non-crit</th><th>Crit</th><th>Average</th></tr></thead><tbody>'+t.lab.map((l,li)=>{const[nm,f]=l.split('|');if(!f)return'';const tl=(tT&&tT.lab&&tT.lab[li])||'';const[nmT,fT]=tl?tl.split('|'):[nm,f];const txt=fmtParam(fT||f,t.p,lv);const isD=/DMG/i.test(nm)&&!/Bonus|Reduction|Increase|Stamina|RES\b|Absorption|Shield|Healing|Regenerat/i.test(nm);const H=isD?hitsOf(f,t.p,lv):[];
    const cell=fn=>H.length?H.map(h=>{const d=labDmg(L,R,t,nm,h);return Math.round(fn(d)).toLocaleString()+(h.n>1?' ×'+h.n:'')}).join(' + '):'';
-   return'<tr'+(H.length?' class="dmg"':'')+'><td>'+esc(nm)+'</td><td>'+esc(txt)+'</td><td>'+cell(d=>d.nc)+'</td><td>'+cell(d=>d.c)+'</td><td>'+cell(d=>d.avg)+'</td></tr>'}).join('')+'</tbody></table></div>'}).join('');
-  const cons=(cd.c||[]).map((c,i)=>'<li class="'+(i<st.cons?'on':'')+'"><b>C'+(i+1)+' · '+esc(c.n)+'</b><span>'+esc(c.d)+'</span></li>').join('');
+   return'<tr'+(H.length?' class="dmg"':'')+'><td data-nt>'+esc(nmT||nm)+'</td><td data-nt>'+esc(txt)+'</td><td>'+cell(d=>d.nc)+'</td><td>'+cell(d=>d.c)+'</td><td>'+cell(d=>d.avg)+'</td></tr>'}).join('')+'</tbody></table></div>'}).join('');
+  const cons=(cd.c||[]).map((c,i)=>{const x=(CT.c||[])[i]||c;return'<li class="'+(i<st.cons?'on':'')+'" data-nt><b>C'+(i+1)+' · '+esc(x.n||c.n)+'</b><span>'+esc(x.d||c.d)+'</span></li>'}).join('');
   const sets=[st.s1,st.mode==='22'?st.s2:''].filter(Boolean).map(id=>A.list.find(a=>a.id===id)).filter(Boolean);
-  box.innerHTML='<div class="lab-in"><div class="panel lab-who" style="--c0:'+E[0]+';--c1:'+E[1]+'"><button type="button" class="pic lab-whob" id="lwho" title="Pick another character" aria-label="Pick another character"'+(rr&&rr.icon?' style="background-image:url(\'/'+esc(rr.icon)+'\')"':'')+'>'+(rr&&rr.icon?'':'<span>'+esc(cd.n.trim()[0])+'</span>')+'<i>Change</i></button><div><b>'+esc(cd.n)+'</b><small>'+stars(cd.r)+' '+esc(cd.el)+' · '+esc(cd.wt)+'</small>'+(st.mine?'<small class="lab-mine">Starting from PawPixl’s build card</small>':'')+'</div>'+(rr?'<a class="btn" href="/'+gid+'/builds/'+esc(rr.id)+'" data-link>Guide</a>':'')+'</div>'
-   +'<div class="panel lab-sec" style="--e0:'+E[0]+';--e1:'+E[1]+'"><div class="eyebrow">Character</div><div class="lab-f"><label>Character'+pkBtn('lc',faceHTML(cd.n,cd.el,'sm'),cd.n,cd.el+' · '+cd.wt)+'</label><label>Level<select id="ll">'+lvO+'</select></label></div>'
+  box.innerHTML='<div class="lab-in"><div class="panel lab-who" style="--c0:'+E[0]+';--c1:'+E[1]+'"><button type="button" class="pic lab-whob" id="lwho" title="Pick another character" aria-label="Pick another character"'+(rr&&rr.icon?' style="background-image:url(\'/'+esc(rr.icon)+'\')"':'')+'>'+(rr&&rr.icon?'':'<span>'+esc(cd.n.trim()[0])+'</span>')+'<i>Change</i></button><div><b data-nt>'+esc(CT.n||cd.n)+'</b><small>'+stars(cd.r)+' <span>'+esc(cd.el)+'</span> · <span>'+esc(cd.wt)+'</span></small>'+(st.mine?'<small class="lab-mine">Starting from PawPixl’s build card</small>':'')+'</div>'+(rr?'<a class="btn" href="/'+gid+'/builds/'+esc(rr.id)+'" data-link>Guide</a>':'')+'</div>'
+   +'<div class="panel lab-sec" style="--e0:'+E[0]+';--e1:'+E[1]+'"><div class="eyebrow">Character</div><div class="lab-f"><label>Character'+pkBtn('lc',faceHTML(cd.n,cd.el,'sm'),CT.n||cd.n,tt(cd.el)+' · '+tt(cd.wt))+'</label><label>Level<select id="ll">'+lvO+'</select></label></div>'
    +'<div class="lab-f"><label>Constellation<div class="dbref" id="lcons">'+[0,1,2,3,4,5,6].map(n=>'<button type="button" data-cn="'+n+'" aria-pressed="'+(st.cons===n)+'">C'+n+'</button>').join('')+'</div></label></div>'
-   +'<div class="lab-f three">'+['na','e','q'].map(k=>'<label>'+(k==='na'?'Normal Attack':k==='e'?'Skill':'Burst')+'<select data-tk="'+k+'">'+[...Array(10)].map((_,i)=>opt(i+1,'Lv '+(i+1),st.tl[k]===i+1)).join('')+'</select></label>').join('')+'</div></div>'
-   +'<div class="panel lab-sec" style="--e0:#a8692f;--e1:#e0a54e"><div class="eyebrow">Weapon</div><div class="lab-f"><label>Weapon'+pkBtn('lw',w?icHTML(gid,w.ic,w.r,'','sm'):'',w?w.n:'Pick a weapon',w?w.r+'★ · '+(STN[w.ms]||'no substat'):'')+'</label>'+(w?'<label>Level<select id="lwl">'+w.lv.map((b,i)=>opt(i,'Lv '+lvLabel(b[0],b[1],w.lv),i===Math.min(st.wli,w.lv.length-1))).join('')+'</select></label>':'')+'</div>'+(w&&w.ref.length>1?'<div class="lab-f"><label>Refinement<div class="dbref" id="lref">'+w.ref.map((_,i)=>'<button type="button" data-rf="'+i+'" aria-pressed="'+(st.ri===i)+'">R'+(i+1)+'</button>').join('')+'</div></label></div>':'')+(w?'<p class="lab-note"><a href="/'+gid+'/weapons/'+esc(w.id)+'" data-link><b>'+esc(w.ef||w.n)+'</b></a>'+(w.ef?': '+passiveHTML(w,Math.min(st.ri,w.ref.length-1)):'')+'</p>':'')+'</div>'
-   +'<div class="panel lab-sec" style="--e0:#6b4f9e;--e1:#b48cf0"><div class="row"><div class="eyebrow">Artifacts</div><span class="sp"></span><label class="row" style="gap:6px;font-size:13px;font-weight:600"><input type="checkbox" id="lart"'+(st.art?' checked':'')+'> Equipped</label></div>'+(st.art?'<div class="lab-f"><label>Sets<select id="lmode">'+opt('4','4-piece',st.mode==='4')+opt('22','2 + 2',st.mode==='22')+'</select></label></div><div class="lab-f"><label>'+(st.mode==='22'?'First set (2 pieces)':'Set (4 pieces)')+setBtn('ls1',st.s1)+'</label>'+(st.mode==='22'?'<label>Second set (2 pieces)'+setBtn('ls2',st.s2)+'</label>':'')+'</div>'
-   +'<div class="lab-f three"><label>Sands<select id="lsa">'+SANDS.map(k=>opt(k,STN[k],st.sands===k)).join('')+'</select></label><label>Goblet<select id="lgo">'+opt('el',cd.el+' DMG',st.goblet==='el')+['hp_','atk_','def_','em','phys'].map(k=>opt(k,STN[k].replace(' Bonus',''),st.goblet===k)).join('')+'</select></label><label>Circlet<select id="lci">'+CIRC.map(k=>opt(k,STN[k],st.circlet===k)).join('')+'</select></label></div>'
+   +'<div class="lab-f three">'+['na','e','q'].map(k=>'<label>'+(k==='na'?'Normal Attack':k==='e'?'Skill':'Burst')+'<select data-tk="'+k+'">'+[...Array(10)].map((_,i)=>opt(i+1,tt('Lv')+' '+(i+1),st.tl[k]===i+1)).join('')+'</select></label>').join('')+'</div></div>'
+   +'<div class="panel lab-sec" style="--e0:#a8692f;--e1:#e0a54e"><div class="eyebrow">Weapon</div><div class="lab-f"><label>Weapon'+pkBtn('lw',w?icHTML(gid,w.ic,w.r,'','sm'):'',w?N(w):tt('Pick a weapon'),w?w.r+'★ · '+tt(STN[w.ms]||'No substat'):'')+'</label>'+(w?'<label>Level<select id="lwl">'+w.lv.map((b,i)=>opt(i,tt('Lv')+' '+lvLabel(b[0],b[1],w.lv),i===Math.min(st.wli,w.lv.length-1))).join('')+'</select></label>':'')+'</div>'+(w&&w.ref.length>1?'<div class="lab-f"><label>Refinement<div class="dbref" id="lref">'+w.ref.map((_,i)=>'<button type="button" data-rf="'+i+'" aria-pressed="'+(st.ri===i)+'">R'+(i+1)+'</button>').join('')+'</div></label></div>':'')+(w?'<p class="lab-note" data-nt><a href="/'+gid+'/weapons/'+esc(w.id)+'" data-link><b>'+esc(TX(w,'ef')||N(w))+'</b></a>'+(w.ef?': '+passiveHTML(w,Math.min(st.ri,w.ref.length-1)):'')+'</p>'+gotHTML('w'):'')+'</div>'
+   +'<div class="panel lab-sec" style="--e0:#6b4f9e;--e1:#b48cf0"><div class="row"><div class="eyebrow">Artifacts</div><span class="sp"></span><label class="row" style="gap:6px;font-size:13px;font-weight:600"><input type="checkbox" id="lart"'+(st.art?' checked':'')+'> Equipped</label></div>'+(st.art?'<div class="lab-f"><label>Sets<select id="lmode">'+opt('4',tt('4-piece'),st.mode==='4')+opt('22','2 + 2',st.mode==='22')+'</select></label></div><div class="lab-f"><label>'+(st.mode==='22'?'First set (2 pieces)':'Set (4 pieces)')+setBtn('ls1',st.s1)+'</label>'+(st.mode==='22'?'<label>Second set (2 pieces)'+setBtn('ls2',st.s2)+'</label>':'')+'</div>'
+   +'<div class="lab-f three"><label>Sands<select id="lsa">'+SANDS.map(k=>opt(k,tt(STN[k]),st.sands===k)).join('')+'</select></label><label>Goblet<select id="lgo">'+opt('el',tt(cd.el+' DMG Bonus'),st.goblet==='el')+['hp_','atk_','def_','em','phys'].map(k=>opt(k,tt(STN[k]),st.goblet===k)).join('')+'</select></label><label>Circlet<select id="lci">'+CIRC.map(k=>opt(k,tt(STN[k]),st.circlet===k)).join('')+'</select></label></div>'
    +'<div class="lab-f"><label>Substats<div class="dbref" id="lpre">'+[['typical','Typical'],['good','Good'],['great','Great']].map(([k,t])=>'<button type="button" data-pr="'+k+'" aria-pressed="'+(st.preset===k)+'">'+t+'</button>').join('')+'</div></label></div><details class="lab-subs"><summary>Edit substats (totals across all 5 pieces)</summary><div class="lab-sg">'+SUBK.map(k=>'<label>'+esc(STN[k])+'<input type="number" step="'+(PCT(k)?'0.1':'1')+'" min="0" data-sk="'+k+'" value="'+(PCT(k)?(Math.round((st.subs[k]||0)*1000)/10):Math.round(st.subs[k]||0))+'"></label>').join('')+'</div></details>'
-   +(sets.length?'<div class="lab-note">'+sets.map(a=>'<p><a href="/'+gid+'/artifacts/'+esc(a.id)+'" data-link><b>'+esc(a.n)+'</b></a> 2-piece: '+esc(a.e2)+(a.b2?' <span class="chip">counted</span>':' <span class="chip ghost">not counted</span>')+(st.mode==='4'&&a.e4?'<br>4-piece: '+esc(a.e4)+' <span class="chip ghost">not counted</span>':'')+'</p>').join('')+'</div>':'')
+   +(sets.length?'<div class="lab-note">'+sets.map(a=>{const c4=R.got.some(g=>g[0]==='a4');return'<p><a href="/'+gid+'/artifacts/'+esc(a.id)+'" data-link><b data-nt>'+esc(N(a))+'</b></a> <span>2-piece</span>: <span data-nt>'+esc(TX(a,'e2'))+'</span> '+(a.b2?'<span class="chip">counted</span>':'<span class="chip ghost">not counted</span>')+(st.mode==='4'&&a.e4?'<br><span>4-piece</span>: <span data-nt>'+esc(TX(a,'e4'))+'</span> '+(c4?'<span class="chip">counted</span>':'<span class="chip ghost">not counted</span>'):'')+'</p>'}).join('')+gotHTML('a4')+'</div>':'')
    +'<p class="lab-note">5-star pieces at +20: HP 4,780 flower, ATK 311 plume. Substat presets are made-up but realistic rolls.</p>':'')+'</div>'
-   +'<div class="panel lab-sec" style="--e0:#b33a4a;--e1:#ff7a8a"><div class="eyebrow">Enemy</div><div class="lab-f"><label>Enemy level<select id="lel">'+[90,95,100,103].map(v=>opt(v,'Lv '+v,+st.elv===v)).join('')+'</select></label><label>Enemy RES %<input type="number" id="lres" step="5" value="'+st.res+'"></label></div></div></div>'
+   +'<div class="panel lab-sec" style="--e0:#b33a4a;--e1:#ff7a8a"><div class="eyebrow">Enemy</div><div class="lab-f"><label>Enemy level<select id="lel">'+[90,95,100,103].map(v=>opt(v,tt('Lv')+' '+v,+st.elv===v)).join('')+'</select></label><label>Enemy RES %<input type="number" id="lres" step="5" value="'+st.res+'"></label></div></div></div>'
    +'<div class="lab-out"><div class="panel lab-sec lab-stats" style="--e0:'+E[0]+';--e1:'+E[1]+'"><div class="row"><div class="eyebrow">Stats</div><span class="sp"></span><button class="btn" type="button" id="lshare" style="height:32px;font-size:12.5px">Copy link</button></div><table class="lab-st">'+rows.map(r=>'<tr><td>'+esc(r[0])+'</td><td><b>'+r[1]+'</b>'+(r[2]?'<small>'+r[2]+'</small>':'')+'</td></tr>').join('')+'</table></div>'+tal
    +'<div class="panel lab-sec" style="--e0:#2f5f8a;--e1:#7cc4ff"><div class="eyebrow" style="margin-bottom:10px">Constellations</div><ul class="lab-c">'+cons+'</ul></div>'
-   +((cd.pa||[]).length?'<details class="panel lab-pa"><summary class="eyebrow">Passive talents</summary>'+cd.pa.map(p=>'<p><b>'+esc(p.n)+'</b><br>'+esc(p.d)+'</p>').join('')+'</details>':'')
-   +'<div class="panel lab-disc"><b>About these numbers</b><p>Stats (HP, ATK, DEF, crit and so on) add up the character, weapon and artifacts exactly as the game data lists them. Damage is a sample: one hit on a level '+esc(String(st.elv))+' enemy with '+esc(String(st.res))+'% RES, with no reactions, buffs from teammates, weapon passives, 4-piece effects, character passives or constellation effects beyond the +3 talent levels. Your in-game numbers will usually be higher.</p></div></div>';
+   +((cd.pa||[]).length?'<details class="panel lab-pa"><summary class="eyebrow">Passive talents</summary>'+(CT.pa&&CT.pa.length?CT.pa:cd.pa).map(p=>'<p data-nt><b>'+esc(p.n)+'</b><br>'+esc(p.d)+'</p>').join('')+'</details>':'')
+   +'<div class="panel lab-disc"><b>About these numbers</b><p>Stats add up the character, weapon and artifacts, plus the weapon and set bonuses that are always on, exactly as the game data lists them. Damage is a sample: one hit on the enemy set above, with no reactions, teammate buffs, conditional weapon or set effects, character passives or constellation effects beyond the +3 talent levels. Your in-game numbers will usually be higher.</p></div></div>';
   wire()};
  const upd=()=>{const p=new URLSearchParams();p.set('c',st.c);if(st.w)p.set('w',st.w);if(st.s1)p.set('a',st.s1);history.replaceState(null,'',location.pathname+'?'+p.toString())};
  const wire=()=>{upd();const on=(sel,ev,fn)=>{const e=$(sel);if(e)e[ev]=fn};
-  const charPick=()=>labPick({title:'Pick a character',tabs:['Pyro','Hydro','Anemo','Electro','Dendro','Cryo','Geo'],cur:cd.id,items:C.list.map(c=>({id:c.id,n:c.n,tab:c.el,sub:c.el+' · '+c.wt,ic:faceHTML(c.n,c.el)})),onPick:id=>setChar(id,true)});on('#lc','onclick',charPick);on('#lwho','onclick',charPick);on('#ll','onchange',e=>{st.li=+e.target.value;draw()});
+  const charPick=()=>labPick({title:'Pick a character',tabs:['Pyro','Hydro','Anemo','Electro','Dendro','Cryo','Geo'],cur:cd.id,items:C.list.map(c=>({id:c.id,n:N(c),en:c.n,tab:c.el,sub:tt(c.el)+' · '+tt(c.wt),ic:faceHTML(c.n,c.el)})),onPick:id=>setChar(id,true)});on('#lc','onclick',charPick);on('#lwho','onclick',charPick);on('#ll','onchange',e=>{st.li=+e.target.value;draw()});
   document.querySelectorAll('[data-cn]').forEach(b=>b.onclick=()=>{st.cons=+b.dataset.cn;draw()});document.querySelectorAll('[data-tk]').forEach(s=>s.onchange=()=>{st.tl[s.dataset.tk]=+s.value;draw()});
-  on('#lw','onclick',()=>labPick({title:'Pick a '+cd.wt.toLowerCase(),tabs:['5★','4★','3★'],cur:st.w,items:W.list.filter(x=>x.t===cd.wt).map(x=>({id:x.id,n:x.n,tab:(x.r>=3?x.r:3)+'★',sub:STN[x.ms]||'',ic:icHTML(gid,x.ic,x.r,'')})),onPick:id=>{st.w=id;st.ri=0;draw()}}));on('#lwl','onchange',e=>{st.wli=+e.target.value;draw()});document.querySelectorAll('[data-rf]').forEach(b=>b.onclick=()=>{st.ri=+b.dataset.rf;draw()});
-  on('#lart','onchange',e=>{st.art=e.target.checked;draw()});on('#lmode','onchange',e=>{st.mode=e.target.value;draw()});const setPick=(k)=>labPick({title:'Pick an artifact set',tabs:['5★','4★'],cur:st[k],items:[{id:'',n:'No set',sub:'Leave this empty',ic:'<span class="dbic none"></span>'}].concat(A.list.map(a=>{const r=Math.max(...(a.rl.length?a.rl:[4]));return{id:a.id,n:a.n,tab:(r>=5?5:4)+'★',sub:a.e2,ic:icHTML(gid,(a.p.flower||a.p.circlet||{}).ic,r,'')}})),onPick:id=>{st[k]=id;draw()}});on('#ls1','onclick',()=>setPick('s1'));on('#ls2','onclick',()=>setPick('s2'));
+  on('#lw','onclick',()=>labPick({title:'Pick a weapon',tabs:['5★','4★','3★'],cur:st.w,items:W.list.filter(x=>x.t===cd.wt).map(x=>({id:x.id,n:N(x),en:x.n,tab:(x.r>=3?x.r:3)+'★',sub:tt(STN[x.ms]||''),ic:icHTML(gid,x.ic,x.r,'')})),onPick:id=>{st.w=id;st.ri=0;draw()}}));on('#lwl','onchange',e=>{st.wli=+e.target.value;draw()});document.querySelectorAll('[data-rf]').forEach(b=>b.onclick=()=>{st.ri=+b.dataset.rf;draw()});
+  on('#lart','onchange',e=>{st.art=e.target.checked;draw()});on('#lmode','onchange',e=>{st.mode=e.target.value;draw()});const setPick=(k)=>labPick({title:'Pick an artifact set',tabs:['5★','4★'],cur:st[k],items:[{id:'',n:tt('No set'),sub:tt('Leave this empty'),ic:'<span class="dbic none"></span>'}].concat(A.list.map(a=>{const r=Math.max(...(a.rl.length?a.rl:[4]));return{id:a.id,n:N(a),en:a.n,tab:(r>=5?5:4)+'★',sub:TX(a,'e2'),ic:icHTML(gid,(a.p.flower||a.p.circlet||{}).ic,r,'')}})),onPick:id=>{st[k]=id;draw()}});on('#ls1','onclick',()=>setPick('s1'));on('#ls2','onclick',()=>setPick('s2'));
   on('#lsa','onchange',e=>{st.sands=e.target.value;draw()});on('#lgo','onchange',e=>{st.goblet=e.target.value;draw()});on('#lci','onchange',e=>{st.circlet=e.target.value;draw()});
   document.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>{st.preset=b.dataset.pr;st.subs=presetSubs(st.preset,st.scale||scaleOf(cd));draw()});
   document.querySelectorAll('[data-sk]').forEach(i=>i.onchange=()=>{const k=i.dataset.sk,v=Math.max(0,+i.value||0);st.subs[k]=PCT(k)?v/100:v;const d=document.querySelector('.lab-subs');const open=d&&d.open;draw();const d2=document.querySelector('.lab-subs');if(d2&&open)d2.open=true});
