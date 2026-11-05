@@ -697,3 +697,8 @@ html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;ov
 .cpop-s i{font-style:normal;color:var(--muted,#9aa3c4)}
 .cpop .btn{width:auto;display:inline-flex}
 .bnote{margin:8px 0 0;max-width:720px;font-size:12.5px;line-height:1.5;color:var(--muted,#9aa3c4);padding-left:10px;border-left:2px solid color-mix(in srgb,var(--e1) 55%,transparent)}
+/* Build Lab: character picker as the starting page */
+.lab-chg{padding:0;overflow:visible;grid-template-columns:repeat(auto-fill,minmax(118px,1fr))}
+.lab-choose .lpk-s{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.lab-choose .search{max-width:320px}
+@media (max-width:560px){.lab-chg{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}}
