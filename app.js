@@ -316,7 +316,6 @@ const TR_ROWS=[
 ["Crit value", "Valeur CRIT", "Valor CRIT", "会心値", "双暴分"],
 ["Characters who use this weapon", "Personnages qui utilisent cette arme", "Personajes que usan esta arma", "この武器を使うキャラ", "使用此武器的角色"],
 ["Characters who use this set", "Personnages qui utilisent ce set", "Personajes que usan este conjunto", "このセットを使うキャラ", "使用此套装的角色"],
-["From community builds on genshin-builds.com, strongest pick first. Tap a character to try it in the Build Lab.", "D'après les builds de la communauté sur genshin-builds.com, du meilleur choix au moins bon. Touchez un personnage pour l'essayer dans le Labo de builds.", "Según los builds de la comunidad en genshin-builds.com, de la mejor opción a la menos fuerte. Toca un personaje para probarlo en el Laboratorio de builds.", "genshin-builds.comのコミュニティ育成より、おすすめ順。キャラをタップするとビルドラボで試せます。", "来自genshin-builds.com的社区配装，按推荐顺序排列。点击角色可在配装实验室中试用。"],
 ["Top pick", "Meilleur choix", "Mejor opción", "一番のおすすめ", "首选"],
 ["#N pick", "Choix #N", "Opción #N", "おすすめ#N", "推荐#N"],
 ["Best set", "Meilleur set", "Mejor conjunto", "最適セット", "最佳套装"],
@@ -324,7 +323,6 @@ const TR_ROWS=[
 ["Best set (2 + 2)", "Meilleur set (2 + 2)", "Mejor conjunto (2 + 2)", "最適セット (2 + 2)", "最佳套装 (2 + 2)"],
 ["Option N (2 + 2)", "Option N (2 + 2)", "Opción N (2 + 2)", "候補N (2 + 2)", "备选N (2 + 2)"],
 ["Other popular builds", "Autres builds populaires", "Otros builds populares", "その他の人気育成", "其他热门配装"],
-["The card is my pick. These are other strong options from genshin-builds.com.", "La fiche montre mon choix. Voici d'autres options solides venant de genshin-builds.com.", "La ficha es mi elección. Estas son otras opciones fuertes de genshin-builds.com.", "カードは私のおすすめです。こちらはgenshin-builds.comの他の有力な候補です。", "卡片是我的推荐。以下是来自genshin-builds.com的其他强力选择。"],
 ["Weapons", "Armes", "Armas", "武器", "武器"],
 ["Artifact sets", "Sets d'artéfacts", "Conjuntos de artefactos", "聖遺物セット", "圣遗物套装"],
 ["Try them in the Build Lab", "Les essayer dans le Labo de builds", "Probarlos en el Laboratorio de builds", "ビルドラボで試す", "在配装实验室中试用"],
@@ -338,6 +336,8 @@ const TR_ROWS=[
 ["Edit each piece (main stat and substats)", "Modifier chaque pièce (stat principale et secondaires)", "Editar cada pieza (estadística principal y secundarias)", "各部位を編集（メイン・サブステータス）", "编辑每件圣遗物（主词条和副词条）"],
 ["5-star pieces at +20. Each piece has 4 different substats and can’t repeat its own main stat.", "Pièces 5★ au niveau +20. Chaque pièce a 4 stats secondaires différentes et ne peut pas répéter sa stat principale.", "Piezas de 5★ a +20. Cada pieza tiene 4 estadísticas secundarias distintas y no puede repetir su estadística principal.", "★5の+20。各部位はサブステータスが4種類で、メインステータスと同じものは付きません。", "5星+20。每件有4条不同的副词条，且不能与主词条相同。"],
 ["Using a Favonius weapon? Its energy passive only triggers on critical hits, so plan on more CRIT Rate than a card’s stat targets show. Not every card has room to mention it.", "Vous utilisez une arme Favonius ? Son effet d'énergie ne se déclenche que sur les coups critiques : prévoyez plus de Taux CRIT que les objectifs de stats d'une fiche. Toutes les fiches n'ont pas la place de le préciser.", "¿Usas un arma Favonius? Su pasiva de energía solo se activa con golpes críticos, así que conviene más Prob. CRIT de la que muestran los objetivos de la ficha. No todas las fichas tienen espacio para mencionarlo.", "西風武器を使うなら、元素粒子の効果は会心時のみ発動するため、カードの目標値より会心率を多めにしましょう。すべてのカードに書けるわけではありません。", "使用西风武器？它的充能效果只在暴击时触发，所以暴击率要比卡片上的属性目标更高一些。并非每张卡片都有空间注明这一点。"],
+["Strongest pick first. Tap a character to try it in the Build Lab.", "Du meilleur choix au moins bon. Touchez un personnage pour l'essayer dans le Labo de builds.", "De la mejor opción a la menos fuerte. Toca un personaje para probarlo en el Laboratorio de builds.", "おすすめ順です。キャラをタップするとビルドラボで試せます。", "按推荐顺序排列。点击角色可在配装实验室中试用。"],
+["The card is my pick. These are other strong options players use.", "La fiche montre mon choix. Voici d'autres options solides utilisées par les joueurs.", "La ficha es mi elección. Estas son otras opciones fuertes que usan los jugadores.", "カードは私のおすすめです。こちらはプレイヤーが使う他の有力な候補です。", "卡片是我的推荐。以下是玩家使用的其他强力选择。"],
 ];
 const TR={fr:{},es:{},ja:{},zh:{}};TR_ROWS.forEach(r=>['fr','es','ja','zh'].forEach((l,i)=>{if(r[i+1])TR[l][r[0]]=r[i+1]}));
 const LOC={en:'en-US',fr:'fr-FR',es:'es-ES',ja:'ja-JP',zh:'zh-CN'};
@@ -888,7 +888,7 @@ async function pArtifact(gid,id){if(!dbOn())return pDbSoon(gid,'Artifacts');let 
 
 /* ---------------- Build Lab: a mock equip page. Stat totals come straight from the game data;
    damage numbers are samples (no reactions, passives, 4-piece or weapon passive effects). ---------------- */
-/* community builds: every character's builds from genshin-builds.com, collected and published by PawPixl Studio.
+/* community builds: other popular builds for every character, collected and published by PawPixl Studio.
    iw / ia: which characters use each weapon / artifact set, best rank first. */
 let CB=null;
 async function cbGet(gid){if(CB&&CB.gid===gid)return CB;let d=null;try{d=await getJSON('/content/'+gid+'/db/builds.json')}catch(e){}const o={gid,d:d||{chars:{}},iw:{},ia:{}};
@@ -900,13 +900,13 @@ async function charPop(gid,name){if(!dbOn())return'';let C,W,A;try{[C,W,A]=await
  const seen=new Map();B.forEach(b=>(b.w||[]).forEach((id,r)=>{if(!seen.has(id)||seen.get(id)>r)seen.set(id,r)}));const WL=[...seen.entries()].sort((a,b)=>a[1]-b[1]).map(([id])=>W.list.find(w=>w.id===id)).filter(Boolean).slice(0,6);
  const so=[];B.forEach(b=>(b.a||[]).forEach(op=>{const k=op.join('+');if(op.length&&!so.some(x=>x.k===k))so.push({k,op})}));
  const set=id=>A.list.find(a=>a.id===id);
- return'<div class="panel cpop"><div class="eyebrow" style="margin-bottom:6px">Other popular builds</div><p class="muted" style="font-size:12.5px;margin:0 0 10px">The card is my pick. These are other strong options from genshin-builds.com.</p>'
+ return'<div class="panel cpop"><div class="eyebrow" style="margin-bottom:6px">Other popular builds</div><p class="muted" style="font-size:12.5px;margin:0 0 10px">The card is my pick. These are other strong options players use.</p>'
   +(WL.length?'<div class="cpop-l"><small>Weapons</small><div class="cpop-w">'+WL.map(w=>'<a href="/'+gid+'/weapons/'+esc(w.id)+'" data-link title="'+esc(N(w))+'">'+icHTML(gid,w.ic,w.r,N(w),'xs')+'</a>').join('')+'</div></div>':'')
   +(so.length?'<div class="cpop-l"><small>Artifact sets</small>'+so.slice(0,4).map(x=>'<div class="cpop-s">'+x.op.map(id=>{const a=set(id);return a?'<a href="/'+gid+'/artifacts/'+esc(a.id)+'" data-link>'+icHTML(gid,(a.p.flower||a.p.circlet||{}).ic,Math.max(...(a.rl.length?a.rl:[4])),'','xs')+'<span data-nt>'+esc(N(a))+'</span></a>':''}).join('<i>+</i>')+'</div>').join('')+'</div>':'')
   +'<a class="btn" href="/'+gid+'/lab?c='+esc(c.id)+'" data-link style="margin-top:12px">Try them in the Build Lab</a></div>'}
 function popHTML(gid,L,C,q,kind){if(!L||!L.length||!C)return'';const rows=L.map(x=>{const c=C.list.find(c=>c.id===x.c);if(!c)return'';const rk=kind==='a'?(x.r===0?'Best set':'Option N')+(x.two?' (2 + 2)':''):(x.r===0?'Top pick':'#N pick');
   return'<a href="/'+gid+'/lab?c='+esc(c.id)+q+'" data-link class="pop-c" title="'+esc(N(c))+'">'+faceHTML(c.n,c.el,'sm')+'<span><b data-nt>'+esc(N(c))+'</b><small>'+esc(tt(rk).replace('N',String(x.r+1)))+'</small></span></a>'}).join('');
- return'<div class="panel"><div class="eyebrow" style="margin-bottom:6px">'+(kind==='a'?'Characters who use this set':'Characters who use this weapon')+'</div><p class="muted" style="font-size:12.5px;margin:0 0 10px">From community builds on genshin-builds.com, strongest pick first. Tap a character to try it in the Build Lab.</p><div class="pop-g">'+rows+'</div></div>'}
+ return'<div class="panel"><div class="eyebrow" style="margin-bottom:6px">'+(kind==='a'?'Characters who use this set':'Characters who use this weapon')+'</div><p class="muted" style="font-size:12.5px;margin:0 0 10px">Strongest pick first. Tap a character to try it in the Build Lab.</p><div class="pop-g">'+rows+'</div></div>'}
 const MAIN5={hp:4780,atk:311,hp_:.466,atk_:.466,def_:.583,em:186.5,er:.518,el:.466,phys:.583,cr:.311,cd:.622,heal:.359};
 const SUBMAX={cr:.0389,cd:.0777,atk_:.0583,hp_:.0583,def_:.0729,em:23.31,er:.0648,atk:19.45,hp:298.75,def:23.15};
 const SUBK=['cr','cd','atk_','hp_','def_','em','er','atk','hp','def'];
