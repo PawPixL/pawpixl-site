@@ -49,7 +49,16 @@
     "stygian",
     "theatre",
     "schedule"
-   ]
+   ],
+   "bg": {
+    "img": "content/games/genshin-bg.webp",
+    "fx": 0.5,
+    "fy": 0.36,
+    "tx": 0.832,
+    "ty": 0.315,
+    "z": 1.3,
+    "op": 0.55
+   }
   }
  ],
  "auth": {},
@@ -99,5 +108,10 @@
   "on": true,
   "v": "2026-11-05",
   "src": "genshin-db 5.2.14"
- }
+ },
+ "live": {
+  "url": "",
+  "special": []
+ },
+ "gsv": ""
 }
