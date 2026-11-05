@@ -666,3 +666,7 @@ html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;ov
 .game .gbg img{position:absolute;max-width:none;display:block}
 .game .gbg::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(8,10,20,.5),transparent 55%)}
 .game.hasbg:not(.soon):hover .gbg{transform:scale(1.02)}
+/* Amazon disclosure: clearly visible above the product links (and again at the bottom) */
+.gdis.top{max-width:none;margin:0 0 20px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--mut,#b9c0da);font-size:13px;line-height:1.5}
+.gdis.top>span:first-child{color:#fff;font-weight:600}
+.gdis:not(.top){margin-top:18px}
