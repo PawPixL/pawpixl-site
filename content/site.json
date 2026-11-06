@@ -107,7 +107,7 @@
  "db": {
   "on": true,
   "v": "2026-11-05",
-  "src": "genshin-db 5.2.14"
+  "src": "genshin-db 5.2.15"
  },
  "live": {
   "url": "",
