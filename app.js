@@ -868,7 +868,9 @@ async function loadQuotes(){if(QD)return QD;const cfg=S.site.quotes||{},mode=cfg
  const own=(cfg.items||[]).filter(x=>x&&x.c&&x.t);let list;if(mode==='only')list=own;else{list=[];let j=0;base.forEach((b,i)=>{if(i%3===0&&j<own.length)list.push(own[j++]);list.push(b)});while(j<own.length)list.push(own[j++])}
  return QD={list,st:cfg.stickers||{}}}
 function qWho(name){const k=qkey(name),id=QALIAS[k]||k;let r=null;Object.values(S.games).forEach(g=>{(g.roster||[]).forEach(x=>{if(!r&&(x.id===id||qkey(x.name)===k))r=x})});
- const st=QD&&QD.st[k],c=EL[r&&r.el]||['#7b86b5','#c9d2f2','#eef1fa'];return{name,src:st||(r&&r.icon)||'',sticker:!!st,c}}
+ /* Paimon isn't a playable character, so she has no roster picture: she gets a built-in sticker (one set in the Studio still wins) */
+ const st=(QD&&QD.st[k])||QDEF[k],c=EL[r&&r.el]||['#7b86b5','#c9d2f2','#eef1fa'];return{name,src:st||(r&&r.icon)||'',sticker:!!st,c}}
+const QDEF={paimon:'content/stickers/paimon-default.webp'};
 function qToday(){const L=QD.list;if(!L.length)return null;const d=new Date(),day=Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5);return L[((day+QOFF)%L.length+L.length)%L.length]}
 const qSt=(w,cls)=>'<div class="qst'+(cls?' '+cls:'')+(w.sticker?' stk':'')+'" style="--q0:'+w.c[0]+';--q1:'+w.c[1]+'">'+(w.src?'<img src="/'+esc(w.src)+'" alt="">':'<span>'+esc((w.name||'?')[0])+'</span>')+'</div>';
 async function mountQuote(box){if(!box)return;await loadQuotes();if(!S.games.genshin)try{await loadGame('genshin')}catch(e){}const q=qToday();if(!q){box.remove&&box.id==='qslot'&&box.remove();return}
