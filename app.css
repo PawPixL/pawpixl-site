@@ -703,3 +703,12 @@ html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;ov
 .lab-choose .lpk-s{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .lab-choose .search{max-width:320px}
 @media (max-width:560px){.lab-chg{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}}
+
+/* weapon and artifact pages: two even columns, the long character list runs full width underneath */
+.dbview{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.dbbelow{display:flex;flex-direction:column;gap:14px;margin-top:14px}.dbbelow .panel{padding:18px}
+.dbbelow .pop-g{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+.popw .pop-x{display:none}.popw.pop-all .pop-x{display:flex}
+.pop-more{margin-top:12px;width:auto}
+.dbview .dbhero{min-height:220px;align-items:center}
+@media (max-width:820px){.dbview{display:flex;flex-direction:column;align-items:stretch;gap:14px}.dbview>.side{display:contents}.dbview .dbhead{order:-2}.dbview .dbtop{order:-1}.dbbelow .pop-g{grid-template-columns:repeat(2,minmax(0,1fr))}}
