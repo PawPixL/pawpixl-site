@@ -928,8 +928,11 @@ async function cbGet(gid){if(CB&&CB.gid===gid)return CB;let d=null;try{d=await g
  Object.values(o.iw).forEach(L=>L.sort((a,b)=>a.r-b.r));Object.values(o.ia).forEach(L=>L.sort((a,b)=>a.r-b.r));CB=o;return o}
 /* character page: the community's other popular weapons and sets, next to PawPixl's own card */
 async function charPop(gid,name){if(!dbOn())return'';let C,W,A;try{[C,W,A]=await Promise.all([dbGet(gid,'chars'),dbGet(gid,'weapons'),dbGet(gid,'artifacts')])}catch(e){return''}const X=await cbGet(gid);const c=C.list.find(c=>norm(c.n)===norm(name));const B=c&&((X.d.chars||{})[c.id]||{}).builds;if(!B||!B.length)return'';
- const seen=new Map();B.forEach(b=>(b.w||[]).forEach((id,r)=>{if(!seen.has(id)||seen.get(id)>r)seen.set(id,r)}));const WL=[...seen.entries()].sort((a,b)=>a[1]-b[1]).map(([id])=>W.list.find(w=>w.id===id)).filter(Boolean).slice(0,6);
- const so=[];B.forEach(b=>(b.a||[]).forEach(op=>{const k=op.join('+');if(op.length&&!so.some(x=>x.k===k))so.push({k,op})}));
+ /* only show what the card doesn't already have: no weapon or set option from the card, each set option once, and only real combinations (one set, or 2 + 2) */
+ const cd=Object.values(((S.games[gid]||{}).posts||{}).builds||{}).find(p=>norm(p.title)===norm(name));const seo=(cd&&(cd.versions||[])[0]||{}).seo||{};
+ const cardW=new Set((seo.weapons||[]).map(norm));const aN=id=>{const a=A.list.find(a=>a.id===id);return a?norm(a.n):id};const cardA=new Set();(seo.arts||[]).forEach(o=>{const L=(o.sets||[]).map(norm).filter(Boolean);if(!L.length)return;if(/2/.test(o.pcs||'')&&L.length>1)cardA.add(L.slice().sort().join('+'));else L.forEach(x=>cardA.add(x))});
+ const seen=new Map();B.forEach(b=>(b.w||[]).forEach((id,r)=>{if(!seen.has(id)||seen.get(id)>r)seen.set(id,r)}));const WL=[...seen.entries()].sort((a,b)=>a[1]-b[1]).map(([id])=>W.list.find(w=>w.id===id)).filter(w=>w&&!cardW.has(norm(w.n))).slice(0,6);
+ const so=[];B.forEach(b=>(b.a||[]).forEach(op=>{op=[...new Set(op)];if(!op.length||op.length>2)return;const k=op.map(aN).sort().join('+');if(cardA.has(k)||so.some(x=>x.k===k))return;so.push({k,op})}));if(!WL.length&&!so.length)return'';
  const set=id=>A.list.find(a=>a.id===id);
  return'<div class="panel cpop"><div class="eyebrow" style="margin-bottom:6px">Other popular builds</div><p class="muted" style="font-size:12.5px;margin:0 0 10px">The card is my pick. These are other strong options players use.</p>'
   +(WL.length?'<div class="cpop-l"><small>Weapons</small><div class="cpop-w">'+WL.map(w=>'<a href="/'+gid+'/weapons/'+esc(w.id)+'" data-link title="'+esc(N(w))+'">'+icHTML(gid,w.ic,w.r,N(w),'xs')+'</a>').join('')+'</div></div>':'')
