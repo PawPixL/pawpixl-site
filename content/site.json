@@ -51,13 +51,13 @@
     "schedule"
    ],
    "bg": {
-    "img": "content/games/genshin-bg.webp",
     "fx": 0.5,
-    "fy": 0.36,
-    "tx": 0.832,
-    "ty": 0.315,
-    "z": 1.3,
-    "op": 0.55
+    "fy": 0.4,
+    "tx": 0.695,
+    "ty": 0.432,
+    "z": 2.5,
+    "op": 0.9,
+    "img": "content/games/genshin-mw5a466l.webp"
    }
   }
  ],
