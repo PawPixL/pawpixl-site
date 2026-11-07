@@ -1139,14 +1139,14 @@ async function pCharMats(gid,key){if(!dbOn())return pDbSoon(gid,'Farming');const
  const cc=C.list.find(x=>x.id===key||norm(x.n)===norm(key)||(r&&norm(x.n)===norm(r.name)));if(!r&&!cc)return pMissing();
  const name=r?r.name:cc.n,el=(B&&B.el)||(r&&r.el)||(cc&&cc.el)||'',bkey=r?r.id:norm(name);setTheme(el||(gameMeta(gid)||{}).el);nav(gid,'');
  meta(name+' Materials · Genshin Impact','Everything '+name+' needs to ascend and level talents: exact amounts, which domain or boss drops each one, and which days to farm.');
- let sp='';try{const M=await getJSON('/content/'+gid+'/db/sp.json');sp=(M&&M[bkey])||''}catch(e){}const card=!sp&&v?(((v.langs||{}).en||Object.values(v.langs||{})[0]||{}).slides||[])[0]:null;
+ let sp='';try{const M=await getJSON('/content/'+gid+'/db/sp.json');sp=(M&&M[bkey])||''}catch(e){}
  const q=new URLSearchParams(location.search);CM={gid,key:bkey,X,C,v,name,a0:0,a1:6,t:[[1,10],[1,10],[1,10]],p:'all'};
  if(q.get('a')){const [a,b]=q.get('a').split('-').map(Number);if(a>=0&&b<=6&&a<=b){CM.a0=a;CM.a1=b;CM.p=''}}if(q.get('t')){const T=q.get('t').split(',').map(x=>x.split('-').map(Number));if(T.length===3&&T.every(x=>x[0]>=1&&x[1]<=10&&x[0]<=x[1])){CM.t=T;CM.p=''}}
  const E=EL[el]||EL.Hydro;
  const sel=(id,val,L)=>'<select id="'+id+'">'+L.map((x,i)=>'<option value="'+i+'"'+(i===val?' selected':'')+'>'+esc(tt(x))+'</option>').join('')+'</select>';
  const lv=(id,val)=>'<select id="'+id+'">'+[1,2,3,4,5,6,7,8,9,10].map(n=>'<option value="'+n+'"'+(n===val?' selected':'')+'>'+n+'</option>').join('')+'</select>';
  return'<section class="cmats"><a href="/'+gid+'/builds/'+esc(bkey)+'" data-link class="muted" style="font-weight:600;text-decoration:none">← <span>'+esc(name)+'</span> <span>build guide</span></a>'
-  +'<div class="mhero" style="--c0:'+E[0]+';--c1:'+E[1]+'">'+(sp?'<img class="mh-art" src="/'+esc(sp)+'" alt="">':card?'<img class="mh-art card" src="/'+esc(card.img)+'" alt="">':faceHTML(name,el,'mh-face'))
+  +'<div class="mhero" style="--c0:'+E[0]+';--c1:'+E[1]+'">'+(sp?'<div class="mh-artw"><img class="mh-art" src="/'+esc(sp)+'" alt=""></div>':'<div class="mh-artw">'+faceHTML(name,el,'mh-face')+'</div>')
   +'<div class="mh-tx"><div class="row" style="gap:8px;flex-wrap:wrap">'+(el?'<span class="chip">'+esc(el)+'</span>':'')+(v&&v.pv?'<span class="chip pvc">Preview</span>':'')+'</div><div class="eyebrow" style="margin-top:14px">Materials</div><h1 class="disp" data-nt>'+esc(cc?N(cc):name)+'</h1><p class="mh-sub">Everything they need to ascend and level their talents, with where to farm it and which days.</p>'
   +'<div class="mh-tot" id="cmtot"></div></div></div>'
   +(v&&v.pv?'<p class="pvnote" style="margin-top:14px">This character isn’t out yet. The materials come from what’s been officially shown so far, and they may change before release.</p>':'')
