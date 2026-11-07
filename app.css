@@ -631,7 +631,13 @@ html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;ov
 .labpromo{display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px 16px;border-radius:16px;border:1px solid color-mix(in srgb,var(--e1) 40%,var(--line));background:linear-gradient(100deg,color-mix(in srgb,var(--e0) 22%,transparent),color-mix(in srgb,var(--e1) 8%,transparent) 70%),var(--glass);text-decoration:none;color:inherit;transition:transform .15s,border-color .15s}
 .labpromo:hover{transform:translateY(-2px);border-color:var(--e1)}
 .labpromo svg{width:30px;height:30px;flex:none;color:var(--e1)}
-.labpromo span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.labpromo>span:not(.fpi){flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.labpromo b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Build Lab + Farm today side by side, so the left column matches the schedule column (one row of tiles each) */
+.ptiles{display:flex;gap:12px;margin-top:12px}.picks .ptiles>.labpromo{flex:1 1 0;min-width:0;margin-top:0!important;padding-left:14px;padding-right:12px;gap:10px}
+.ptiles>.labpromo i{font-size:17px}
+.picks .ptiles .labpromo small{-webkit-line-clamp:2}
+@media (max-width:520px){.ptiles{flex-direction:column}}
 .labpromo b{font-size:15px}
 .labpromo small{font-size:12.5px;color:var(--muted,#9aa3c4);line-height:1.35}
 .labpromo i{font-style:normal;font-size:20px;color:var(--e1)}
@@ -755,5 +761,5 @@ html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;ov
 .ftoday{color:#5fe0a8;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em}
 .calclink{display:flex;align-items:center;gap:12px;margin-top:14px;padding:10px 14px;border-radius:14px;border:1px solid color-mix(in srgb,var(--e1) 40%,var(--line));text-decoration:none;color:inherit;background:color-mix(in srgb,var(--e1) 7%,transparent)}
 .calclink:hover{border-color:var(--e1)}.calclink svg{width:26px;height:26px;color:var(--e1);flex:none}.calclink span{flex:1;display:flex;flex-direction:column}.calclink small{font-size:12.5px;opacity:.75}
-.farmpeek .fpi{display:flex;gap:2px;flex:none}.farmpeek .fpi .dbic{width:30px;height:30px}
+.farmpeek .fpi{display:flex;flex:none;align-items:center}.farmpeek .fpi .dbic{width:30px;height:30px;flex:none;border-radius:9px;box-shadow:0 0 0 2px var(--bg,#0b1020)}.farmpeek .fpi .dbic+.dbic{margin-left:-12px}
 .lab-face.xs{width:34px;height:34px;border-radius:10px;font-size:13px}
