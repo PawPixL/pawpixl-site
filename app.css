@@ -735,3 +735,25 @@ html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;ov
 /* big headings never run off a phone screen: shrink first, and break a very long word only if they still must */
 .disp{overflow-wrap:break-word}
 @media (max-width:520px){.prose .disp{font-size:clamp(28px,10.5vw,44px)!important}main .disp{max-width:100%}}
+.chip.pvc{background:linear-gradient(90deg,#8a3dff,#ff63e8);color:#fff;border-color:transparent}
+.pvnote{margin:12px 0 0;padding:10px 14px;border-radius:12px;border:1px solid rgba(255,99,232,.45);background:rgba(255,99,232,.08);font-size:13.5px;line-height:1.5}
+
+/* farming page */
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.fcard{padding:12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03)}
+.fhead{display:flex;gap:10px;align-items:center;text-decoration:none;color:inherit}
+.fhead span{display:flex;flex-direction:column;min-width:0}.fhead b{font-size:14.5px}.fhead small{font-size:12px;opacity:.7}
+.fwho{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px;align-items:center}.fwho a{display:inline-flex}.fmore{font-size:12px;margin-left:4px}
+.cform{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.cform label{display:flex;flex-direction:column;gap:6px;margin:0;font-weight:600;font-size:13px}.cform select{width:100%}.cform .ctal select{flex:1;min-width:0}.cform i{opacity:.6;font-style:normal}
+.ctot{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin:18px 0 12px;padding-top:14px;border-top:1px solid var(--line)}
+.cmora{display:inline-flex;align-items:center;gap:8px;font-size:18px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.citem{display:flex;gap:10px;align-items:center;padding:8px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03)}
+.citem>div{display:flex;flex-direction:column;min-width:0}.citem b{font-size:14px}.citem b a{color:inherit;text-decoration:none}.citem small{font-size:12px;opacity:.8}.citem small a{color:inherit}
+.cn{color:var(--e1);font-weight:800}
+.ftoday{color:#5fe0a8;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em}
+.calclink{display:flex;align-items:center;gap:12px;margin-top:14px;padding:10px 14px;border-radius:14px;border:1px solid color-mix(in srgb,var(--e1) 40%,var(--line));text-decoration:none;color:inherit;background:color-mix(in srgb,var(--e1) 7%,transparent)}
+.calclink:hover{border-color:var(--e1)}.calclink svg{width:26px;height:26px;color:var(--e1);flex:none}.calclink span{flex:1;display:flex;flex-direction:column}.calclink small{font-size:12.5px;opacity:.75}
+.farmpeek .fpi{display:flex;gap:2px;flex:none}.farmpeek .fpi .dbic{width:30px;height:30px}
+.lab-face.xs{width:34px;height:34px;border-radius:10px;font-size:13px}
