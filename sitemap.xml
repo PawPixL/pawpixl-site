@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-<url><loc>https://pawpixl.com/</loc><lastmod>2026-11-06</lastmod></url>
+<url><loc>https://pawpixl.com/</loc><lastmod>2026-11-07</lastmod></url>
 <url><loc>https://pawpixl.com/picks</loc></url>
-<url><loc>https://pawpixl.com/genshin</loc><lastmod>2026-11-06</lastmod></url>
-<url><loc>https://pawpixl.com/genshin/builds</loc><lastmod>2026-11-06</lastmod></url>
+<url><loc>https://pawpixl.com/genshin</loc><lastmod>2026-11-07</lastmod></url>
+<url><loc>https://pawpixl.com/genshin/builds</loc><lastmod>2026-11-07</lastmod></url>
 <url><loc>https://pawpixl.com/genshin/builds/varesa</loc><lastmod>2026-11-06</lastmod><image:image><image:loc>https://pawpixl.com/content/genshin/builds/varesa/261106-104740/en-1.webp</image:loc></image:image></url>
 <url><loc>https://pawpixl.com/genshin/builds/albedo</loc><lastmod>2026-11-06</lastmod><image:image><image:loc>https://pawpixl.com/content/genshin/builds/albedo/261106-104740/en-1.webp</image:loc></image:image></url>
 <url><loc>https://pawpixl.com/genshin/builds/kinich</loc><lastmod>2026-11-06</lastmod><image:image><image:loc>https://pawpixl.com/content/genshin/builds/kinich/261106-111814/en-1.webp</image:loc></image:image></url>
@@ -52,6 +52,7 @@
 <url><loc>https://pawpixl.com/genshin/builds/alyosha</loc><lastmod>2026-11-06</lastmod><image:image><image:loc>https://pawpixl.com/content/genshin/builds/alyosha/261106-111443/en-1.webp</image:loc></image:image></url>
 <url><loc>https://pawpixl.com/genshin/builds/qiqi</loc><lastmod>2026-11-06</lastmod><image:image><image:loc>https://pawpixl.com/content/genshin/builds/qiqi/261106-114744/en-1.webp</image:loc></image:image></url>
 <url><loc>https://pawpixl.com/genshin/builds/chevreuse</loc><lastmod>2026-11-06</lastmod><image:image><image:loc>https://pawpixl.com/content/genshin/builds/chevreuse/261106-125223/en-1.webp</image:loc></image:image></url>
+<url><loc>https://pawpixl.com/genshin/builds/anastasya</loc><lastmod>2026-11-07</lastmod><image:image><image:loc>https://pawpixl.com/content/genshin/builds/anastasya/261106-205620/en-1.webp</image:loc></image:image></url>
 <url><loc>https://pawpixl.com/genshin/stygian</loc><lastmod>2026-11-06</lastmod></url>
 <url><loc>https://pawpixl.com/genshin/stygian/stygian-onslaught-version-7-2-nov-10-nov-30-2026</loc><lastmod>2026-11-06</lastmod><image:image><image:loc>https://pawpixl.com/content/genshin/stygian/stygian-onslaught-version-7-2-nov-10-nov-30-2026/261106-012935/en-1.webp</image:loc></image:image></url>
 <url><loc>https://pawpixl.com/genshin/theatre</loc><lastmod>2026-11-01</lastmod></url>
