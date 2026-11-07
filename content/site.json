@@ -123,10 +123,10 @@
  },
  "gsv": "",
  "schedBg": {
-  "fx": 0.5,
-  "fy": 0.4,
-  "tx": 0.797,
-  "ty": -0.095,
+  "fx": 0.486,
+  "fy": 0.431,
+  "tx": 0.715,
+  "ty": 0.323,
   "z": 1.55,
   "op": 0.7,
   "img": "content/games/schedule-mw5n2oci.webp"
