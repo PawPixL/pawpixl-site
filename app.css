@@ -818,3 +818,32 @@ html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;ov
 .hconn{margin:12px 0 0;font-size:12.5px;color:var(--mut);display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}.hconn a{color:var(--mut);text-decoration:none;border-bottom:1px dashed color-mix(in srgb,var(--mut) 50%,transparent)}.hconn a:hover{color:var(--tx)}.hconn i{font-style:normal;opacity:.5}
 @media (max-width:820px){.hfind{margin:16px auto 0;width:100%}.hcta{justify-content:center}.hconn{justify-content:center}}
 @media (max-width:480px){.hcta .btn{flex:1 1 100%;justify-content:center}.hconn{font-size:12px;gap:6px 14px}.hconn i{display:none}}
+
+/* account icon */
+.accic{width:30px;height:30px;border-radius:50%;padding:2px;flex:none;background:conic-gradient(from 210deg,var(--e2),var(--e1),var(--e0),var(--e2));box-shadow:0 0 12px color-mix(in srgb,var(--e1) 35%,transparent);margin-left:-6px}
+.accic img{display:block;width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--e1) 30%,#141a33),#0d1122);object-fit:cover}
+#acctBtn{gap:9px;padding-left:10px}#acctBtn:hover .accic{box-shadow:0 0 18px color-mix(in srgb,var(--e1) 60%,transparent)}
+.accbig{width:64px;height:64px;border-radius:50%;padding:3px;flex:none;background:conic-gradient(from 210deg,var(--e2),var(--e1),var(--e0),var(--e2));box-shadow:0 0 20px color-mix(in srgb,var(--e1) 35%,transparent)}
+.accbig img{display:block;width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 50% 30%,color-mix(in srgb,var(--e1) 30%,#141a33),#0d1122);object-fit:cover;object-position:50% 0}
+.acc-h{align-items:center}
+/* home hero: balance the two sides (the search and buttons fill their column; the right column runs the full height) */
+@media (min-width:1101px){
+ .hero{grid-template-columns:auto minmax(0,1fr) 360px;column-gap:34px}
+ .hero .qslot{width:auto;align-self:stretch;display:flex;flex-direction:column}
+ .hero .qslot #qbox{flex:1;display:flex;flex-direction:column}
+ .hero .qslot #qbox>.qotd{flex:1;display:flex;flex-direction:column;padding:16px 16px 18px}
+ .hero .qotd>.qh{margin-bottom:auto}
+ .hero .qotd::after{content:'';margin-top:auto}
+ .hero .qotd .qrow{align-items:center;gap:14px}
+ .hero .qotd .qrow .qst{width:92px;height:92px}
+ .hero .qotd .qt{font-size:17px;line-height:1.5}
+ .hero .qotd .qb{padding:12px 15px}
+ .hero .hfind{width:100%;max-width:640px}
+ .hero .hcta .btn{flex:1 1 0;justify-content:center}
+ .hero .hconn{max-width:640px;justify-content:space-between}
+ .hero .hconn i{display:none}
+ .hero .hsoc{max-width:calc(640px + 132px + 34px)}
+ .hero .hsoc .soc{flex:1 1 0;justify-content:center}
+}
+@media (max-width:480px){.ibtn.lbl span.accic{display:block;margin:0}#acctBtn{padding:0;width:40px;justify-content:center}}
+@media (min-width:821px) and (max-width:1100px){.hero .qslot{max-width:none;display:grid;grid-template-columns:1.5fr 1fr;gap:12px;align-items:stretch}.hero .qslot .nl{margin-top:0;display:flex;flex-direction:column;justify-content:center}.hero .qslot #qbox,.hero .qslot #qbox>.qotd{height:100%;box-sizing:border-box}}
