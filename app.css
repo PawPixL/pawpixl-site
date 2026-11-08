@@ -826,24 +826,33 @@ html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;ov
 .accbig{width:64px;height:64px;border-radius:50%;padding:3px;flex:none;background:conic-gradient(from 210deg,var(--e2),var(--e1),var(--e0),var(--e2));box-shadow:0 0 20px color-mix(in srgb,var(--e1) 35%,transparent)}
 .accbig img{display:block;width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 50% 30%,color-mix(in srgb,var(--e1) 30%,#141a33),#0d1122);object-fit:cover;object-position:50% 0}
 .acc-h{align-items:center}
-/* home hero: balance the two sides (the search and buttons fill their column; the right column runs the full height) */
+/* home hero: one even block on the left (name, tagline, search + browse, socials) and the two cards on the right at the same height */
+.hero .hfind{display:flex;gap:10px;align-items:stretch;width:100%;max-width:none}
+.hero .hfind .findc{flex:1;min-width:0;position:relative}
+.hero .hbrowse{flex:none;width:auto;margin:0;height:52px;padding:0 18px;gap:8px;white-space:nowrap}
+.hero .hbrowse em{font-style:normal;font-size:12px;font-weight:800;padding:2px 8px;border-radius:999px;background:rgba(0,0,0,.25)}
+.hero p.tag{margin-top:6px}.hero p.bio{margin-top:2px}
 @media (min-width:1101px){
- .hero{grid-template-columns:auto minmax(0,1fr) 360px;column-gap:34px}
+ .hero{grid-template-columns:auto minmax(0,1fr) 360px;column-gap:30px;row-gap:22px;align-items:stretch}
+ .hero>div:nth-child(2){align-self:center}
  .hero .qslot{width:auto;align-self:stretch;display:flex;flex-direction:column}
  .hero .qslot #qbox{flex:1;display:flex;flex-direction:column}
- .hero .qslot #qbox>.qotd{flex:1;display:flex;flex-direction:column;padding:16px 16px 18px}
+ .hero .qslot #qbox>.qotd{flex:1;display:flex;flex-direction:column;padding:14px 16px 16px}
  .hero .qotd>.qh{margin-bottom:auto}
  .hero .qotd::after{content:'';margin-top:auto}
- .hero .qotd .qrow{align-items:center;gap:14px}
- .hero .qotd .qrow .qst{width:92px;height:92px}
- .hero .qotd .qt{font-size:17px;line-height:1.5}
- .hero .qotd .qb{padding:12px 15px}
- .hero .hfind{width:100%;max-width:640px}
- .hero .hcta .btn{flex:1 1 0;justify-content:center}
- .hero .hconn{max-width:640px;justify-content:space-between}
- .hero .hconn i{display:none}
- .hero .hsoc{max-width:calc(640px + 132px + 34px)}
- .hero .hsoc .soc{flex:1 1 0;justify-content:center}
+ .hero .qotd .qrow{align-items:center;gap:14px;margin-top:10px}
+ .hero .qotd .qrow .qst{width:72px;height:72px}
+ .hero .qotd .qt{font-size:15.5px;line-height:1.5}
+ .hero .qotd .qb{padding:11px 14px}
+}
+@media (min-width:821px){.hero .hsoc{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;align-self:end}.hero .hsoc .soc{justify-content:center;min-width:0}.hero .hsoc .soc svg{flex:none}}
+@media (max-width:560px){.hero .hfind{flex-direction:column}.hero .hbrowse{justify-content:center}}
 }
 @media (max-width:480px){.ibtn.lbl span.accic{display:block;margin:0}#acctBtn{padding:0;width:40px;justify-content:center}}
 @media (min-width:821px) and (max-width:1100px){.hero .qslot{max-width:none;display:grid;grid-template-columns:1.5fr 1fr;gap:12px;align-items:stretch}.hero .qslot .nl{margin-top:0;display:flex;flex-direction:column;justify-content:center}.hero .qslot #qbox,.hero .qslot #qbox>.qotd{height:100%;box-sizing:border-box}}
+
+/* the hero's second action: the Build Lab, next to Browse all builds */
+.hero .hlab2{flex:none;width:auto;margin:0;height:52px;padding:0 16px;gap:8px;white-space:nowrap;border-color:color-mix(in srgb,var(--e1) 40%,var(--line));background:color-mix(in srgb,var(--e1) 8%,transparent)}
+.hero .hlab2 svg{width:20px;height:20px;flex:none}
+.hero .hlab2:hover{border-color:var(--e1);background:color-mix(in srgb,var(--e1) 16%,transparent)}
+@media (max-width:560px){.hero .hfind{display:grid;grid-template-columns:1fr auto}.hero .hfind .findc{grid-column:1/-1}.hero .hbrowse,.hero .hlab2{justify-content:center}}
