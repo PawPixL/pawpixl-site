@@ -856,3 +856,9 @@ html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;ov
 .hero .hlab2 svg{width:20px;height:20px;flex:none}
 .hero .hlab2:hover{border-color:var(--e1);background:color-mix(in srgb,var(--e1) 16%,transparent)}
 @media (max-width:560px){.hero .hfind{display:grid;grid-template-columns:1fr auto}.hero .hfind .findc{grid-column:1/-1}.hero .hbrowse,.hero .hlab2{justify-content:center}}
+
+/* build variations on a guide page */
+.bvars .bvar{border-top:1px solid var(--line);padding:10px 0}.bvars .bvar:first-of-type{border-top:0;padding-top:0}
+.bvars summary{display:flex;gap:8px;align-items:center;flex-wrap:wrap;cursor:pointer;list-style:none}.bvars summary::-webkit-details-marker{display:none}
+.bvars summary::after{content:'+';margin-left:auto;font-weight:800;opacity:.6}.bvars details[open] summary::after{content:'–'}
+.bvars p{margin:8px 0 0;font-size:14px;line-height:1.5}.bvars dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:8px 0 0;font-size:13.5px}.bvars dt{font-weight:700;opacity:.75}.bvars dd{margin:0}.bvars .bvn{font-size:13px}

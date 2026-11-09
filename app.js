@@ -378,6 +378,9 @@ const TR_ROWS=[
 ["Find a character’s build", "Trouve le build d’un personnage", "Busca la build de un personaje", "キャラのビルドを探す", "查找角色配装"],
 ["Browse all character builds", "Voir tous les builds", "Ver todas las builds", "キャラビルド一覧", "浏览全部角色配装"],
 ["Search characters", "Chercher un personnage", "Buscar personaje", "キャラを検索", "搜索角色"],
+["Team", "Équipe", "Equipo", "編成", "队伍"],
+["Build variations", "Variantes de build", "Variantes de build", "ビルドのバリエーション", "配装变体"],
+["Pre-release", "Avant la sortie", "Pre-lanzamiento", "実装前", "未上线"],
 ["Browse all builds", "Tous les builds", "Todas las builds", "ビルド一覧", "全部配装"],
 ["Try the Build Lab", "Essaie le Labo de builds", "Prueba el Laboratorio", "ビルドラボを試す", "试试配装实验室"],
 ["Test weapons, artifacts and damage", "Teste armes, artéfacts et dégâts", "Prueba armas, artefactos y daño", "武器・聖遺物・ダメージを試す", "测试武器、圣遗物和伤害"],
@@ -697,7 +700,8 @@ const SEO={
    if(x.stats&&x.stats.length)h+='<h2>Stat targets</h2>'+li(x.stats);
    if(x.talents&&x.talents.length)h+='<h2>Talent priority</h2>'+li(x.talents.map(t=>t.name+': '+t.pri));
    if(x.teams&&x.teams.length)h+='<h2>Best teams</h2>'+li(x.teams.map(t=>(t.name?t.name+': ':'')+t.members.join(', ')));
-   if(x.pros&&x.pros.length)h+='<h2>Pros</h2>'+li(x.pros);if(x.cons&&x.cons.length)h+='<h2>Cons</h2>'+li(x.cons)}
+   if(x.pros&&x.pros.length)h+='<h2>Pros</h2>'+li(x.pros);if(x.cons&&x.cons.length)h+='<h2>Cons</h2>'+li(x.cons);
+   if(x.vars&&x.vars.length)h+='<h2>Build variations</h2>'+li(x.vars.map(v=>v.title+(v.role?' ('+v.role+')':'')+(v.when?': '+v.when:'')))}
   else if(chars&&chars.length)h+='<h2>Characters</h2>'+li(chars);return h},
  ld(site,sec,name,desc,url,img,date,gname,secName){const b=(site.url||'').replace(/\/+$/,''),nm=site.name||'PawPixl',gp=url.split('/').filter(Boolean);
   return{'@context':'https://schema.org','@graph':[{'@type':'Article','headline':SEO.title(sec,name).slice(0,110),'description':desc,'image':[b+'/'+img],'datePublished':date,'dateModified':date,'author':{'@type':'Person','name':nm,'url':b+'/'},'publisher':{'@type':'Organization','name':nm,'url':b+'/','logo':{'@type':'ImageObject','url':b+'/favicon.png'}},'mainEntityOfPage':b+url,'about':{'@type':'VideoGame','name':gname||'Genshin Impact'},'inLanguage':'en'},
@@ -880,7 +884,12 @@ async function pChar(gid,key,ver){const g=gameMeta(gid);const d=await loadGame(g
  const vs=c.versions||[],v=vs.find(x=>x.id===ver)||vs[0];const sd=SEO.desc('builds',c.title,v.seo);meta(SEO.title('builds',c.title),sd);const fk=gid+'|builds|'+key;{const im=((slidesOf(v).list||[])[0]||{}).img;if(im)setLD(SEO.ld(S.site,'builds',c.title,sd,'/'+gid+'/builds/'+key,im,v.date,g.name,'Character Builds'))}
  PAGE={v,title:c.title,file:'pawpixl-'+key,fk};
  return'<section><a href="/'+gid+'/builds" data-link class="muted" style="font-weight:600;text-decoration:none">← All characters</a><div class="view" style="margin-top:14px"><div>'+viewerHTML(v,c.title+' build guide')+'<div class="sr">'+SEO.body('builds',c.title,v.seo,[],sd).replace(/^<h1>[\s\S]*?<\/h1>/,'')+'</div></div><div class="side"><div class="panel"><div class="row" style="gap:8px"><span class="chip">'+esc(c.el||r.el||'Build')+'</span>'+(v===vs[0]?'<span class="chip ghost">Latest</span>':'<span class="chip ghost">Older version</span>')+(v.pv?'<span class="chip pvc">Preview</span>':isNew(v.date)?'<span class="chip new">New</span>':'')+'</div>'+(v.pv?'<p class="pvnote">This character isn’t out yet. This is a preview build from what’s been officially shown so far, and it may change before release.</p>':'')+'<h1 class="disp" style="margin-top:14px">'+esc(c.title)+'</h1><p class="muted" style="margin:6px 0 14px">Updated '+fmtDate(v.date)+'</p>'+actions(fk)+'<p class="acctline"><span>Made for every account, from F2P to whale. Build with what you have.</span></p>'+(dbOn()?'<a class="calclink" href="/'+gid+'/farm/'+encodeURIComponent(key)+'" data-link>'+DBI.f+'<span><b>Materials needed</b><small>Exact ascension and talent materials, and when to farm them</small></span><i aria-hidden="true">→</i></a>':'')+'</div>'
- +(vs.length>1?'<div class="panel"><div class="eyebrow" style="margin-bottom:12px">Version history</div><ul class="hist">'+vs.map((x,i)=>'<li><a href="/'+gid+'/builds/'+key+(i?'/'+x.id:'')+'" data-link aria-current="'+(x===v)+'"><span>'+(i?'Previous':'Latest')+'</span><span class="muted">'+fmtDate(x.date)+'</span></a></li>').join('')+'</ul></div>':'')+(await charPop(gid,c.title))+appearsHTML(gid,key,c.title)+fbHTML(c.title+' build')+'</div></div></section>'}
+ +varsHTML(v.seo)+(vs.length>1?'<div class="panel"><div class="eyebrow" style="margin-bottom:12px">Version history</div><ul class="hist">'+vs.map((x,i)=>'<li><a href="/'+gid+'/builds/'+key+(i?'/'+x.id:'')+'" data-link aria-current="'+(x===v)+'"><span>'+(i?'Previous':'Latest')+'</span><span class="muted">'+fmtDate(x.date)+'</span></a></li>').join('')+'</ul></div>':'')+(await charPop(gid,c.title))+appearsHTML(gid,key,c.title)+fbHTML(c.title+' build')+'</div></div></section>'}
+/* ---------- build variations (from the Studio's Bulk Guide Editor): other ways to build this character ---------- */
+function varsHTML(seo){const V=(seo&&seo.vars)||[];if(!V.length)return'';const e=esc;
+ return'<div class="panel bvars"><div class="eyebrow" style="margin-bottom:10px">'+tt('Build variations')+'</div>'+V.map(v=>'<details class="bvar"><summary><b>'+e(v.title)+'</b>'+(v.role?'<span class="chip ghost">'+e(v.role)+'</span>':'')+(v.pre?'<span class="chip pvc">'+tt('Pre-release')+'</span>':'')+'</summary>'
+  +(v.when?'<p>'+e(v.when)+'</p>':'')+'<dl>'+(v.weapons&&v.weapons.length?'<dt>'+tt('Weapons')+'</dt><dd>'+e(v.weapons.join(', '))+'</dd>':'')+(v.arts&&v.arts.length?'<dt>'+tt('Artifacts')+'</dt><dd>'+e(v.arts.map(a=>a.sets.join(' + ')+(a.pcs?' ('+a.pcs+')':'')).join(' / '))+'</dd>':'')
+  +(v.stats?'<dt>'+tt('Stats')+'</dt><dd>'+e(v.stats)+'</dd>':'')+(v.teams?'<dt>'+tt('Team')+'</dt><dd>'+e(v.teams)+'</dd>':'')+'</dl>'+(v.notes?'<p class="muted bvn">'+e(v.notes)+'</p>':'')+'</details>').join('')+'</div>'}
 /* ---------- a quiet "send a note" box on guide pages: comments, questions and corrections go to PawPixl Studio only ---------- */
 const fbOn=()=>!!(S.site&&(S.site.stats||(S.site.news&&S.site.news.on)));
 function fbHTML(title){if(!fbOn())return'';return'<details class="fbk"><summary>'+svg('chat')+'<span>Spot something off, or have a question?</span></summary><form class="fbf" data-title="'+esc(title||'')+'" novalidate>'
