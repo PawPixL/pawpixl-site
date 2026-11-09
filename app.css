@@ -835,11 +835,9 @@ html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;ov
 @media (min-width:1101px){
  .hero{grid-template-columns:auto minmax(0,1fr) 360px;column-gap:30px;row-gap:22px;align-items:stretch}
  .hero>div:nth-child(2){align-self:center}
- .hero .qslot{width:auto;align-self:stretch;display:flex;flex-direction:column}
- .hero .qslot #qbox{flex:1;display:flex;flex-direction:column}
- .hero .qslot #qbox>.qotd{flex:1;display:flex;flex-direction:column;padding:14px 16px 16px}
- .hero .qotd>.qh{margin-bottom:auto}
- .hero .qotd::after{content:'';margin-top:auto}
+ .hero .qslot{width:auto;align-self:start;display:flex;flex-direction:column;gap:12px}
+ .hero .qslot .nl{margin-top:0}
+ .hero .qslot #qbox>.qotd{padding:14px 16px 16px}
  .hero .qotd .qrow{align-items:center;gap:14px;margin-top:10px}
  .hero .qotd .qrow .qst{width:72px;height:72px}
  .hero .qotd .qt{font-size:15.5px;line-height:1.5}
@@ -847,7 +845,6 @@ html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;ov
 }
 @media (min-width:821px){.hero .hsoc{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;align-self:end}.hero .hsoc .soc{justify-content:center;min-width:0}.hero .hsoc .soc svg{flex:none}}
 @media (max-width:560px){.hero .hfind{flex-direction:column}.hero .hbrowse{justify-content:center}}
-}
 @media (max-width:480px){.ibtn.lbl span.accic{display:block;margin:0}#acctBtn{padding:0;width:40px;justify-content:center}}
 @media (min-width:821px) and (max-width:1100px){.hero .qslot{max-width:none;display:grid;grid-template-columns:1.5fr 1fr;gap:12px;align-items:stretch}.hero .qslot .nl{margin-top:0;display:flex;flex-direction:column;justify-content:center}.hero .qslot #qbox,.hero .qslot #qbox>.qotd{height:100%;box-sizing:border-box}}
 
