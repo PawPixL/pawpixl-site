@@ -218,6 +218,7 @@ async function news(req, env, url, ctx) {
 
   /* ---- PawPixl Studio only (password in the Authorization header) ---- */
   if (!authed(req, env)) return json({ ok: false, error: env.NEWS_KEY ? 'password' : 'no-password' }, 401, CORS);
+  if (p.startsWith('seo/')) return seoApi(p.slice(4), req, env, url, db, ctx);
   if (p === 'stats') {
     const all = (await db.prepare('SELECT topics FROM subs WHERE ok = 1').all()).results;
     const by = {}; Object.keys(TOPICS).forEach(k => by[k] = all.filter(r => (',' + r.topics + ',').includes(',' + k + ',')).length);
@@ -273,9 +274,145 @@ async function news(req, env, url, ctx) {
   return json({ ok: false }, 404, CORS);
 }
 
+/* ---------------- SEO Manager (PawPixl Studio only) ----------------
+   1) Reads your own pages exactly as visitors and Google get them (status, redirects, headers, HTML).
+   2) Google Search Console, through a Google Cloud "service account". Its key is saved on this Worker as the
+      secret GSC_KEY and never leaves it: the Studio only ever sees results. Uses the official Search Console API
+      (search results, URL Inspection, sitemaps). The Indexing API is not used: it's only for job and livestream pages.
+   Google limits: URL Inspection 2,000 checks a day per site (we stop at 1,500); results are kept for 3 days. */
+const GSC_SCOPE = 'https://www.googleapis.com/auth/webmasters';
+let gTok = null;
+const b64u = u8 => { let s = ''; for (let i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]); return btoa(s).replace(/[+/=]/g, c => ({ '+': '-', '/': '_', '=': '' }[c])); };
+function gscKey(env) { try { const k = JSON.parse(env.GSC_KEY || ''); return k && k.client_email && k.private_key ? k : null; } catch (e) { return null; } }
+async function gToken(env) {
+  const k = gscKey(env); if (!k) throw Object.assign(new Error('no-key'), { code: 'no-key' });
+  if (gTok && gTok.who === k.client_email && gTok.exp > Date.now() + 60e3) return gTok.t;
+  const now = Math.floor(Date.now() / 1000), enc = new TextEncoder();
+  const unsigned = b64u(enc.encode(JSON.stringify({ alg: 'RS256', typ: 'JWT' }))) + '.' + b64u(enc.encode(JSON.stringify({ iss: k.client_email, scope: GSC_SCOPE, aud: 'https://oauth2.googleapis.com/token', iat: now, exp: now + 3600 })));
+  let key;
+  try {
+    const der = Uint8Array.from(atob(String(k.private_key).replace(/-----[^-]+-----/g, '').replace(/\s+/g, '')), c => c.charCodeAt(0));
+    key = await crypto.subtle.importKey('pkcs8', der, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
+  } catch (e) { throw Object.assign(new Error('bad-key'), { code: 'bad-key' }); }
+  const sig = new Uint8Array(await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, enc.encode(unsigned)));
+  const r = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: 'grant_type=' + encodeURIComponent('urn:ietf:params:oauth:grant-type:jwt-bearer') + '&assertion=' + unsigned + '.' + b64u(sig) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.access_token) throw Object.assign(new Error(j.error_description || j.error || ('Google sign-in answered ' + r.status)), { code: 'google-auth' });
+  gTok = { t: j.access_token, exp: Date.now() + (j.expires_in || 3600) * 1000, who: k.client_email };
+  return gTok.t;
+}
+async function gApi(env, method, u, body) {
+  const t = await gToken(env);
+  const r = await fetch(u, { method, headers: Object.assign({ authorization: 'Bearer ' + t }, body ? { 'content-type': 'application/json' } : {}), body: body ? JSON.stringify(body) : undefined });
+  const txt = await r.text(); let j = {}; try { j = txt ? JSON.parse(txt) : {}; } catch (e) {}
+  if (!r.ok) throw Object.assign(new Error((j.error && j.error.message) || ('Google answered ' + r.status)), { code: r.status === 403 ? 'google-denied' : r.status === 429 ? 'google-quota' : 'google', status: r.status });
+  return j;
+}
+const kvGet = async (db, k) => { const r = await db.prepare('SELECT v, t FROM seokv WHERE k = ?').bind(k).first(); if (!r) return null; try { return { v: JSON.parse(r.v), t: r.t }; } catch (e) { return null; } };
+const kvSet = (db, k, v) => db.prepare('INSERT INTO seokv (k, v, t) VALUES (?, ?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v, t = excluded.t').bind(k, JSON.stringify(v), new Date().toISOString()).run();
+const isoDay = t => new Date(t).toISOString().slice(0, 10);
+async function seoApi(p, req, env, url, db, ctx) {
+  await db.prepare('CREATE TABLE IF NOT EXISTS seokv (k TEXT PRIMARY KEY, v TEXT NOT NULL, t TEXT NOT NULL)').run();
+  const body = req.method === 'POST' ? await req.json().catch(() => ({})) : {};
+  /* your pages, exactly as the website sends them (nothing is followed or changed) */
+  if (p === 'fetch') {
+    const paths = (Array.isArray(body.paths) ? body.paths : []).filter(x => /^\/[\w\-./%~]*$/.test(String(x)) && !/^\/api\//.test(x)).slice(0, 25);
+    const out = [];
+    for (const path of paths) {
+      try {
+        const r = await env.ASSETS.fetch(new Request(url.origin + path, { redirect: 'manual', headers: { 'user-agent': 'PawPixl-SEO-Check' } }));
+        const ct = r.headers.get('content-type') || '';
+        out.push({ path, status: r.status, location: r.headers.get('location') || '', xrobots: r.headers.get('x-robots-tag') || '', ctype: ct, html: /html|xml|text/.test(ct) ? (await r.text()).slice(0, 400000) : '' });
+      } catch (e) { out.push({ path, status: 0, error: String(e.message || e) }); }
+    }
+    return json({ ok: true, origin: url.origin, pages: out }, 200, CORS);
+  }
+  if (!p.startsWith('gsc/')) return json({ ok: false }, 404, CORS);
+  const g = p.slice(4), k = gscKey(env), off = await kvGet(db, 'gsc.off'), site = (await kvGet(db, 'gsc.site') || {}).v || '';
+  if (g === 'status') return json({ ok: true, key: !!k, email: k ? k.client_email : '', connected: !!(k && !(off && off.v)), site }, 200, CORS);
+  if (g === 'disconnect') {
+    /* forget everything Google sent us; to remove the key itself, delete the GSC_KEY secret in Cloudflare */
+    await db.batch([db.prepare("DELETE FROM seokv WHERE k LIKE 'insp:%' OR k LIKE 'perf:%' OR k IN ('gsc.site', 'insp.day')"), db.prepare('INSERT INTO seokv (k, v, t) VALUES (?, ?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v, t = excluded.t').bind('gsc.off', 'true', new Date().toISOString())]);
+    gTok = null;
+    return json({ ok: true }, 200, CORS);
+  }
+  if (!k) return json({ ok: false, error: 'no-key' }, 400, CORS);
+  try {
+    if (g === 'sites') {
+      const j = await gApi(env, 'GET', 'https://www.googleapis.com/webmasters/v3/sites');
+      return json({ ok: true, email: k.client_email, sites: (j.siteEntry || []).map(s => ({ site: s.siteUrl, level: s.permissionLevel })) }, 200, CORS);
+    }
+    if (g === 'select') {
+      const s = String(body.site || '');
+      if (!/^(sc-domain:[a-z0-9.-]+|https?:\/\/[^\s]+\/)$/i.test(s)) return json({ ok: false, error: 'site' }, 400, CORS);
+      await kvSet(db, 'gsc.site', s); await kvSet(db, 'gsc.off', false);
+      return json({ ok: true, site: s }, 200, CORS);
+    }
+    if (off && off.v) return json({ ok: false, error: 'disconnected' }, 400, CORS);
+    if (!site) return json({ ok: false, error: 'no-site' }, 400, CORS);
+    const S = encodeURIComponent(site), W = 'https://www.googleapis.com/webmasters/v3/sites/' + S;
+    if (g === 'perf') {
+      /* search results for the last N days; saved for 6 hours so opening the tab doesn't use Google's quota */
+      const days = Math.max(7, Math.min(90, +url.searchParams.get('days') || 28)), ck = 'perf:' + site + ':' + days;
+      const c = await kvGet(db, ck);
+      if (c && !url.searchParams.get('fresh') && Date.now() - Date.parse(c.t) < 6 * 3600e3) return json(Object.assign({ ok: true, cached: c.t }, c.v), 200, CORS);
+      const end = isoDay(Date.now()), start = isoDay(Date.now() - (days - 1) * 864e5), q = dims => gApi(env, 'POST', W + '/searchAnalytics/query', Object.assign({ startDate: start, endDate: end, dataState: 'all', rowLimit: dims ? 50 : 1 }, dims ? { dimensions: dims } : {}));
+      const [tot, pages, queries] = await Promise.all([q(null), q(['page']), q(['query'])]);
+      const row = r => ({ keys: r.keys || [], clicks: r.clicks || 0, impressions: r.impressions || 0, ctr: r.ctr || 0, position: r.position || 0 });
+      const v = { days, start, end, total: tot.rows && tot.rows[0] ? row(tot.rows[0]) : { clicks: 0, impressions: 0, ctr: 0, position: 0 }, pages: (pages.rows || []).map(row), queries: (queries.rows || []).map(row) };
+      await kvSet(db, ck, v);
+      return json(Object.assign({ ok: true, cached: '' }, v), 200, CORS);
+    }
+    if (g === 'inspect') {
+      /* Google's own answer for each page (indexed or not, and why). Results are reused for 3 days unless you ask again. */
+      const urls = (Array.isArray(body.urls) ? body.urls : []).map(String).filter(u => /^https?:\/\//.test(u)).slice(0, 10), out = [];
+      const dk = 'insp.day', day = isoDay(Date.now()), used = await kvGet(db, dk); let n = used && used.v.day === day ? used.v.n : 0;
+      for (const u of urls) {
+        const c = await kvGet(db, 'insp:' + u);
+        if (c && !body.force && Date.now() - Date.parse(c.t) < 3 * 864e5) { out.push(Object.assign({ url: u, at: c.t, cached: true }, c.v)); continue; }
+        if (n >= 1500) { out.push({ url: u, error: 'daily-limit' }); continue; }
+        try {
+          const j = await gApi(env, 'POST', 'https://searchconsole.googleapis.com/v1/urlInspection/index:inspect', { inspectionUrl: u, siteUrl: site, languageCode: 'en-US' }); n++;
+          const x = (j.inspectionResult || {}).indexStatusResult || {};
+          const v = { verdict: x.verdict || '', coverage: x.coverageState || '', robots: x.robotsTxtState || '', indexing: x.indexingState || '', fetch: x.pageFetchState || '', crawled: x.lastCrawlTime || '', googleCanonical: x.googleCanonical || '', userCanonical: x.userCanonical || '', sitemaps: x.sitemap || [], link: (j.inspectionResult || {}).inspectionResultLink || '' };
+          await kvSet(db, 'insp:' + u, v); out.push(Object.assign({ url: u, at: new Date().toISOString(), cached: false }, v));
+        } catch (e) { out.push({ url: u, error: e.code || 'google', message: String(e.message || e) }); if (e.code === 'google-quota') break; }
+      }
+      await kvSet(db, dk, { day, n });
+      return json({ ok: true, used: n, limit: 1500, results: out }, 200, CORS);
+    }
+    if (g === 'inspected') {
+      /* what Google said last time, for every page we asked about (no new questions to Google) */
+      const rows = (await db.prepare("SELECT k, v, t FROM seokv WHERE k LIKE 'insp:%'").all()).results;
+      return json({ ok: true, results: rows.map(r => { let v = {}; try { v = JSON.parse(r.v); } catch (e) {} return Object.assign({ url: r.k.slice(5), at: r.t }, v); }) }, 200, CORS);
+    }
+    if (g === 'sitemaps') {
+      if (req.method === 'POST') {
+        const feed = String(body.feed || '');
+        if (!/^https?:\/\/[^\s]+\.xml$/.test(feed)) return json({ ok: false, error: 'feed' }, 400, CORS);
+        await gApi(env, 'PUT', W + '/sitemaps/' + encodeURIComponent(feed));
+      }
+      const j = await gApi(env, 'GET', W + '/sitemaps');
+      return json({ ok: true, sitemaps: (j.sitemap || []).map(s => ({ path: s.path, submitted: s.lastSubmitted || '', downloaded: s.lastDownloaded || '', pending: !!s.isPending, errors: +s.errors || 0, warnings: +s.warnings || 0, urls: (s.contents || []).reduce((a, c) => a + (+c.submitted || 0), 0) })) }, 200, CORS);
+    }
+  } catch (e) { return json({ ok: false, error: e.code || 'google', message: String(e.message || e) }, 502, CORS); }
+  return json({ ok: false }, 404, CORS);
+}
+
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
+    if (url.pathname.startsWith('/api/')) {
+      const res = await api(req, env, url, ctx);
+      const out = new Response(res.body, res); out.headers.set('x-robots-tag', 'noindex, nofollow'); return out;
+    }
+    return env.ASSETS.fetch(req);
+  },
+  // once a day, keep sending any update that hit the daily limit
+  async scheduled(event, env, ctx) { return daily(event, env, ctx); },
+};
+async function api(req, env, url, ctx) {
+  {
     if (url.pathname.startsWith('/api/news/')) {
       try { return await news(req, env, url, ctx); } catch (e) { return json({ ok: false, error: 'server' }, 500, CORS); }
     }
@@ -347,9 +484,10 @@ export default {
       return res;
     }
     return env.ASSETS.fetch(req);
-  },
-  // once a day, keep sending any update that hit the daily limit
-  async scheduled(event, env, ctx) {
+  }
+}
+async function daily(event, env, ctx) {
+  {
     if (!env.DB || !env.RESEND_KEY) return;
     await init(env.DB);
     const since = new Date(Date.now() - 7 * 864e5).toISOString();   // keep catching up for a week at most
@@ -359,5 +497,5 @@ export default {
       const out = await pump(env, info, r.id).catch(() => ({ limited: true }));
       if (out.limited) break;
     }
-  },
-};
+  }
+}

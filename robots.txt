@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /account
+Disallow: /api/
 Sitemap: https://pawpixl.com/sitemap.xml
 Sitemap: https://pawpixl.com/sitemap-items.xml
