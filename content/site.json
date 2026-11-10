@@ -141,11 +141,11 @@
   "genshin:builds": {
    "fx": 0.5,
    "fy": 0.4,
-   "tx": 0.714,
-   "ty": 0.626,
-   "z": 1.6,
-   "op": 0.9,
-   "img": "content/games/sec-genshin-builds-mwa33uom.webp"
+   "tx": 0.703,
+   "ty": 0.36,
+   "z": 1.5,
+   "op": 0.85,
+   "img": "content/games/sec-genshin-builds-mwa35feg.webp"
   },
   "genshin:abyss": {
    "fx": 0.5,
