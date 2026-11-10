@@ -146,6 +146,15 @@
    "z": 1.4,
    "op": 0.75,
    "img": "content/games/sec-genshin-builds-mw9ybdzh.webp"
+  },
+  "genshin:abyss": {
+   "fx": 0.5,
+   "fy": 0.4,
+   "tx": 0.547,
+   "ty": 0.42,
+   "z": 1.2,
+   "op": 0.85,
+   "img": "content/games/sec-genshin-abyss-mw9ycy50.webp"
   }
  }
 }
