@@ -1007,8 +1007,62 @@ body.ar-lock{overflow:hidden}
 .ar-adv select option:checked,.ar-tcl select option:checked{background:#e8b765;color:#2a1a10}
 .ar-tcl{color:var(--tx)}
 
-.ar-team{margin-top:10px;padding:12px 14px;border-radius:12px;background:rgba(0,0,0,.18)}
-.ar-team:first-of-type{margin-top:0}
-.ar-team h3{margin:0 0 6px!important;color:#5eead4}
-.ar-team p{margin:8px 0 0}
-.ar-team code{display:inline-block;margin-top:4px;padding:3px 8px;border-radius:8px;background:rgba(0,0,0,.3);color:var(--tx)}
+.ar-about .ar-team{margin-top:10px;padding:12px 14px;border-radius:12px;background:rgba(0,0,0,.18)}
+.ar-about .ar-team:first-of-type{margin-top:0}
+.ar-about .ar-team h3{margin:0 0 6px!important;color:#5eead4}
+.ar-about .ar-team p{margin:8px 0 0}
+.ar-about .ar-team code{display:inline-block;margin-top:4px;padding:3px 8px;border-radius:8px;background:rgba(0,0,0,.3);color:var(--tx)}
+
+/* ---- Arena polish: easy start, trust line, step card, Razor ---- */
+.ar-easy{display:flex;align-items:center;gap:14px;margin:4px 0 22px;padding:14px 16px;border-radius:18px;border:1px solid color-mix(in srgb,var(--gold,#e8b765) 55%,var(--line));background:linear-gradient(110deg,color-mix(in srgb,var(--gold,#e8b765) 18%,transparent),color-mix(in srgb,var(--c) 10%,transparent) 70%),var(--glass);box-shadow:0 10px 30px -18px var(--gold,#e8b765)}
+.ar-easy .ar-pop.sm{width:56px;height:56px;border-radius:16px}
+.ar-easy .ar-pop.sm img{border-radius:14px}
+.ar-easyt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.ar-easyt b{font-size:17px}
+.ar-easyt span{font-weight:700}
+.ar-easyt small{color:var(--mut);line-height:1.4}
+.ar-easyb{display:flex;flex-direction:column;align-items:center;gap:6px;flex:none}
+.ar-easyb .btn{min-height:44px;padding-left:22px;padding-right:22px}
+.ar-easyn{margin:0 0 12px}
+.ar-trust{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:-4px 0 8px;font-size:13.5px}
+.ar-trust a{color:var(--tx);text-decoration:underline;text-underline-offset:3px}
+.ar-whyrot{margin:0 0 14px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.02)}
+.ar-whyrot>summary,.ar-tn>summary{cursor:pointer;padding:10px 12px;font-weight:700;font-size:13.5px;list-style-position:inside}
+.ar-whyrot>*:not(summary){margin-left:12px;margin-right:12px}
+.ar-whyrot .ar-srcs{margin-bottom:12px}
+.ar-acth{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px}
+.ar-acth .ar-meta{margin:0;display:inline-flex;gap:6px;flex-wrap:wrap}
+.ar-act h3 .ar-who{font-size:20px}
+.ar-act .ar-dt{font-weight:700;margin:2px 0 6px;font-size:15px}
+.ar-act .ar-exp{font-size:15.5px;line-height:1.55;color:var(--tx)}
+.ar-cond{margin:10px 0 0!important;padding:8px 10px;border-radius:10px;background:color-mix(in srgb,var(--gold,#e8b765) 12%,transparent);border:1px solid color-mix(in srgb,var(--gold,#e8b765) 35%,transparent);font-size:13.5px!important}
+.ar-tn{margin-top:8px;border-top:1px solid var(--line)}
+.ar-tn>summary{padding:8px 0 4px;color:var(--mut)}
+.ar-tn ul{margin:4px 0 0;padding-left:18px;font-size:13.5px}
+/* Explain Like Razor: a playful speech bubble, with the plain version underneath so the facts stay clear */
+.ar-mrz{display:inline-flex;align-items:center;gap:5px}
+.ar-paw{width:15px;height:15px;flex:none}
+.ar-rz{position:relative;margin:10px 0 4px;padding:12px 14px 12px 14px;border-radius:16px 16px 16px 4px;background:linear-gradient(135deg,#3b2f63,#2a2350);border:2px solid #a78bfa;box-shadow:0 6px 18px -10px #a78bfa;animation:arWag .45s cubic-bezier(.2,1.6,.4,1) both}
+.ar-rz p{margin:4px 0 0!important;font-size:17px!important;font-weight:800;line-height:1.35;letter-spacing:.01em;color:#f5f0ff}
+.ar-rzh{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#c4b5fd}
+.ar-rzh .ar-paw{width:16px;height:16px;color:#c4b5fd;animation:arPaw 2.4s ease-in-out infinite}
+.ar-plain{margin:8px 0 0!important;font-size:13.5px!important;color:var(--mut)}
+.ar-plain b{color:var(--tx)}
+.ar-ab .ar-rz p{font-size:15px!important}
+@keyframes arWag{0%{transform:scale(.92) rotate(-1.5deg);opacity:0}100%{transform:none;opacity:1}}
+@keyframes arPaw{0%,100%{transform:rotate(0)}50%{transform:rotate(-14deg)}}
+@media (prefers-reduced-motion:reduce){.ar-rz,.ar-rzh .ar-paw{animation:none}}
+/* phones: the step you're on and the controls stay in reach */
+@media (max-width:700px){
+ .ar-easy{flex-wrap:wrap}
+ .ar-easyt{flex:1 1 calc(100% - 72px)}
+ .ar-easyb{flex-direction:row;width:100%;justify-content:space-between}
+ .ar-easyb .btn{flex:1}
+ .ar-mrl{display:none}
+ .ar-ctl{position:sticky;bottom:8px;z-index:5;padding:8px;border-radius:16px;background:color-mix(in srgb,#0b0f1c 88%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--line);box-shadow:0 10px 30px -10px #000}
+ .ar-ctl .btn{min-height:46px}
+ .ar-act{padding:12px 13px}
+ .ar-act .ar-exp{font-size:16px}
+ .ar-rz p{font-size:17.5px!important}
+ .ar-tools .btn{min-height:42px}
+}
