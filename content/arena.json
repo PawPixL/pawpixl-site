@@ -1,5 +1,5 @@
 {
- "v": 1,
+ "v": 2,
  "enemy": {
   "id": "dummy90",
   "name": "Training Dummy",
@@ -24,25 +24,29 @@
        "name": "Yoimiya",
        "el": "Pyro",
        "role": "Main DPS",
-       "does": "Fires Pyro arrows with her Normal Attacks while her Skill is active."
+       "does": "Fires Pyro arrows with her Normal Attacks while her Skill is active.",
+       "wt": "Bow"
       },
       {
        "name": "Xingqiu",
        "el": "Hydro",
        "role": "Off-field Hydro",
-       "does": "His Rain Swords strike alongside her attacks with Hydro, so her Pyro hits can Vaporize."
+       "does": "His Rain Swords strike alongside her attacks with Hydro, so her Pyro hits can Vaporize.",
+       "wt": "Sword"
       },
       {
        "name": "Bennett",
        "el": "Pyro",
        "role": "Buffer and healer",
-       "does": "His Burst field heals and gives an ATK bonus to whoever stands in it."
+       "does": "His Burst field heals and gives an ATK bonus to whoever stands in it.",
+       "wt": "Sword"
       },
       {
        "name": "Layla",
        "el": "Cryo",
        "role": "Shielder",
-       "does": "Her shield keeps Yoimiya safe so she can keep attacking."
+       "does": "Her shield keeps Yoimiya safe so she can keep attacking.",
+       "wt": "Sword"
       }
      ],
      "note": "Layla’s shield also fires Cryo Shooting Stars, which can Freeze or Melt with the team’s Hydro and Pyro instead of Vaporize. Many players still pick her for the comfort of a strong shield.",
@@ -111,9 +115,9 @@
    ],
    "inv": {
     "f2p": {
-     "weapon": "Slingshot",
-     "refine": "5",
-     "weaponNote": "A 3-star bow; extra copies come from wishes all the time.",
+     "weapon": "Hamayumi",
+     "refine": "1",
+     "weaponNote": "A craftable 4-star bow that boosts Normal and Charged Attack DMG. Its diagram comes from the daily Mysterious Conch trade with Takashi in Tatarasuna (a chance each day). Slingshot (a 3-star from wishes) also works while you wait.",
      "cons": "C0",
      "talents": "6 / 6 / 6",
      "level": "90",
@@ -138,16 +142,17 @@
       }
      ],
      "pros": [
-      "Everything here comes from regular play"
+      "No wishes needed for the weapon"
      ],
      "trade": [
-      "Slingshot has much lower base ATK than 4- and 5-star bows"
-     ]
+      "The diagram is a daily chance, so it can take a while to get"
+     ],
+     "src": "craft"
     },
     "mid": {
      "weapon": "Rust",
      "refine": "1",
-     "weaponNote": "4-star bow that boosts Normal Attack DMG (and lowers Charged Attack DMG).",
+     "weaponNote": "A 4-star bow from wishes (standard). Boosts Normal Attack DMG and lowers Charged Attack DMG.",
      "cons": "C0",
      "talents": "8 / 8 / 8",
      "level": "90",
@@ -176,12 +181,13 @@
      ],
      "trade": [
       "Rust is a 4-star from wishes, not guaranteed"
-     ]
+     ],
+     "src": "wish"
     },
     "high": {
      "weapon": "Thundering Pulse",
      "refine": "1",
-     "weaponNote": "Her 5-star signature bow.",
+     "weaponNote": "Her 5-star signature bow, from limited weapon wishes.",
      "cons": "C0",
      "talents": "9 / 9 / 9",
      "level": "90",
@@ -211,7 +217,8 @@
      "trade": [
       "A limited 5-star weapon",
       "No constellations assumed; they’re very expensive"
-     ]
+     ],
+     "src": "limited"
     }
    }
   },
@@ -232,25 +239,29 @@
        "name": "Xiao",
        "el": "Anemo",
        "role": "Main DPS",
-       "does": "Repeated Anemo plunges during his Burst."
+       "does": "Repeated Anemo plunges during his Burst.",
+       "wt": "Polearm"
       },
       {
        "name": "Faruzan",
        "el": "Anemo",
        "role": "Support",
-       "does": "Her Burst lowers enemies’ Anemo RES and gives the team an Anemo DMG Bonus."
+       "does": "Her Burst lowers enemies’ Anemo RES and gives the team an Anemo DMG Bonus.",
+       "wt": "Bow"
       },
       {
        "name": "Sucrose",
        "el": "Anemo",
        "role": "Support",
-       "does": "Her Skill makes Anemo Energy particles for Xiao and triggers Swirl."
+       "does": "Her Skill makes Anemo Energy particles for Xiao and triggers Swirl.",
+       "wt": "Catalyst"
       },
       {
        "name": "Bennett",
        "el": "Pyro",
        "role": "Buffer and healer",
-       "does": "His Burst field heals and gives an ATK bonus."
+       "does": "His Burst field heals and gives an ATK bonus.",
+       "wt": "Sword"
       }
      ],
      "note": "Xiao’s Burst slowly drains his HP, so Bennett’s healing helps him stay in the fight.",
@@ -322,7 +333,7 @@
     "f2p": {
      "weapon": "Kitain Cross Spear",
      "refine": "1",
-     "weaponNote": "A craftable 4-star polearm.",
+     "weaponNote": "A craftable 4-star polearm. Its diagram comes from the Orobashi’s Legacy quest chain in Inazuma.",
      "cons": "C0",
      "talents": "6 / 6 / 6",
      "level": "90",
@@ -351,12 +362,13 @@
      ],
      "trade": [
       "Lower damage than the stronger polearms"
-     ]
+     ],
+     "src": "craft"
     },
     "mid": {
      "weapon": "Deathmatch",
      "refine": "1",
-     "weaponNote": "4-star polearm from the paid Battle Pass.",
+     "weaponNote": "A 4-star polearm from the paid Battle Pass (Gnostic Hymn), not free.",
      "cons": "C0",
      "talents": "8 / 8 / 8",
      "level": "90",
@@ -385,12 +397,13 @@
      ],
      "trade": [
       "Needs the paid Battle Pass"
-     ]
+     ],
+     "src": "bp"
     },
     "high": {
      "weapon": "Primordial Jade Winged-Spear",
      "refine": "1",
-     "weaponNote": "A 5-star polearm with a Crit Rate substat.",
+     "weaponNote": "A 5-star polearm with a Crit Rate substat, from the standard wish.",
      "cons": "C0",
      "talents": "9 / 9 / 9",
      "level": "90",
@@ -420,7 +433,8 @@
      "trade": [
       "A 5-star weapon from wishes",
       "Faruzan C6 needs many copies of her"
-     ]
+     ],
+     "src": "wish5"
     }
    }
   },
@@ -441,25 +455,29 @@
        "name": "Eula",
        "el": "Cryo",
        "role": "Main DPS",
-       "does": "Builds Lightfall Sword stacks during her Burst for one huge Physical hit."
+       "does": "Builds Lightfall Sword stacks during her Burst for one huge Physical hit.",
+       "wt": "Claymore"
       },
       {
        "name": "Fischl",
        "el": "Electro",
        "role": "Off-field Electro",
-       "does": "Oz applies Electro from off the field, so Cryo hits trigger Superconduct."
+       "does": "Oz applies Electro from off the field, so Cryo hits trigger Superconduct.",
+       "wt": "Bow"
       },
       {
        "name": "Diona",
        "el": "Cryo",
        "role": "Shielder and healer",
-       "does": "Her shield protects Eula and her Cryo particles charge Eula’s Burst."
+       "does": "Her shield protects Eula and her Cryo particles charge Eula’s Burst.",
+       "wt": "Bow"
       },
       {
        "name": "Lisa",
        "el": "Electro",
        "role": "Support",
-       "does": "Her Burst applies Electro, and her passive lowers enemy DEF by 15%."
+       "does": "Her Burst applies Electro, and her passive lowers enemy DEF by 15%.",
+       "wt": "Catalyst"
       }
      ],
      "note": "Superconduct lowers the target’s Physical RES by 40% for 12 seconds. That’s why this team pairs Cryo with Electro for a Physical character.",
@@ -542,7 +560,7 @@
     "f2p": {
      "weapon": "Snow-Tombed Starsilver",
      "refine": "1",
-     "weaponNote": "A craftable 4-star claymore with a Physical DMG substat.",
+     "weaponNote": "A craftable 4-star claymore with a Physical DMG substat. Its diagram comes from the Dragonspine tablets quest.",
      "cons": "C0",
      "talents": "6 / 6 / 6",
      "level": "90",
@@ -571,12 +589,13 @@
      ],
      "trade": [
       "Lower base ATK than the stronger claymores"
-     ]
+     ],
+     "src": "craft"
     },
     "mid": {
      "weapon": "Serpent Spine",
      "refine": "1",
-     "weaponNote": "4-star claymore from the paid Battle Pass.",
+     "weaponNote": "A 4-star claymore from the paid Battle Pass (Gnostic Hymn), not free.",
      "cons": "C0",
      "talents": "8 / 8 / 8",
      "level": "90",
@@ -605,12 +624,13 @@
      ],
      "trade": [
       "Needs the paid Battle Pass"
-     ]
+     ],
+     "src": "bp"
     },
     "high": {
      "weapon": "Song of Broken Pines",
      "refine": "1",
-     "weaponNote": "Her 5-star signature claymore.",
+     "weaponNote": "Her 5-star signature claymore, from limited weapon wishes.",
      "cons": "C0",
      "talents": "9 / 9 / 9",
      "level": "90",
@@ -639,7 +659,8 @@
      ],
      "trade": [
       "A limited 5-star weapon"
-     ]
+     ],
+     "src": "limited"
     }
    }
   }
