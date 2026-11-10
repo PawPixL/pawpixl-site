@@ -7,3 +7,4 @@ supabase.sql
 node_modules
 worker.js
 _stats
+studio

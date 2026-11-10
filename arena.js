@@ -1,164 +1,203 @@
-/* PawPixl Arena: The Training Grounds (beta).
-   A guided, step-by-step look at a team rotation on a small pixel-art training ground.
-   Everything shown comes from content/arena.json, which the Arena Manager in PawPixl Studio writes.
-   No damage numbers: damage simulation isn't connected yet, so the Arena only explains and shows the rotation.
-   Loaded only when someone opens /arena, so the rest of the site never pays for it. */
+/* PawPixl Arena: Rotation Coach (beta). "Learn your kit. Master your rotation. Have fun."
+   A guided, step-by-step look at a reviewed team rotation on a small pixel-art training ground, plus a kit explorer.
+   Content: content/arena.json → chars (gear) and coach (kits, rotations, constellation rules, sources), written by the
+   Arena Manager in PawPixl Studio. Only rotations that are Verified and pass every check reach this file.
+   The choosing logic lives in /arena/coach.js (window.PPCoach), the artwork in /arena/art.js (window.PPArenaArt).
+   No damage numbers: this teaches the rotation; it doesn't simulate damage. */
 (function(){
 'use strict';
 const ELC={Pyro:'#ff8a3d',Hydro:'#43b4ff',Anemo:'#3fe0bf',Electro:'#b77cff',Dendro:'#8fd14f',Cryo:'#9fe6ff',Geo:'#f2c14e',Physical:'#efe6cf'};
 const RXC={Vaporize:'#ffb86b',Melt:'#ffcf7a',Superconduct:'#b9a8ff',Swirl:'#7af0d6',Overloaded:'#ff7b9c',Freeze:'#bfefff',Burning:'#ff9a3d','Electro-Charged':'#c08bff',Crystallize:'#f6d77a'};
-const INV=[['f2p','F2P'],['mid','Mid Investment'],['high','High Investment']];
+const SRCL={free:'Free (permanent)',craft:'Craftable (free)',event:'Limited-time event',wish:'Wish (3- or 4-star)',wish5:'Standard wish (5-star)',limited:'Limited wish (5-star)',bp:'Paid Battle Pass'};
+const MODEL={razor:'Razor',simple:'Simple',detailed:'Detailed'};
+const CHG={unknown:'Not reviewed yet',none:'Same rotation',rotation:'Changes the rotation',combo:'Changes the combo',order:'Changes the order',energy:'Changes Energy'};
 let W=256;const H=144;
 let A=null;/* the running arena */
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 const reduced=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
-
-/* ---------------- the training ground (original pixel art, drawn in code) ---------------- */
-function px(g,x,y,w,h,c){g.fillStyle=c;g.fillRect(x|0,y|0,w|0,h|0)}
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+/* ---------------- artwork ---------------- */
 const ART={};function loadArt(map){Object.entries(map||{}).forEach(([k,src])=>{if(!src||ART[k])return;const im=new Image();ART[k]={ok:false};im.onload=()=>{ART[k]={ok:true,im};if(A&&A.redraw)A.redraw()};im.onerror=()=>{ART[k]={ok:false}};im.src='/'+String(src).replace(/^\/+/,'')})}
-function drawGround(){const c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
- if(ART.background&&ART.background.ok){const im=ART.background.im,k=Math.max(W/im.width,H/im.height);g.imageSmoothingEnabled=false;g.drawImage(im,(W-im.width*k)/2,(H-im.height*k)/2,im.width*k,im.height*k);return c}
- /* warm dusk sky in bands */
- const sky=['#2a1a2e','#3b2238','#552c3a','#7a3b3a','#a5503a','#c8703f','#e09447','#efb25a'];sky.forEach((s,i)=>px(g,0,i*9,W,9,s));
- /* sun */
- for(let r=14;r>0;r-=2){g.fillStyle=r>10?'#f6c76a':r>6?'#ffd98a':'#fff0bf';g.beginPath();g.arc(W-60,66,r,0,7);g.fill()}
- /* far mountains */
- g.fillStyle='#6b3a3f';for(let x=0;x<W;x++){const y=60+Math.round(8*Math.sin(x*.045)+5*Math.sin(x*.13+1));g.fillRect(x,y,1,H-y)}
- g.fillStyle='#4d2c39';for(let x=0;x<W;x++){const y=72+Math.round(6*Math.sin(x*.06+2)+3*Math.sin(x*.21));g.fillRect(x,y,1,H-y)}
- /* distant trees */
- g.fillStyle='#33223a';for(let x=4;x<W;x+=9){const h=6+((x*7)%5);g.fillRect(x,82-h,3,h);g.fillRect(x-1,82-h+2,5,h-3)}
- px(g,0,82,W,H-82,'#2d2034');
- /* stone-and-grass platform */
- const L0=14,PW=W-28;px(g,L0,100,PW,4,'#5d8a3a');px(g,L0,99,PW,1,'#86b34c');for(let x=L0+2;x<L0+PW-2;x+=6)px(g,x,98,2,1,'#9cc55a');
- px(g,L0,104,PW,22,'#6d5a4b');for(let r=0;r<3;r++)for(let x=L0+(r%2)*8;x<L0+PW;x+=16){px(g,x,104+r*7,Math.min(15,L0+PW-x),6,r%2?'#7c6756':'#857060');px(g,x,104+r*7,Math.min(15,L0+PW-x),1,'#9a8470')}
- px(g,L0,126,PW,2,'#3a2d27');
- /* soft shadow strip under platform */
- g.fillStyle='rgba(0,0,0,.25)';g.fillRect(18,128,W-36,3);
- /* banner posts */
- [[26,'#b0413e'],[W-26,'#2f6f8f']].forEach(([x,col])=>{px(g,x,58,3,42,'#5a4130');px(g,x-1,56,5,3,'#d9a441');px(g,x+3,60,13,18,col);px(g,x+3,78,4,4,col);px(g,x+12,78,4,4,col);px(g,x+6,64,7,7,'#f3d27a');px(g,x+8,66,3,3,col)});
- /* braziers with warm light */
- [[52,'#d9a441'],[W-52,'#d9a441']].forEach(([x])=>{px(g,x,90,8,3,'#4a3528');px(g,x+1,93,6,6,'#5a4130');px(g,x+2,86,4,4,'#ffb347');px(g,x+3,84,2,2,'#ffe08a');g.fillStyle='rgba(255,180,80,.10)';g.beginPath();g.arc(x+4,90,18,0,7);g.fill()});
- /* tiny paw mark (PawPixl), bottom right */
- const pw=(x,y)=>{px(g,x+2,y+3,5,4,'#f3d27a');px(g,x,y+1,2,2,'#f3d27a');px(g,x+3,y,2,2,'#f3d27a');px(g,x+6,y,2,2,'#f3d27a');px(g,x+8,y+2,2,2,'#f3d27a')};g.globalAlpha=.55;pw(W-18,133);g.globalAlpha=1;
- return c}
-/* the masked training dummy (original), standing on the right of the platform */
-function drawDummy(g,x,y,hit,shake){x+=shake|0;const di=ART[hit?'dummyHit':'dummy'];const dd=di&&di.ok?di:ART.dummy;if(dd&&dd.ok){g.drawImage(dd.im,Math.round(x+10-dd.im.width/2),Math.round(y-dd.im.height));return}
- px(g,x-1,y-2,22,3,'rgba(0,0,0,.35)');
- px(g,x+9,y-14,3,14,'#6a4a33');px(g,x+4,y-3,13,3,'#5a3f2c');/* post + base */
- px(g,x+3,y-30,15,17,hit?'#fff3d6':'#c9a66b');px(g,x+3,y-30,15,2,hit?'#ffffff':'#ddbd82');px(g,x+3,y-15,15,2,'#a9854f');/* straw body */
- px(g,x-3,y-26,6,3,'#c9a66b');px(g,x+18,y-26,6,3,'#c9a66b');/* arms */
- px(g,x+2,y-23,17,2,'#8a5a3a');/* belt */
- px(g,x+5,y-41,11,11,hit?'#ffffff':'#e9e2d0');px(g,x+5,y-41,11,2,'#ffffff');/* mask */
- px(g,x+7,y-37,2,2,'#2b2238');px(g,x+12,y-37,2,2,'#2b2238');px(g,x+9,y-33,3,1,'#b0413e');/* face */
- px(g,x+4,y-43,13,3,'#b0413e');px(g,x+15,y-44,3,3,'#d9a441')/* headband */}
-function token(g,img,x,y,s,el,ring){const r=s/2;g.save();g.beginPath();g.arc(x,y,r,0,7);g.closePath();g.clip();g.fillStyle=ELC[el]||'#888';g.fillRect(x-r,y-r,s,s);if(img)g.drawImage(img,x-r,y-r,s,s);g.restore();
- g.strokeStyle=ring?'#ffe08a':(ELC[el]||'#999');g.lineWidth=ring?2:1;g.beginPath();g.arc(x,y,r+.5,0,7);g.stroke()}
-/* portraits are drawn small then scaled up, so they read as pixel art and stay crisp */
-function pixImg(src){const o={ok:false};if(!src)return o;const im=new Image();im.onload=()=>{try{const c=document.createElement('canvas');c.width=c.height=24;const g=c.getContext('2d');g.imageSmoothingEnabled=true;g.drawImage(im,0,0,24,24);o.c=c;o.ok=true;if(A)A.draw()}catch(e){}};im.onerror=()=>{};im.src=src;return o}
-
-/* ---------------- effects (one per kind of action; small and readable) ---------------- */
-function fxFor(step){const el=step.el||'Physical',col=ELC[el]||'#fff',fx=step.fx||'orb';return{fx,col,el}}
-function runFx(a,step,t){/* t: 0..1 through the step's animation */const g=a.g,{fx,col}=fxFor(step),me=a.me,dx=a.dx+10,dy=a.dy-26;
- const lerp=(p,q,k)=>p+(q-p)*k;
- if(fx==='shield'){const k=Math.min(1,t*3);g.globalAlpha=.25+.35*k;g.strokeStyle=col;g.lineWidth=1;for(let i=0;i<6;i++){const a0=i*Math.PI/3,a1=a0+Math.PI/3;g.beginPath();g.moveTo(me.x+Math.cos(a0)*16*k,me.y+Math.sin(a0)*16*k);g.lineTo(me.x+Math.cos(a1)*16*k,me.y+Math.sin(a1)*16*k);g.stroke()}g.globalAlpha=.12*k;g.fillStyle=col;g.beginPath();g.arc(me.x,me.y,15*k,0,7);g.fill();g.globalAlpha=1;return t>.4}
- if(fx==='field'){const k=Math.min(1,t*2.5);g.globalAlpha=.35*k;g.fillStyle=col;g.fillRect(me.x-26*k,me.y+9,52*k,3);g.globalAlpha=.8;for(let i=0;i<8;i++){const yy=me.y+8-((t*40+i*9)%30);px(g,me.x-20+i*5,yy,1,2,col)}g.globalAlpha=1;return false}
- if(fx==='arrows'){let hit=false;for(let i=0;i<4;i++){const k=Math.max(0,Math.min(1,(t-i*.12)*2.2));if(k<=0)continue;const x=lerp(me.x+8,dx,k),y=lerp(me.y-2,dy,k)-Math.sin(k*Math.PI)*14;if(k<1){px(g,x-1,y-1,3,3,col);px(g,x,y,1,1,'#fff7c2');px(g,x-4,y,3,1,'rgba(255,200,120,.6)')}else{hit=true;const s=(t-i*.12)*10%3;for(let j=0;j<6;j++){const an=j*1.05+i;px(g,dx+Math.cos(an)*(3+s*2),dy+Math.sin(an)*(3+s*2),1,1,j%2?'#fff1a8':col)}}}return hit}
- if(fx==='rain'){for(let i=0;i<3;i++){const an=t*9+i*2.1;const x=me.x+Math.cos(an)*13,y=me.y+Math.sin(an)*7-4;px(g,x,y-3,1,6,col);px(g,x-1,y-3,3,1,'#dff4ff')}if(t>.55){const k=(t-.55)/.45;for(let i=0;i<3;i++){const x=lerp(me.x,dx,k)+i*3,y=lerp(me.y-6,dy,k)+i*2;px(g,x,y,5,1,col)}return k>.95}return false}
- if(fx==='wind'){const k=Math.min(1,t*1.6);g.globalAlpha=.65;for(let i=0;i<14;i++){const yy=dy+30-((t*90+i*7)%60);const w=2+((i*3)%4);px(g,dx-6+Math.sin(t*12+i)*6,yy,w,1,col)}g.globalAlpha=.25*k;g.fillStyle=col;g.fillRect(dx-5,dy-34,10,64);g.globalAlpha=1;return t>.35}
- if(fx==='plunge'){/* the leap itself is placed by plungePos; here the landing ring */if(t>=.75){const r=(t-.75)*80;g.strokeStyle=col;g.globalAlpha=Math.max(0,1-(t-.75)*4);g.beginPath();g.ellipse(dx,a.dy-2,r,r/3,0,0,7);g.stroke();g.globalAlpha=1;for(let i=0;i<8;i++)px(g,dx-12+i*3,a.dy-6-((t*60+i*5)%14),1,2,col);return true}return false}
- if(fx==='bolt'){const hit=t>.3;if(t<.9){const bx=dx-14,by=dy-34;px(g,bx-2,by,5,2,col);px(g,bx-1,by-1,3,1,'#f0d4ff');/* a small purple bird-like spark hovering */
-   if(hit&&Math.floor(t*14)%2===0){g.strokeStyle=col;g.lineWidth=1;g.beginPath();let x=bx,y=by+2;g.moveTo(x,y);for(let i=0;i<5;i++){x+=(i%2?3:-1);y+=6;g.lineTo(x,y)}g.stroke()}}return hit}
- if(fx==='arc'){const k=Math.min(1,t*2);g.strokeStyle=col;g.lineWidth=2;g.globalAlpha=1-Math.max(0,(t-.6)*2.5);g.beginPath();g.arc(dx-6,dy+4,16,-1.9,-1.9+2.6*k);g.stroke();g.globalAlpha=1;for(let i=0;i<5;i++)px(g,dx-6+Math.cos(-1.9+2.6*k)*16+i,dy+4+Math.sin(-1.9+2.6*k)*16,1,1,'#ffffff');return k>=1}
- if(fx==='stack'){const n=Math.min(step.stacks||6,Math.floor(t*((step.stacks||6)+1)));const sx=dx-3,sy=dy-38;px(g,sx,sy-14,3,14,'#dfe9ff');px(g,sx-2,sy,7,2,'#a8c4ff');px(g,sx+1,sy+2,1,3,'#a8c4ff');for(let i=0;i<n;i++)px(g,sx-8+i*3,sy+6,2,2,col);return t>.2}
- if(fx==='detonate'){if(t<.45){const k=t/.45;const x=dx-3,y=lerp(-16,dy-8,k*k);px(g,x,y-14,4,14,'#f4f7ff');px(g,x-3,y,10,2,'#a8c4ff');return false}const k=(t-.45)/.55;a.shake=(1-k)*3*(Math.sin(t*90)>0?1:-1);g.globalAlpha=Math.max(0,1-k);g.fillStyle='#ffffff';g.beginPath();g.arc(dx,dy,6+k*26,0,7);g.fill();g.strokeStyle=col;g.beginPath();g.arc(dx,dy,10+k*32,0,7);g.stroke();g.globalAlpha=1;return true}
- /* default: a small element orb to the dummy */
- const k=Math.min(1,t*1.8),x=lerp(me.x+8,dx,k),y=lerp(me.y-2,dy,k);if(k<1){px(g,x-2,y-2,4,4,col);px(g,x-1,y-1,2,2,'#ffffff')}return k>=1}
-
+function pixImg(src){const o={ok:false};if(!src)return o;const im=new Image();im.onload=()=>{try{const c=document.createElement('canvas');c.width=c.height=24;const g=c.getContext('2d');g.imageSmoothingEnabled=true;g.drawImage(im,0,0,24,24);o.c=c;o.ok=true;if(A&&A.redraw)A.redraw()}catch(e){}};im.onerror=()=>{};im.src=src;return o}
+function badge(g,im,x,y,s,el){const r=s/2;g.save();g.beginPath();g.arc(x,y,r,0,7);g.closePath();g.clip();g.fillStyle=ELC[el]||'#888';g.fillRect(x-r,y-r,s,s);if(im)g.drawImage(im,x-r,y-r,s,s);g.restore();g.strokeStyle='#2a1a22';g.lineWidth=1;g.beginPath();g.arc(x,y,r+.5,0,7);g.stroke()}
+const POSE=s=>({burst:'burst',skill:'skill'}[s&&s.type]||'attack');
+const STRONG={detonate:1,plunge:1};
 /* ---------------- the page ---------------- */
-function mount(root,host){if(A&&A.stop)A.stop();const cfg=host.cfg||{},chars=(cfg.chars||[]).filter(c=>c&&c.on&&c.ready&&!c.hold&&c.id),d=host.game||{};
+function mount(root,host){if(A&&A.stop)A.stop();const cfg=host.cfg||{},PC=window.PPCoach,coach=cfg.coach||{kits:{},rotations:[],cons:{}},d=host.game||{};
+ const IX=coach.index||{};const ok=c=>c&&c.on&&c.ready&&!c.hold&&c.id&&PC&&IX[c.id];
+ const builds=(d.posts||{}).builds||{},about=id=>{const v=((builds[id]||{}).versions||[])[0];return(v&&v.seo)||{}};
+ /* characters with gear presets first (Arena Manager), then every other character whose kit is published */
+ const chars=(cfg.chars||[]).filter(ok).concat(Object.entries(IX).filter(([id])=>!(cfg.chars||[]).some(c=>ok(c)&&c.id===id)).map(([id,x])=>({id,name:x.name,el:x.el,weapon:x.wt,play:x.role||((about(id).roles||[]).join(', ')),desc:about(id).about||''})));
  const roster=new Map((d.roster||[]).map(r=>[r.id,r])),norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
  const iconOf=n=>{const r=roster.get(norm(n))||[...roster.values()].find(x=>norm(x.name)===norm(n));return r&&r.icon?'/'+r.icon:''};
  const guideOf=id=>{const b=((d.posts||{}).builds||{})[id];return b&&(b.versions||[]).length?'/'+(host.gid||'genshin')+'/builds/'+id:''};
- const q=new URLSearchParams(location.search);const st={c:null,i:'f2p',t:0,view:'pick',step:-1,playing:false,done:false,seen:new Set()};
- const C=()=>chars.find(c=>c.id===st.c);const T=()=>{const c=C();return c&&((c.teams||[])[st.t]||(c.teams||[])[0])};const I=()=>{const c=C();return c&&c.inv&&c.inv[st.i]};
- if(q.get('c')&&chars.some(c=>c.id===q.get('c'))){st.c=q.get('c');if(INV.some(x=>x[0]===q.get('i')))st.i=q.get('i');const t=+q.get('t');if(t>=0&&C().teams&&C().teams[t])st.t=t;/* a shared setup opens on the team; “Test This Build” (character only) opens on investment */st.view=q.get('i')?'team':'inv'}
- const ev0=st.c?'char:'+st.c:'';
- const ev=n=>{try{host.ev&&host.ev(n)}catch(e){}};ev('open');if(ev0)ev(ev0);
- const url=(abs)=>{const s=st.c?'?c='+encodeURIComponent(st.c)+'&i='+st.i+'&t='+st.t:'';return(abs?String(host.base||location.origin).replace(/\/+$/,''):'')+'/arena'+s};
- const syncUrl=()=>{try{history.replaceState(null,'',url(false)+(host.preview?(st.c?'&':'?')+'preview=arena':''))}catch(e){}};
- if(!chars.length){root.innerHTML='<div class="panel empty ar-empty"><b>The training grounds are being set up</b>Check back soon!</div>';return}
- const steps=['Character','Investment','Team','Arena','Results'],vi={pick:0,inv:1,team:2,arena:3,done:4};
+ const go=p=>{if(host.go)host.go(p);else location.href=p};
+ const ev=n=>{try{host.ev&&host.ev(n)}catch(e){}};
+ if(!chars.length){root.innerHTML='<div class="panel empty ar-empty"><b>The coach is getting ready</b>Check back soon!</div>';return}
+ /* ---- state: everything comes from the address, so links reopen the same setup ---- */
+ const q=PC.readQuery(location.search),raw=new URLSearchParams(location.search);
+ const st={c:null,gear:'acc',cons:0,tc:{},team:'',r:'',variant:'',mode:'simple',view:'pick',step:-1,playing:false,done:false,note:''};
+ const sm=store.get('pp.coach.mode');if(PC.MODES.includes(sm))st.mode=sm;
+ /* older Arena 0.1 links: /arena?c=xiao&i=mid&t=0 */
+ if(!host.sub&&raw.get('c')&&/^[a-z0-9-]+$/.test(raw.get('c'))&&chars.some(c=>c.id===raw.get('c'))){const g={f2p:'acc',mid:'rec',high:'prem'}[raw.get('i')];go('/arena/'+raw.get('c')+(g?'?g='+g:'')+(host.preview?(g?'&':'?')+'preview=arena':''));return}
+ if(host.sub){if(chars.some(c=>c.id===host.sub)){st.c=host.sub;st.view='setup'}else{root.innerHTML='<div class="panel empty ar-empty"><b>This character isn’t in the coach yet</b><a href="/arena" data-link>See who’s training now</a></div>';return}}
+ const C=()=>chars.find(c=>c.id===st.c);const KIT=()=>KC[st.c]||{abilities:[]};const TEAMS=()=>PC.teams(coach,st.c);
+ const TM=()=>{const L=TEAMS();return L.find(t=>t.key===st.team)||L[0]};
+ const gearKey=()=>(PC.GEAR.find(x=>x[0]===st.gear)||PC.GEAR[0])[2];const GV=()=>{const c=C();return(c&&c.inv&&c.inv[gearKey()])||{}};
+ const ctx=()=>{const v=GV();return{char:st.c,team:(TM()||{}).key,cons:st.cons,tc:st.tc,gear:{weapon:v.weapon,set:(v.art||{}).set,pcs:(v.art||{}).pcs},variant:st.variant,r:st.r}};
+ if(st.c){if(q.gear)st.gear=q.gear;if(q.mode)st.mode=q.mode;if(q.cons!=null)st.cons=q.cons;if(q.variant)st.variant=q.variant;
+  if(q.team||q.r||q.tc&&Object.keys(q.tc).length||raw.has('c')){const L=TEAMS();const want=L.find(t=>t.key===q.team)||(q.r&&L.find(t=>t.rotations.some(r=>r.rotation_id===q.r)));
+   if(want){st.team=want.key;st.tc=Object.assign({},want.defaults,q.tc||{});if(q.r)st.r=q.r;st.view='team';if(q.r&&!want.rotations.some(r=>r.rotation_id===q.r))st.note='The rotation in that link was updated since it was shared, so this is the current one for the same team.'}
+   else if(q.team||q.r){st.note='That shared team isn’t in the coach anymore (it may have been replaced after a review). Pick one of the current teams below.';st.view='team'}}
+  if(!st.team&&TEAMS()[0]){const t=TEAMS()[0];st.team=t.key;st.tc=Object.assign({},t.defaults)}}
+ ev('open');if(st.c)ev('char:'+st.c);
+ const query=()=>PC.shareQuery({team:st.team,r:st.r,cons:st.cons,tc:st.tc,gear:st.gear,mode:st.mode,variant:st.variant});
+ const url=abs=>(abs?String(host.base||location.origin).replace(/\/+$/,''):'')+'/arena'+(st.c?'/'+st.c+(st.view==='pick'||st.view==='setup'&&!abs?'':'?'+query()):'');
+ const syncUrl=()=>{try{const u=url(false);history.replaceState(null,'',u+(host.preview?(u.includes('?')?'&':'?')+'preview=arena':''))}catch(e){}};
+ const steps=['Character','Setup','Team','Rotation','Results'],vi={pick:0,setup:1,team:2,arena:3,done:4};
  function head(){return'<ol class="ar-steps" aria-label="Progress">'+steps.map((s,i)=>'<li'+(i===vi[st.view]?' aria-current="step"':'')+(i<vi[st.view]?' class="ok"':'')+'><span>'+(i+1)+'</span>'+s+'</li>').join('')+'</ol>'}
- function elChip(el){return'<span class="ar-el" style="--c:'+(ELC[el]||'#999')+'">'+esc(el)+'</span>'}
- function invTabs(){return'<div class="ar-seg" role="radiogroup" aria-label="Investment">'+INV.map(([k,l])=>'<button type="button" role="radio" aria-checked="'+(st.i===k)+'" data-inv="'+k+'">'+l+'</button>').join('')+'</div>'}
- function loadout(v,c,full){if(!v)return'<p class="muted">No loadout saved for this level yet.</p>';const a=v.art||{};
-  const rows=[['Weapon',esc(v.weapon)+(v.refine?' · R'+esc(v.refine):'')+(v.weaponNote?'<small>'+esc(v.weaponNote)+'</small>':'')],['Constellation',esc(v.cons||'C0')],['Talents',esc(v.talents||'')+'<small>Normal Attack / Skill / Burst</small>'],['Level',esc(v.level||'90')+(v.wlevel?' · weapon '+esc(v.wlevel):'')],['Artifacts',esc((a.pcs?a.pcs+' ':'')+(a.set||''))+(a.main?'<small>Main stats: '+esc(a.main)+'</small>':'')+(a.subs?'<small>'+esc(a.subs)+'</small>':'')]];
-  if(full)rows.push(['Teammates',(v.mates||[]).map(m=>'<div><b>'+esc(m.name)+'</b> '+esc(m.note)+'</div>').join('')||'Same as the team list'],['Good to know',(v.pros||[]).map(x=>'<div>+ '+esc(x)+'</div>').join('')+(v.trade||[]).map(x=>'<div>– '+esc(x)+'</div>').join('')]);
+ const elChip=el=>'<span class="ar-el" style="--c:'+(ELC[el]||'#999')+'">'+esc(el)+'</span>';
+ const rxChip=x=>'<span class="ar-el" style="--c:'+(RXC[x]||'#fff')+'">'+esc(x)+'</span>';
+ const modeSeg=()=>'<div class="ar-seg ar-mode" role="radiogroup" aria-label="Explanation style">'+PC.MODES.map(m=>'<button type="button" role="radio" aria-checked="'+(st.mode===m)+'" data-mode="'+m+'">'+MODEL[m]+'</button>').join('')+'</div>';
+ const ex=(o,base)=>esc(o[st.mode+(base||'')]||(st.mode==='detailed'&&!base&&o.dg?o.canon:'')||o['simple'+(base||'')]||'');
+ const gearName=()=>(PC.GEAR.find(x=>x[0]===st.gear)||PC.GEAR[0])[1];
+ const keyC=()=>PC.consRules(coach,st.c).key||0;const hasGear=()=>{const c=C();return!!(c&&c.inv&&c.inv.f2p&&c.inv.f2p.weapon)};
+ const consPreset=()=>st.adv?'adv':st.cons===0?'c0':st.cons===6?'c6':st.cons===keyC()?'key':'adv';
+ /* ---- loadout (gear only: constellations are chosen separately) ---- */
+ function loadout(v,full){if(!v||!v.weapon)return'<p class="muted">No gear saved for this level yet.</p>';const a=v.art||{};
+  const rows=[['Weapon',esc(v.weapon)+(v.refine?' · R'+esc(v.refine):'')+(SRCL[v.src]?' <span class="ar-src ar-src-'+esc(v.src)+'">'+SRCL[v.src]+'</span>':'')+(full&&v.weaponNote?'<small>'+esc(v.weaponNote)+'</small>':'')],['Artifacts',esc((a.pcs?a.pcs+' ':'')+(a.set||''))+(a.main?'<small>Main stats: '+esc(a.main)+'</small>':'')+(full&&a.subs?'<small>'+esc(a.subs)+'</small>':'')],['Talents',esc(v.talents||'')+'<small>Normal Attack / Skill / Burst</small>']];
+  if(full&&((v.pros||[]).length||(v.trade||[]).length))rows.push(['Good to know',(v.pros||[]).map(x=>'<div>+ '+esc(x)+'</div>').join('')+(v.trade||[]).map(x=>'<div>– '+esc(x)+'</div>').join('')]);
   return'<dl class="ar-lo">'+rows.map(r=>'<dt>'+r[0]+'</dt><dd>'+r[1]+'</dd>').join('')+'</dl>'}
- const tip='<p class="ar-note">Damage simulation coming later. Guided rotation available now.</p>';
  /* ---- 1 character ---- */
- function vPick(){return head()+'<h2 class="ar-h">Choose a character</h2><div class="ar-picks">'+chars.map(c=>'<button type="button" class="ar-pick" data-c="'+esc(c.id)+'" style="--c:'+(ELC[c.el]||'#999')+'">'+'<span class="ar-pi"><i class="ar-ph" aria-hidden="true">'+esc(String(c.name)[0])+'</i>'+(iconOf(c.name)?'<img src="'+esc(iconOf(c.name))+'" alt="" width="72" height="72" loading="lazy" onerror="this.remove()">':'')+'</span>'+'<b>'+esc(c.name)+'</b><span class="ar-meta">'+elChip(c.el)+' '+esc(c.weapon)+'</span><span class="ar-play">'+esc(c.play)+'</span><span class="ar-desc">'+esc(c.desc)+'</span></button>').join('')+'</div>'}
- /* ---- 2 investment ---- */
- function vInv(){const c=C();return head()+'<h2 class="ar-h">'+esc(c.name)+': pick an investment level</h2><p class="muted ar-sub">Each level is a real loadout you can check, not a hidden bonus.</p><div class="ar-invs">'+INV.map(([k,l])=>'<label class="ar-inv'+(st.i===k?' on':'')+'"><input type="radio" name="arinv" value="'+k+'"'+(st.i===k?' checked':'')+'><b>'+l+'</b>'+loadout(c.inv&&c.inv[k],c,false)+'</label>').join('')+'</div>'
-  +'<details class="ar-more"><summary>See the full '+esc(INV.find(x=>x[0]===st.i)[1])+' loadout</summary>'+loadout(I(),c,true)+'</details>'+compare(c)
-  +'<div class="ar-nav"><button type="button" class="btn ghost" data-go="pick">Back</button><button type="button" class="btn" data-go="team">Review team</button></div>'}
- function compare(c){const L=INV.map(([k])=>c.inv&&c.inv[k]||{});const r=(lab,f)=>'<tr><th scope="row">'+lab+'</th>'+L.map(v=>'<td>'+f(v)+'</td>').join('')+'</tr>';
-  return'<details class="ar-more"><summary>Compare F2P, Mid and High</summary><div class="ar-tw"><table class="ar-cmp"><thead><tr><th></th>'+INV.map(x=>'<th scope="col">'+x[1]+'</th>').join('')+'</tr></thead><tbody>'
-   +r('Weapon',v=>esc(v.weapon||'')+(v.refine?' R'+esc(v.refine):''))+r('Constellation',v=>esc(v.cons||''))+r('Talents',v=>esc(v.talents||''))+r('Artifacts',v=>esc(((v.art||{}).pcs||'')+' '+((v.art||{}).set||''))+((v.art||{}).subs?'<small>'+esc(v.art.subs)+'</small>':''))
-   +r('Teammates',v=>(v.mates||[]).map(m=>esc(m.name+': '+m.note)).join('<br>'))+r('Advantages',v=>(v.pros||[]).map(esc).join('<br>'))+r('Tradeoffs',v=>(v.trade||[]).map(esc).join('<br>'))+'</tbody></table></div><p class="ar-note">Damage comparisons appear only once a validated damage simulation supports these setups.</p></details>'}
+ function vPick(){return head()+'<h2 class="ar-h">Choose a character</h2><div class="ar-picks">'+chars.map(c=>'<a class="ar-pick" href="/arena/'+esc(c.id)+(host.preview?'?preview=arena':'')+'" data-c="'+esc(c.id)+'" style="--c:'+(ELC[c.el]||'#999')+'">'+'<span class="ar-pi"><i class="ar-ph" aria-hidden="true">'+esc(String(c.name)[0])+'</i>'+(iconOf(c.name)?'<img src="'+esc(iconOf(c.name))+'" alt="" width="72" height="72" loading="lazy" onerror="this.remove()">':'')+'</span>'+'<b>'+esc(c.name)+'</b><span class="ar-meta">'+elChip(c.el)+' '+esc(c.weapon)+'</span><span class="ar-play">'+esc(c.play)+'</span><span class="ar-desc">'+esc(c.desc)+'</span><span class="ar-pc">'+PC.teams(coach,c.id).length+' reviewed team'+(PC.teams(coach,c.id).length>1?'s':'')+' · full kit</span></a>').join('')+'</div>'}
+ /* ---- 2 setup: constellation and gear ---- */
+ function vSetup(){const c=C(),k=keyC(),R=PC.consRules(coach,st.c);const opt=[['c0','C0 — Baseline',0]].concat(k?[['key','Key Upgrade (C'+k+')',k]]:[],[['c6','C6 — Full Kit',6],['adv','Advanced',null]]);
+  const L=PC.consUpTo(coach,st.c,st.cons);
+  return head()+'<div class="ar-top"><h2 class="ar-h">'+esc(c.name)+': your setup</h2><button type="button" class="btn ghost ar-kitb" data-kit>Learn My Kit</button></div><p class="muted ar-sub">Pick the constellation you have and the gear you use. The coach then picks the reviewed rotation that fits.</p>'
+   +'<div class="ar-block"><h3 class="ar-bh">Constellation</h3><div class="ar-seg" role="radiogroup" aria-label="Constellation">'+opt.map(([id,l])=>'<button type="button" role="radio" aria-checked="'+(consPreset()===id)+'" data-cp="'+id+'">'+esc(l)+'</button>').join('')+'</div>'
+   +(consPreset()==='adv'?'<label class="ar-adv">'+esc(c.name)+' <select data-cons aria-label="'+esc(c.name)+' constellation">'+[0,1,2,3,4,5,6].map(n=>'<option value="'+n+'"'+(n===st.cons?' selected':'')+'>C'+n+'</option>').join('')+'</select></label>':'')
+   +'<p class="ar-cnow"><b>C'+st.cons+'</b> '+(st.cons===0?'· the baseline kit.':k&&st.cons===k?'· '+esc(R.keyWhy):st.cons===6?'· every constellation unlocked.':'')+'</p>'
+   +(L.length?'<details class="ar-more" data-cmp><summary>What C1–C'+st.cons+' change for '+esc(c.name)+'</summary><ul class="ar-cl">'+L.map(x=>'<li><b>C'+x.n+'</b> <span class="ar-ct ar-ct-'+esc(x.type)+'">'+esc(CHG[x.type]||x.label)+'</span> '+(x.type==='unknown'?'':esc(x.note))+'</li>').join('')+'</ul><button type="button" class="btn ghost sm" data-share="cons">Share this comparison</button></details>':'')+'</div>'
+   +(!hasGear()?'':'<div class="ar-block"><h3 class="ar-bh">Gear</h3><div class="ar-invs">'+PC.GEAR.map(([g,l,ik])=>'<label class="ar-inv'+(st.gear===g?' on':'')+'"><input type="radio" name="argear" value="'+g+'"'+(st.gear===g?' checked':'')+'><b>'+l+'</b>'+loadout(c.inv&&c.inv[ik],false)+'</label>').join('')+'</div>'
+   +'<details class="ar-more"><summary>Full '+esc(gearName())+' details</summary>'+loadout(GV(),true)+'</details><p class="ar-note">Gear only changes the rotation when a step depends on it. If it does, the coach tells you.</p></div>')
+   +'<div class="ar-nav"><a class="btn ghost" href="/arena'+(host.preview?'?preview=arena':'')+'" data-back>Back</a><button type="button" class="btn" data-go="team">Choose a team</button></div>'}
  /* ---- 3 team ---- */
- function vTeam(){const c=C(),t=T(),v=I()||{};const mate=n=>(v.mates||[]).find(m=>norm(m.name)===norm(n));
-  return head()+'<h2 class="ar-h">'+esc(t?t.name:'Team')+'</h2><p class="muted ar-sub">'+esc(c.name)+' · '+esc(INV.find(x=>x[0]===st.i)[1])+' <button type="button" class="ar-link" data-go="inv">change</button></p>'
-   +((c.teams||[]).length>1?'<div class="ar-seg" role="radiogroup" aria-label="Team">'+c.teams.map((x,i)=>'<button type="button" role="radio" aria-checked="'+(i===st.t)+'" data-team="'+i+'">'+esc(x.name)+'</button>').join('')+'</div>':'')
-   +'<div class="ar-team">'+(t?t.members:[]).map(m=>{const mm=mate(m.name);return'<div class="ar-mem" style="--c:'+(ELC[m.el]||'#999')+'">'+'<span class="ar-pi sm"><i class="ar-ph" aria-hidden="true">'+esc(String(m.name)[0])+'</i>'+(iconOf(m.name)?'<img src="'+esc(iconOf(m.name))+'" alt="" width="56" height="56" loading="lazy" onerror="this.remove()">':'')+'</span>'+'<div><b>'+esc(m.name)+'</b><span class="ar-meta">'+elChip(m.el)+' '+esc(m.role)+'</span><p>'+esc(m.does)+'</p>'+(mm?'<p class="ar-gear">'+esc(INV.find(x=>x[0]===st.i)[1])+': '+esc(mm.note)+'</p>':'')+'</div></div>'}).join('')+'</div>'
-   +(t&&t.note?'<p class="ar-tnote"><b>Good to know:</b> '+esc(t.note)+'</p>':'')
-   +'<div class="ar-nav"><button type="button" class="btn ghost" data-go="inv">Back</button><button type="button" class="btn" data-go="arena">Enter the Arena</button></div>'}
- /* ---- 4 arena ---- */
- function vArena(){const c=C(),t=T(),R=(t&&t.rotation)||[];return head()+'<div class="ar-top"><h2 class="ar-h">'+esc(t?t.name:'')+'</h2>'+invTabs()+'</div>'
+ function vNoTeams(){const c=C(),gt=(about(c.id).teams||[]).filter(t=>(t.members||[]).length);
+  return head()+'<h2 class="ar-h">'+esc(c.name)+': teams</h2><p class="ar-uns">Rotation lessons for '+esc(c.name)+'’s own teams are still being verified.</p>'+(gt.length?'<p class="muted ar-sub">Teams from the '+esc(c.name)+' build guide:</p><ul class="ar-gteams">'+gt.map(t=>{const nk=t.members.map(PC.norm).sort().join('_'),lr=(coach.rotations||[]).find(r=>PC.canBadge(r,coach)&&r.team.map(m=>PC.norm(m.name)).sort().join('_')===nk);return'<li>'+(t.name?'<b>'+esc(t.name)+'</b>: ':'')+t.members.map(n=>{const id=String(n).toLowerCase().replace(/[^a-z0-9]/g,'');return IX[id]&&id!==c.id?'<button type="button" class="ar-link" data-mkit="'+esc(id)+'">'+esc(n)+'</button>':esc(n)}).join(', ')+(lr?' <a class="ar-link" href="/arena/'+esc(lr.character_id)+'?team='+esc(PC.teamKey(lr))+(host.preview?'&preview=arena':'')+'" data-back>Learn it in '+esc(((lr.team||[]).find(m=>m.id===lr.character_id)||{}).name||'')+'’s lesson</a>':'')+'</li>'}).join('')+'</ul>':'')
+   +'<p class="ar-note">You can still learn '+esc(c.name)+'’s whole kit and every constellation with Learn My Kit.</p><div class="ar-nav"><button type="button" class="btn ghost" data-go="setup">Back</button><button type="button" class="btn" data-kit>Learn My Kit</button></div>'}
+ function vTeam(){if(!TEAMS().length)return vNoTeams();const c=C(),L=TEAMS(),t=TM(),S=PC.select(coach,ctx());const rot=S.ok?S.rot:null;
+  return head()+(st.note?'<p class="ar-pv ar-fall">'+esc(st.note)+'</p>':'')+'<h2 class="ar-h">'+esc(t.name)+'</h2><p class="muted ar-sub">'+esc(c.name)+' C'+st.cons+' · '+esc(gearName())+' <button type="button" class="ar-link" data-go="setup">change</button></p>'
+   +(L.length>1?'<div class="ar-seg" role="radiogroup" aria-label="Team">'+L.map(x=>'<button type="button" role="radio" aria-checked="'+(x.key===t.key)+'" data-team="'+esc(x.key)+'">'+esc(x.name)+'</button>').join('')+'</div>':'')
+   +'<div class="ar-team">'+t.team.map(m=>'<div class="ar-mem" style="--c:'+(ELC[m.el]||'#999')+'">'+'<span class="ar-pi sm"><i class="ar-ph" aria-hidden="true">'+esc(String(m.name)[0])+'</i>'+(iconOf(m.name)?'<img src="'+esc(iconOf(m.name))+'" alt="" width="56" height="56" loading="lazy" onerror="this.remove()">':'')+'</span>'+'<div><b>'+esc(m.name)+'</b><span class="ar-meta">'+elChip(m.el)+' '+esc(m.role)+'</span>'+(m.does?'<p>'+esc(m.does)+'</p>':'')+(m.id!==st.c&&IX[PC.norm(m.name)]?'<button type="button" class="ar-link" data-mkit="'+esc(PC.norm(m.name))+'">'+esc(m.name)+'’s kit</button>':'')
+    +(m.id===st.c?'<p class="ar-gear">C'+st.cons+' (from your setup)</p>':'<label class="ar-tcl">Constellation <select data-tc="'+esc(m.id)+'" aria-label="'+esc(m.name)+' constellation">'+[0,1,2,3,4,5,6].map(n=>'<option value="'+n+'"'+(n===(st.tc[m.id]|0)?' selected':'')+'>C'+n+'</option>').join('')+'</select></label>')+'</div></div>').join('')+'</div>'
+   +'<p class="ar-assume"><b>Assumed:</b> '+esc((S.ok?S.assumptions:[c.name+' C'+st.cons].concat(t.members.filter(id=>id!==st.c).map(id=>((t.team.find(m=>m.id===id)||{}).name||id)+' C'+(st.tc[id]|0)))).join(' · '))+' · '+esc(gearName())+'</p>'
+   +(S.ok?'<div class="ar-pickr"><b>'+esc(rot.rotation_name)+'</b> <span class="ar-vb">Verified</span>'+(S.variants?'<div class="ar-seg" role="radiogroup" aria-label="Version">'+['easy','optimized'].map(v=>'<button type="button" role="radio" aria-checked="'+(S.rot===S.variants[v])+'" data-var="'+v+'">'+(v==='easy'?'Easy':'Optimized')+'</button>').join('')+'</div>':rot.rotation_type==='flexible'?'<span class="ar-ct">Flexible Rotation</span>':'')+'<ul class="ar-why">'+S.why.map(w=>'<li>'+esc(w)+'</li>').join('')+'</ul>'+(rot.rotation_notes?'<p class="ar-note">'+esc(rot.rotation_notes)+'</p>':'')+'</div>'
+    :'<div class="ar-uns" role="status"><b>'+esc(S.msg)+'</b>'+(S.reason?'<p>'+esc(S.reason)+'</p>':'')+(S.closest?'<p>Closest: <b>'+esc(S.closest.rotation_name)+'</b></p><ul>'+S.need.map(n=>'<li>'+esc(n)+'</li>').join('')+'</ul><button type="button" class="btn ghost" data-k="closest">Load the closest preset</button>':'')+'</div>')
+   +'<div class="ar-nav"><button type="button" class="btn ghost" data-go="setup">Back</button><button type="button" class="btn" data-go="arena"'+(S.ok?'':' disabled')+'>Show Rotation</button></div>'}
+ /* ---- 4 the rotation ---- */
+ let SEL=null;
+ function vArena(){const c=C(),S=SEL=PC.select(coach,ctx());if(!S.ok){st.view='team';return vTeam()}const rot=S.rot,acts=S.actions;let n=0;
+  const tl=acts.map(a=>a.skip?'<li class="skip"><span><span class="ar-dot" style="--c:#777"></span><b>'+esc(nm(rot,a.actor_id))+'</b> <code>'+esc(a.action_notation)+'</code> skipped</span></li>':'<li><button type="button" data-s="'+(n++)+'"><span class="ar-dot" style="--c:'+(ELC[a.element]||'#999')+'"></span><b>'+esc(nm(rot,a.actor_id))+'</b> <code>'+esc(a.action_notation)+'</code>'+(a.optional?' <i>optional</i>':'')+'</button></li>').join('');
+  return head()+'<div class="ar-top"><h2 class="ar-h">'+esc(rot.rotation_name)+'</h2>'+modeSeg()+'</div>'
   +'<div class="ar-stage"><div class="ar-scene"><canvas width="'+W+'" height="'+H+'" aria-hidden="true"></canvas><div class="ar-cap" aria-hidden="true"></div><div class="ar-rx" aria-hidden="true"></div><div class="ar-dl">Training Dummy · Lv. 90</div></div>'
   +'<div class="ar-panel"><div class="ar-prog"><i style="width:0"></i></div><div class="ar-now" aria-live="polite"></div>'
   +'<div class="ar-ctl"><button type="button" class="btn ghost" data-k="prev" aria-label="Previous step">◀</button><button type="button" class="btn" data-k="play">Play rotation</button><button type="button" class="btn ghost" data-k="next" aria-label="Next step">▶</button><button type="button" class="btn ghost" data-k="restart">Restart</button></div>'
-  +'<ol class="ar-list">'+R.map((s,i)=>'<li><button type="button" data-s="'+i+'"><span class="ar-dot" style="--c:'+(ELC[s.el]||'#999')+'"></span><b>'+esc(s.who)+'</b> '+esc(s.act)+'</button></li>').join('')+'</ol>'
-  +'<details class="ar-more"><summary>'+esc(INV.find(x=>x[0]===st.i)[1])+' loadout</summary>'+loadout(I(),c,true)+'</details>'+tip+'<p class="ar-note">A simplified teaching sequence, not a frame-perfect rotation. The same steps are shown at every investment level; the gear changes.</p></div></div>'}
+  +'<div class="ar-tools"><button type="button" class="btn ghost sm" data-why disabled>Why this step?</button><button type="button" class="btn ghost sm" data-kit>Learn Kit</button><button type="button" class="btn ghost sm" data-go="setup">Constellations</button><button type="button" class="btn ghost sm" data-go="team">Team Setup</button></div>'
+  +(rot.rotation_notation?'<p class="ar-nota" title="Rotation notation">'+esc(rot.rotation_notation)+'</p>':'')
+  +'<ol class="ar-list">'+tl+'</ol>'
+  +'<details class="ar-more"><summary>Setup and assumptions</summary><p>'+esc(S.assumptions.join(' · '))+' · '+esc(gearName())+'</p><ul class="ar-why">'+S.why.map(w=>'<li>'+esc(w)+'</li>').join('')+'</ul>'+(rot.energy_assumptions?'<p class="ar-note"><b>Energy:</b> '+esc(rot.energy_assumptions)+'</p>':'')+(rot.enemy_assumptions?'<p class="ar-note"><b>Enemies:</b> '+esc(rot.enemy_assumptions)+'</p>':'')+loadout(GV(),true)+'</details>'
+  +srcBox(rot)+'<p class="ar-note">Notation: “&gt;” switch character, “( )” optional, “[ ]” repeat, E Skill, Q Burst, N Normal Attack, C Charged Attack, D dash, J jump, P plunge, h hold.</p></div></div>'}
+ const nm=(r,id)=>((r.team||[]).find(m=>m.id===id)||{}).name||id;
+ const fmtD=s=>{try{return new Date(s+'T12:00:00Z').toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})}catch(e){return s}};
+ function srcBox(rot){const A=rot.key_assumptions||[];return'<div class="ar-srcs"><b>Source / Last Reviewed</b> <span class="ar-vb">'+esc(rot.verification_status||'Verified')+'</span><ul>'+(rot.sources||[]).map(s=>'<li>'+(/^https:\/\//.test(s.url||'')?'<a href="'+esc(s.url)+'" target="_blank" rel="noopener nofollow">'+esc(s.name)+'</a>':esc(s.name))+(s.section?' <small>· '+esc(s.section)+'</small>':'')+' <small>(game version '+esc(s.version||rot.source_game_version)+')</small></li>').join('')+'</ul>'+(A.length?'<p class="ar-note"><b>Assumes:</b> '+A.map(esc).join('; ')+'</p>':'')+'<p class="ar-note">Reviewed for PawPixl on '+esc(fmtD(rot.last_verified_at))+'. Explanations are written by PawPixl. PawPixl is an independent fan site; sources are cited for reference and don’t endorse PawPixl.</p></div>'}
  /* ---- 5 results ---- */
- function vDone(){const c=C(),t=T(),R=(t&&t.rotation)||[],rx=[...new Set(R.map(s=>s.react).filter(Boolean))],g=guideOf(c.id);
-  return head()+'<div class="ar-done"><div class="ar-burst" aria-hidden="true"></div>'+((cfg.art||{}).complete?'<img class="ar-cimg" src="/'+esc(String(cfg.art.complete).replace(/^\/+/,''))+'" alt="" onerror="this.remove()">':'')+'<h2 class="disp">Training Complete!</h2><p class="muted">Nice work: you watched the whole '+esc(c.name)+' rotation.</p>'
-   +'<dl class="ar-lo ar-sum"><dt>Character</dt><dd>'+esc(c.name)+'</dd><dt>Investment</dt><dd>'+esc(INV.find(x=>x[0]===st.i)[1])+' <small>'+esc((I()||{}).weapon||'')+'</small></dd><dt>Team</dt><dd>'+esc(t?t.members.map(m=>m.name).join(', '):'')+'</dd>'
-   +'<dt>Actions</dt><dd>'+R.length+' steps, all shown<small>'+R.map(s=>esc(s.who+': '+s.act)).join(' · ')+'</small></dd><dt>Reactions shown</dt><dd>'+(rx.length?rx.map(x=>'<span class="ar-el" style="--c:'+(RXC[x]||'#fff')+'">'+esc(x)+'</span>').join(' '):'None in this rotation')+'</dd><dt>Damage</dt><dd>Damage simulation coming later. Guided rotation available now.</dd></dl>'
-   +(t&&t.lesson?'<div class="ar-lesson"><b>The main idea</b><p>'+esc(t.lesson)+'</p></div>':'')
-   +'<div class="ar-nav ar-wrap"><button type="button" class="btn" data-go="again">Try Again</button><button type="button" class="btn ghost" data-go="inv">Change Investment</button><button type="button" class="btn ghost" data-go="pick">Choose Another Character</button>'+(g?'<a class="btn ghost" href="'+esc(g)+'" data-link data-guide>View Full Build Guide</a>':'<span class="ar-soon">'+esc(c.name)+'’s full build guide is coming soon</span>')+'</div>'
-   +'<div class="ar-share"><button type="button" class="btn ghost" data-k="share">Share My Training Setup</button><div class="ar-shout" hidden></div></div></div>'}
- function render(){A&&A.stop&&A.stop();root.innerHTML='<div class="ar-app">'+({pick:vPick,inv:vInv,team:vTeam,arena:vArena,done:vDone}[st.view]||vPick)()+'</div>';syncUrl();if(st.view==='arena')stage();const h=root.querySelector('.ar-h,.disp');if(h&&render.moved){h.setAttribute('tabindex','-1');h.focus({preventScroll:false})}render.moved=true}
+ function vDone(){const c=C(),S=SEL||PC.select(coach,ctx());if(!S.ok){st.view='team';return vTeam()}const rot=S.rot,acts=S.actions.filter(a=>!a.skip),rx=[...new Set(acts.map(a=>a.reaction).filter(Boolean))],g=guideOf(c.id),mist=rot.common_mistakes||[];
+  return head()+'<div class="ar-done"><div class="ar-burst" aria-hidden="true"></div><div class="ar-banner">'+((cfg.art||{}).complete?'<img class="ar-cimg" src="/'+esc(String(cfg.art.complete).replace(/^\/+/,''))+'" alt="" onerror="this.remove()">':'<canvas width="200" height="58" aria-hidden="true"></canvas>')+'<h2 class="disp">ROTATION LEARNED!</h2></div><p class="muted">You watched every step of '+esc(c.name)+'’s '+esc(rot.rotation_name)+'. Now try it in game!</p>'
+   +'<dl class="ar-lo ar-sum"><dt>Character</dt><dd>'+esc(c.name)+'</dd><dt>Team</dt><dd>'+esc(rot.team.map(m=>m.name).join(', '))+'</dd><dt>Constellations</dt><dd>'+esc(S.assumptions.join(' · '))+'<small>'+esc(gearName())+': '+esc(GV().weapon||'')+'</small></dd><dt>Rotation</dt><dd>'+esc(rot.rotation_name)+(rot.rotation_notation?'<small><code>'+esc(rot.rotation_notation)+'</code></small>':'')+'</dd>'
+   +'<dt>Actions reviewed</dt><dd>'+acts.length+' steps</dd><dt>Reactions explained</dt><dd>'+(rx.length?rx.map(rxChip).join(' '):'None in this rotation')+'</dd>'
+   +(mist.length?'<dt>Common mistakes</dt><dd>'+mist.map(m=>'<div>• '+esc(m)+'</div>').join('')+'</dd>':'')+'<dt>Source</dt><dd>'+(rot.sources||[]).map(s=>esc(s.name)).join(', ')+'<small>Last reviewed '+esc(fmtD(rot.last_verified_at))+'</small></dd>'
+   +'<dt>Guide</dt><dd>'+(g?'<a href="'+esc(g)+'" data-link data-guide>'+esc(c.name)+' build guide</a>':esc(c.name)+'’s build guide is coming soon')+'</dd></dl>'
+   +'<div class="ar-lesson"><b>Key lesson</b><p>'+esc(keyLesson(rot))+'</p></div>'
+   +'<div class="ar-nav ar-wrap"><button type="button" class="btn" data-go="again">Practice Again</button><button type="button" class="btn ghost" data-go="setup">Try Another Constellation</button><button type="button" class="btn ghost" data-kit>Learn My Kit</button><button type="button" class="btn ghost" data-go="team">Choose Another Team</button><button type="button" class="btn ghost" data-k="share">Share This Rotation</button>'+(g?'<a class="btn ghost" href="'+esc(g)+'" data-link data-guide>View Full Build Guide</a>':'')+'</div>'
+   +'<div class="ar-share"><div class="ar-shout" hidden></div></div><p class="ar-note">An educational walkthrough: it doesn’t calculate damage.</p></div>'}
+ function keyLesson(rot){if(rot.lesson)return rot.lesson;const id=rot.character_id,acts=rot.ordered_actions||[];const first=acts.findIndex(a=>a.actor_id===id&&(a.action_type==='skill'||a.action_type==='burst'));const sup=[...new Set(acts.slice(0,Math.max(0,first)).map(a=>nm(rot,a.actor_id)))].filter(n=>n!==nm(rot,id));
+  return(sup.length?'Set up '+sup.join(', ')+' first, ':'Start ')+'then give '+nm(rot,id)+' the field and stay on them until their window ends.'+((rot.common_mistakes||[])[0]?' Watch out: '+rot.common_mistakes[0]:'')}
+ /* ---- Learn My Kit (a drawer: the rotation keeps its place underneath) ---- */
+ const GROUPS=[['Normal Attack',['na','sp']],['Elemental Skill',['e']],['Elemental Burst',['q']],['Passives',['a1','a4','util','p3','p4']],['Constellations',['c1','c2','c3','c4','c5','c6']]];
+ let DR=null,KG=0,ICONS=null,KID=null;
+ const loadIcons=()=>ICONS?Promise.resolve(ICONS):fetch('/content/arena-icons.json').then(r=>r.ok?r.json():{}).catch(()=>({})).then(j=>{ICONS=j||{};if(DR&&DR.body)DR.querySelector('.ar-drc').innerHTML=DR.body();return ICONS});
+ function card(a,big,kid){kid=kid||st.c;const ic=(((ICONS||{})[kid]||{})[a.slot]);const isC=/^c\d$/.test(a.slot);return'<article class="ar-ab'+(big?' big':'')+'" style="--c:'+(ELC[((KC[kid]||{}).el)||(C()||{}).el]||'#999')+'"><header>'+(ic?'<img src="'+(/^data:image\/(webp|png);base64,[A-Za-z0-9+/=]+$/.test(ic)?ic:'')+'" alt="" width="40" height="40">':'<i class="ar-abi" aria-hidden="true">'+esc(isC?a.slot.toUpperCase():a.slot==='na'?'NA':a.slot.toUpperCase())+'</i>')+'<div><b>'+esc(a.name)+'</b><small>'+esc(a.type)+'</small></div></header>'
+  +'<p class="ar-abx">'+ex(a)+'</p>'+(st.mode!=='detailed'||a.dg||a.detailed===a.canon?'':'<p class="ar-canon"><b>Game text, in short:</b> '+esc(a.canon)+'</p>')
+  +(a.use||a.when||a.interacts||a.mistakes||a.cons?'<dl class="ar-lo">'+(a.use?'<dt>Used for</dt><dd>'+esc(a.use)+'</dd>':'')+(a.when?'<dt>When</dt><dd>'+esc(a.when)+'</dd>':'')+(a.interacts?'<dt>Works with</dt><dd>'+esc(a.interacts)+'</dd>':'')+(a.mistakes?'<dt>Common mistake</dt><dd>'+esc(a.mistakes)+'</dd>':'')+(a.cons?'<dt>'+(isC?'In the rotation':'Constellations')+'</dt><dd>'+esc(a.cons)+'</dd>':'')+'</dl>':'')+'</article>'}
+ function drawer(title,body){closeDr();DR=document.createElement('div');DR.className='ar-dr';DR.innerHTML='<div class="ar-drb" data-x></div><section class="ar-drp" role="dialog" aria-modal="true" aria-label="'+esc(title)+'"><div class="ar-drh"><h2>'+esc(title)+'</h2><button type="button" class="btn ghost sm" data-x aria-label="Close">✕</button></div>'+modeSeg()+'<div class="ar-drc">'+body()+'</div></section>';DR.body=body;root.appendChild(DR);
+  DR.ret=document.activeElement;const x=DR.querySelector('.ar-drh [data-x]');x.focus();DR.onkeydown=e=>{if(e.key==='Escape')closeDr()};document.body.classList.add('ar-lock')}
+ function closeDr(){if(!DR)return;const r=DR.ret;DR.remove();DR=null;document.body.classList.remove('ar-lock');if(r&&r.focus&&document.body.contains(r))r.focus()}
+ function kitBody(){const id=KID||st.c,K=KC[id]||{abilities:[]},L=K.abilities||[];const basics=!!(K.fundamentals||K.energy_and_cooldowns||(K.techniques||[]).length);const G2=(basics?[['Basics',[]]]:[]).concat(GROUPS);if(KG>=G2.length)KG=0;const cur=G2[KG];const t3=(o,h)=>o?'<article class="ar-ab"><header><div><b>'+h+'</b></div></header><p class="ar-abx">'+esc(o[st.mode]||o.simple||'')+'</p></article>':'';return'<div class="ar-seg ar-kg" role="tablist">'+G2.map((g,i)=>'<button type="button" role="tab" aria-selected="'+(i===KG)+'" data-kg="'+i+'">'+g[0]+'</button>').join('')+'</div>'+(cur[0]==='Basics'?t3(K.fundamentals,'How '+esc(K.name||'')+' plays')+t3(K.energy_and_cooldowns,'Energy and cooldowns')+(K.techniques||[]).map(x=>'<article class="ar-ab"><header><div><b>'+esc(x.name)+'</b><small>Technique</small></div></header><p class="ar-abx">'+esc(st.mode==='detailed'&&x.detailed?x.detailed:x.simple)+'</p></article>').join(''):cur[1].map(s=>L.find(a=>a.slot===s)).filter(Boolean).map(a=>card(a,true,id)).join(''))+((K.mistakes||[]).length?'<p class="ar-note"><b>Common mistakes:</b> '+K.mistakes.map(esc).join(' ')+'</p>':'')+'<p class="ar-note">Sources: '+(K.sources||[]).map(s=>esc(s.name)).join(', ')+'. Reviewed '+esc(fmtD(K.verified_at||''))+'.'+(K.detailedIsGame?'':' Detailed mode shows the released game text.')+'</p><button type="button" class="btn ghost sm" data-share="kit">Share this kit</button>'}
+ function openKit(id){KID=id||st.c;ev('kit');const go2=()=>{drawer((KC[KID]||C()).name+': Learn '+(KID===st.c?'My Kit':'the Kit'),kitBody);loadIcons()};if(KC[KID])go2();else loadKit(KID).then(go2)}
+ function whyBody(){const rot=SEL&&SEL.rot,a=A&&A.cur;if(!rot||!a)return'';const m=(rot.team||[]).find(x=>x.id===a.actor_id)||{},mk=PC.norm(m.name);if(IX[mk]&&!KC[mk])loadKit(mk).then(()=>{if(DR&&DR.body===whyBody)DR.querySelector('.ar-drc').innerHTML=whyBody()});const ab=PC.abilityFor(coach,rot,a,id=>KC[id]);
+  return'<div class="ar-act" style="--c:'+(ELC[a.element]||'#999')+'"><span class="ar-n">'+esc(m.name)+' · <code>'+esc(a.action_notation)+'</code></span><h3>'+esc(a.display_text)+'</h3><p>'+ex(a,'_explanation')+'</p>'+(a.reaction?'<p class="ar-meta">'+rxChip(a.reaction)+'</p>':'')+'</div>'
+   +(ab?card(ab,true,mk):'<p class="ar-note"><b>'+esc(m.name)+'</b> · '+esc(m.role||'')+(m.does?': '+esc(m.does):'')+'</p>')+((a.branch_conditions||[]).length?'<p class="ar-note">'+a.branch_conditions.map(b=>esc(b.text)).join('<br>')+'</p>':'')}
+ /* ---- render ---- */
+ function render(){A&&A.stop&&A.stop();closeDr();root.innerHTML='<div class="ar-app">'+({pick:vPick,setup:vSetup,team:vTeam,arena:vArena,done:vDone}[st.view]||vPick)()+'</div>';syncUrl();if(st.view==='arena')stage();if(st.view==='done')bannerUp();const h=root.querySelector('.ar-h,.disp');if(h&&render.moved){h.setAttribute('tabindex','-1');h.focus({preventScroll:false})}render.moved=true}
  /* ---- the stage ---- */
- function stage(){const t=T(),R=(t&&t.rotation)||[],cv=root.querySelector('canvas');if(!cv||!cv.getContext){return}
-  const g=cv.getContext('2d');let bg=null;const imgs={};(t?t.members:[]).forEach(m=>{const s=iconOf(m.name);imgs[m.name]=pixImg(s)});
-  loadArt((host.cfg||{}).art);const a={g,me:{x:64,y:88},dx:178,dy:100,meX:null,meY:null,shake:0,raf:0,t0:0,cur:null,timer:0};A=a;a.redraw=()=>{bg=drawGround();a.draw(null)};
-  /* bigger screens: whole-number pixel scaling, with the scene widened to fill the frame; phones: the 256-wide scene fills the width */
-  const fit=()=>{const box=cv.parentNode.clientWidth||W;const k=Math.floor(box/256);const lw=k>=2?Math.min(400,Math.floor(box/k)):256;W=lw;cv.width=lw;cv.height=H;cv.style.width=(k>=2?lw*k:box)+'px';cv.style.aspectRatio=lw+'/'+H;g.imageSmoothingEnabled=false;bg=drawGround();a.me.x=Math.round(lw*.25);a.dx=Math.round(lw*.68);if(a.draw)a.draw(null)};fit();
-  const cap=root.querySelector('.ar-cap'),rxEl=root.querySelector('.ar-rx'),now=root.querySelector('.ar-now'),prog=root.querySelector('.ar-prog i'),play=root.querySelector('[data-k="play"]');
-  const who=i=>{const s=R[i];return s?((t.members||[]).find(m=>norm(m.name)===norm(s.who))||{name:s.who,el:s.el}):null};
-  a.draw=(k)=>{g.clearRect(0,0,W,H);g.drawImage(bg,0,0);const s=R[st.step];a.meX=null;a.meY=null;const hit=s&&k!=null?runFxPre(s,k):false;
-   /* bench: the four team members along the bottom; the active one steps forward */
-   (t.members||[]).forEach((m,i)=>{const act=s&&norm(m.name)===norm(s.who);if(act)return;const im=imgs[m.name];token(g,im&&im.ok?im.c:null,24+i*14,136,10,m.el,false)});
-   drawDummy(g,a.dx,a.dy,hit&&k!=null&&k<.95,a.shake);a.shake=0;{const ik=s&&k!=null&&hit&&k<.9&&ART[(s.el||'').toLowerCase()+'Impact'];if(ik&&ik.ok)g.drawImage(ik.im,Math.round(a.dx+10-ik.im.width/2),Math.round(a.dy-26-ik.im.height/2))}
-   if(s&&s.aura&&k!=null&&k>.5&&!s.react){g.fillStyle=ELC[s.aura]||'#fff';g.fillRect(a.dx+9,a.dy-50,3,3)}
-   if(s){const m=who(st.step),im=imgs[m.name];const ent=k==null?1:Math.min(1,k*4);const x=a.meX!=null?a.meX:a.me.x-18+18*ent,y=a.meY!=null?a.meY:a.me.y;g.fillStyle='rgba(0,0,0,.35)';g.fillRect(a.me.x-8,a.me.y+10,16,2);token(g,im&&im.ok?im.c:null,x,y,20,m.el,true);if(k!=null)runFx(a,s,k)}
-   else{const m=(t.members||[])[0];if(m){const im=imgs[m.name];token(g,im&&im.ok?im.c:null,a.me.x,a.me.y,20,m.el,true)}}};
-  function runFxPre(s,k){if(s.fx==='plunge'){/* the token leaps up out of view, then crashes down onto the dummy */if(k<.35){a.meX=a.me.x;a.meY=a.me.y-k/.35*100}else if(k<.45){a.meX=a.dx+10;a.meY=-20}else{const d=Math.min(1,(k-.45)/.3);a.meX=a.dx+10;a.meY=-12+(a.dy-14+12)*d}return k>.75}return k>.5}
-  const show=(i,animate)=>{cancelAnimationFrame(a.raf);clearTimeout(a.timer);st.step=i;const s=R[i];if(s&&!st.started){st.started=true;ev('start')}
-   root.querySelectorAll('.ar-list button').forEach((b,j)=>{b.classList.toggle('on',j===i);b.classList.toggle('ok',j<i);if(j===i)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current')});
-   prog.style.width=(R.length?((i+1)/R.length*100):0)+'%';rxEl.className='ar-rx';rxEl.textContent='';
-   if(!s){cap.textContent='';now.innerHTML='<p class="ar-hint">Press <b>Play rotation</b>, or step through it with ▶. Each step shows who acts and why it matters.</p>';a.draw(null);return}
-   const m=who(i);cap.innerHTML='<b>'+esc(s.who)+'</b> · '+esc(s.act);
-   now.innerHTML='<div class="ar-act" style="--c:'+(ELC[s.el]||'#999')+'"><span class="ar-n">Step '+(i+1)+' of '+R.length+'</span><h3>'+esc(s.who)+' <small>'+esc(s.act)+(s.name?' · '+esc(s.name):'')+'</small></h3><p class="ar-meta">'+elChip(s.el)+(s.react?' <span class="ar-el" style="--c:'+(RXC[s.react]||'#fff')+'">'+esc(s.react)+'</span>':'')+'</p>'+(s.what?'<p>'+esc(s.what)+'</p>':'')+'<p class="ar-why"><b>Why it matters:</b> '+esc(s.why)+'</p></div>';
+ function stage(){const rot=SEL.rot,acts=SEL.actions.filter(a=>!a.skip),cv=root.querySelector('canvas'),X=window.PPArenaArt;if(!cv||!cv.getContext)return;
+  const team=(rot.team||[]).map(m=>({name:m.name,el:m.el,wt:m.wt,id:m.id}));
+  const R=acts.map(a=>{const m=team.find(x=>x.id===a.actor_id)||{name:a.actor_id};return{a,who:m.name,el:a.element||m.el||'Physical',fx:a.animation_effect||'orb',react:a.reaction,aura:a.aura,stacks:a.stacks,ms:a.ms,type:a.action_type}});
+  const cap=root.querySelector('.ar-cap'),rxEl=root.querySelector('.ar-rx'),now=root.querySelector('.ar-now'),prog=root.querySelector('.ar-prog i'),play=root.querySelector('[data-k="play"]'),why=root.querySelector('[data-why]');
+  if(!X){cv.hidden=true;cv.parentNode.insertAdjacentHTML('beforeend','<p class="ar-noart">The training ground picture couldn’t load, but the rotation below works the same.</p>')}
+  const g=cv.getContext('2d'),c=C(),imgs={};team.forEach(m=>{imgs[m.name]=pixImg(iconOf(m.name))});loadArt((host.cfg||{}).art);
+  const a={raf:0,timer:0,idle:0,k:null,hitAt:0,strong:false,prev:null,cheer:false,visible:true,cur:null};A=a;
+  const wtOf=m=>m.wt||(norm(m.name)===norm(c.name)?c.weapon:'Sword');
+  const who=i=>{const s=R[i];return s?(team.find(m=>m.name===s.who)||{name:s.who,el:s.el}):null};
+  const fit=()=>{const box=cv.parentNode.clientWidth||256,k=Math.floor(box/256),lw=k>=2?Math.min(400,Math.floor(box/k)):256;W=lw;cv.width=lw;cv.height=H;cv.style.width=(k>=2?lw*k:box)+'px';cv.style.aspectRatio=lw+'/'+H;g.imageSmoothingEnabled=false;a.me={x:Math.round(lw*.27),y:101};a.du={x:Math.round(lw*.7),y:101};a.bg=X?bgOf():null;draw(performance.now())};
+  const bgOf=()=>{if(ART.background&&ART.background.ok){const cc=document.createElement('canvas');cc.width=W;cc.height=H;const x=cc.getContext('2d'),im=ART.background.im,s=Math.max(W/im.width,H/im.height);x.imageSmoothingEnabled=false;x.drawImage(im,(W-im.width*s)/2,(H-im.height*s)/2,im.width*s,im.height*s);return cc}return X.ground(W,H)};
+  function draw(ms){if(!X)return;const tt=ms/1000,still=reduced(),s=R[st.step],k=a.k,bt=a.bg||(a.bg=bgOf());g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,W,H);
+   const since=ms-a.hitAt;if(!still&&a.strong&&since<260){const m=Math.round((1-since/260)*2);g.setTransform(1,0,0,1,(Math.floor(ms/40)%2?m:-m),(Math.floor(ms/55)%2?1:-1)*Math.min(1,m))}
+   g.drawImage(bt,0,0);X.fore(g,W,tt,still);
+   team.forEach((m,i)=>{const im=imgs[m.name];const act=s&&m.name===s.who;g.globalAlpha=act?.35:1;badge(g,im&&im.ok?im.c:null,16+i*13,137,10,m.el);g.globalAlpha=1});
+   let ds='idle';if(a.cheer)ds='cheer';else if(a.hitAt&&since<130)ds='hit';else if(a.strong&&since<520)ds='stagger';else if(a.hitAt&&since<760)ds='recover';else if(!still&&Math.floor(tt*10)%42===0)ds='blink';
+   const dsrc=ART[ds==='hit'||ds==='stagger'?'dummyHit':'dummy'];if(dsrc&&dsrc.ok)g.drawImage(dsrc.im,Math.round(a.du.x-dsrc.im.width/2),Math.round(a.du.y-dsrc.im.height));else X.dummy(g,a.du.x,a.du.y,ds,still?0:tt,{flash:since<90});
+   if(a.cheer&&!still)for(let i=0;i<8;i++){const kk=(tt*.8+i/8)%1;X.px(g,a.du.x-16+i*4,a.du.y-50-kk*20,1,1,i%2?'#ffe08a':'#ffffff')}
+   if(s&&s.aura&&(k==null||k>.5)&&!s.react){const cc=X.col(s.aura);X.ell(g,a.du.x,a.du.y-60,2.5,2.5,cc[0]);X.px(g,a.du.x-1,a.du.y-61,1,1,cc[1])}
+   const m=s?who(st.step):team.find(x=>x.id===st.c)||team[0];
+   if(a.prev&&k!=null&&k<.18&&!still){const e=k/.18;g.globalAlpha=1-e;X.hero(g,a.me.x-e*24,a.me.y,{el:a.prev.el,weapon:wtOf(a.prev),pose:'idle',t:tt,still});g.globalAlpha=1}
+   if(m){let x=a.me.x,y=a.me.y,pose='idle';const enter=k==null?1:Math.min(1,k/.18);if(k!=null&&a.prev&&!still)x=a.me.x-24+24*(1-(1-enter)*(1-enter));
+    if(s&&k!=null&&k>.12&&k<.86)pose=POSE(s);if(s&&k==null&&!still)pose='idle';if(s&&still)pose=POSE(s);
+    if(s&&s.fx==='plunge'&&k!=null&&!still){if(k<.3){y=a.me.y-(k/.3)*110}else if(k<.48){x=a.du.x;y=-40}else{const d=Math.min(1,(k-.48)/.24);x=a.du.x-6;y=-30+(a.du.y-8+30)*d;pose='attack'}if(k>=.72){x=a.du.x-6;y=a.du.y-8}}
+    g.fillStyle='rgba(0,0,0,.35)';g.fillRect(Math.round(a.me.x-7),a.me.y,14,2);const im=imgs[m.name];X.hero(g,x,y,{el:m.el,weapon:wtOf(m),pose,t:tt,still,seed:1,badge:im&&im.ok?im.c:null})}
+   if(s&&(k!=null||still)){const r=X.fx(g,s.fx||'orb',s.el||'Physical',still?.8:k,{from:{x:a.me.x,y:a.me.y},to:{x:a.du.x,y:a.du.y-26},still,stacks:s.stacks});
+    if(r.hit&&!still&&k!=null&&!a.hitAt){a.hitAt=ms;a.strong=!!(r.strong||STRONG[s.fx])}
+    const ik=ART[String(s.el||'').toLowerCase()+'Impact'];if(r.hit&&ik&&ik.ok&&since<300)g.drawImage(ik.im,Math.round(a.du.x-ik.im.width/2),Math.round(a.du.y-26-ik.im.height/2));
+    if(s.react&&(still||(a.hitAt&&since<900))){const cc=RXC[s.react]||'#ffffff';X.reaction(g,a.du.x,a.du.y-26,still?.5:Math.min(1,since/700),cc,'#ffffff')}}
+   g.setTransform(1,0,0,1,0,0)}
+  a.redraw=()=>{a.bg=X?bgOf():null;draw(performance.now())};
+  const idle=()=>{clearTimeout(a.idle);if(reduced()||!a.visible||document.hidden||a.raf)return;draw(performance.now());a.idle=setTimeout(idle,125)};
+  let io=null;try{io=new IntersectionObserver(es=>{a.visible=es[0].isIntersecting;if(a.visible)idle()});io.observe(cv)}catch(e){}
+  const vis=()=>{if(!document.hidden)idle()};document.addEventListener('visibilitychange',vis);
+  /* the words for the current step (also redrawn when the explanation style changes, without touching the animation) */
+  const consNote=x=>{const rule=PC.consRules(coach,st.c).rules;const hits=[];for(let i=1;i<=st.cons;i++){const r=rule[i];if(r&&r[0]!=='none'&&x.a.actor_id===st.c)hits.push('C'+i+': '+r[1])}return hits};
+  a.paint=()=>{const i=st.step,s=R[i];if(!s){now.innerHTML='<p class="ar-hint">Press <b>Play rotation</b>, or step through it with ▶. Each step shows who acts, what they press and why.</p>';return}const x=s.a,cn=consNote(s);
+   now.innerHTML='<div class="ar-act" style="--c:'+(ELC[s.el]||'#999')+'"><span class="ar-n">Step '+(i+1)+' of '+R.length+'</span><h3>'+esc(s.who)+' <code>'+esc(x.action_notation)+'</code></h3><p class="ar-dt">'+esc(x.display_text)+'</p><p class="ar-meta">'+elChip(s.el)+(s.react?' '+rxChip(s.react):'')+(x.optional?' <span class="ar-opt">Optional</span>':'')+'</p><p>'+ex(x,'_explanation')+'</p>'
+    +((x.required_conditions||[]).length&&x.optional?'<p class="ar-note">'+x.required_conditions.map(c=>esc(c.text||'')).join(' · ')+'</p>':'')+((x.branch_conditions||[]).length?'<p class="ar-note">'+x.branch_conditions.map(b=>esc(b.text)).join('<br>')+'</p>':'')+(cn.length?'<p class="ar-cn"><b>Your constellations:</b> '+esc(cn.join(' '))+'</p>':'')+'</div>'};
+  const show=(i,animate)=>{cancelAnimationFrame(a.raf);a.raf=0;clearTimeout(a.timer);const before=R[st.step]?who(st.step):null;st.step=i;const s=R[i];if(s&&!st.started){st.started=true;ev('start')}
+   a.cur=s?s.a:null;why.disabled=!s;a.prev=before&&s&&before.name!==who(i).name?before:null;a.hitAt=0;a.strong=false;a.cheer=false;
+   root.querySelectorAll('.ar-list button').forEach((b)=>{const j=+b.dataset.s;b.classList.toggle('on',j===i);b.classList.toggle('ok',j<i);if(j===i)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current')});
+   prog.style.width=(R.length?((i+1)/R.length*100):0)+'%';rxEl.className='ar-rx';rxEl.textContent='';a.paint();
+   if(!s){cap.textContent='';a.k=null;draw(performance.now());idle();return}
+   cap.innerHTML='<b>'+esc(s.who)+'</b> · '+esc(s.a.action_notation);
    const pop=()=>{if(s.react){rxEl.textContent=s.react+'!';rxEl.style.setProperty('--c',RXC[s.react]||'#fff');rxEl.className='ar-rx on'}};
-   if(!animate||reduced()){a.draw(.999);pop();return}
-   const dur=Math.max(1400,+s.ms||1900);a.t0=performance.now();let popped=false;
-   const tick=tt=>{const k=Math.min(1,(tt-a.t0)/dur);a.draw(k);if(!popped&&k>.6){pop();popped=true}if(k<1)a.raf=requestAnimationFrame(tick);else a.draw(.999)};a.raf=requestAnimationFrame(tick)};
+   const last=i===R.length-1;
+   if(!animate||reduced()){a.k=null;a.cheer=last&&!!animate;draw(performance.now());pop();idle();return}
+   const dur=Math.max(1400,+s.ms||1900),t0=performance.now();let popped=false;
+   const tick=ms=>{const k=Math.min(1,(ms-t0)/dur);a.k=k;draw(ms);if(!popped&&a.hitAt){pop();popped=true}
+    if(k<1){a.raf=requestAnimationFrame(tick);return}
+    a.k=null;if(!popped)pop();if(last){a.cheer=true}const end=performance.now()+700;const tail=m2=>{draw(m2);if(m2<end)a.raf=requestAnimationFrame(tail);else{a.raf=0;idle()}};a.raf=requestAnimationFrame(tail)};
+   clearTimeout(a.idle);a.raf=requestAnimationFrame(tick)};
   const finish=()=>{st.playing=false;if(!st.done){st.done=true;ev('done')}st.view='done';ev('results');render()};
-  const auto=()=>{if(!st.playing)return;const n=st.step+1;if(n>=R.length){a.timer=setTimeout(finish,900);return}show(n,true);const s=R[n];a.timer=setTimeout(auto,(reduced()?3800:Math.max(1400,+s.ms||1900)+1700))};
+  const auto=()=>{if(!st.playing)return;const n=st.step+1;if(n>=R.length){a.timer=setTimeout(finish,1400);return}show(n,true);const s=R[n];a.timer=setTimeout(auto,(reduced()?3800:Math.max(1400,+s.ms||1900)+1700))};
   const setPlay=p=>{st.playing=p;play.textContent=p?'Pause':(st.step>=R.length-1&&st.step>=0?'See results':st.step>=0?'Resume':'Play rotation');play.setAttribute('aria-pressed',String(p))};
-  a.stop=()=>{st.playing=false;cancelAnimationFrame(a.raf);clearTimeout(a.timer);removeEventListener('resize',fit)};addEventListener('resize',fit);
+  a.pause=()=>{if(st.playing){setPlay(false);clearTimeout(a.timer)}};
+  a.stop=()=>{st.playing=false;cancelAnimationFrame(a.raf);a.raf=0;clearTimeout(a.timer);clearTimeout(a.idle);removeEventListener('resize',fit);document.removeEventListener('visibilitychange',vis);if(io)io.disconnect()};addEventListener('resize',fit);
   root.querySelector('.ar-panel').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const k=b.dataset.k;
    if(k==='play'){if(st.playing){setPlay(false);clearTimeout(a.timer);return}if(st.step>=R.length-1&&st.step>=0){finish();return}setPlay(true);auto()}
    else if(k==='next'){setPlay(false);if(st.step>=R.length-1){finish();return}show(st.step+1,true);setPlay(false)}
@@ -166,18 +205,37 @@ function mount(root,host){if(A&&A.stop)A.stop();const cfg=host.cfg||{},chars=(cf
    else if(k==='restart'){setPlay(false);show(-1,false);setPlay(false)}
    else if(b.dataset.s!=null){setPlay(false);show(+b.dataset.s,true);setPlay(false)}});
   root.querySelector('.ar-scene').addEventListener('click',()=>play.click());
-  show(st.step>=0&&st.step<R.length?st.step:-1,false);setPlay(false)}
+  st.started=false;fit();show(st.step>=0&&st.step<R.length?st.step:-1,false);setPlay(false)}
+ function bannerUp(){const cv=root.querySelector('.ar-banner canvas'),X=window.PPArenaArt;if(!cv||!X)return;let id=0;const go2=()=>{X.banner(cv,performance.now()/1000,reduced());if(!reduced()&&document.body.contains(cv))id=setTimeout(go2,180)};go2();A={stop:()=>clearTimeout(id)}}
  /* ---- clicks ---- */
- root.onclick=async e=>{const b=e.target.closest('[data-c],[data-go],[data-inv],[data-team],[data-k="share"],[data-guide]');if(!b)return;
+ root.onclick=async e=>{const b=e.target.closest('[data-c],[data-go],[data-team],[data-k="share"],[data-k="closest"],[data-guide],[data-kit],[data-why],[data-mode],[data-kg],[data-x],[data-cp],[data-var],[data-back],[data-mkit],[data-share]');if(!b)return;
+  if(b.dataset.mkit){openKit(b.dataset.mkit);return}
+  if(b.dataset.share){shareX(b.dataset.share);return}
+  if(b.dataset.x!=null){closeDr();return}
   if(b.dataset.guide!=null){ev('guide');return}
-  if(b.dataset.c){st.c=b.dataset.c;st.t=0;st.step=-1;st.done=false;ev('char:'+st.c);st.view='inv';render();return}
-  if(b.dataset.inv){st.i=b.dataset.inv;ev('inv:'+st.i);if(st.view==='arena'){const keep=st.step;render();}else render();return}
-  if(b.dataset.team!=null){st.t=+b.dataset.team;st.step=-1;render();return}
-  if(b.dataset.go){const g=b.dataset.go;if(g==='again'){st.view='arena';st.step=-1;st.done=false;render();return}if(g==='arena'){st.step=-1}st.view=g;render();return}
-  if(b.dataset.k==='share'){ev('share');const c=C(),u=url(true),txt='Testing '+c.name+'’s '+INV.find(x=>x[0]===st.i)[1]+' team in the PawPixl Arena! Try the training grounds at '+String(host.base||location.origin).replace(/^https?:\/\//,'').replace(/\/+$/,'')+'/arena';
-   const out=root.querySelector('.ar-shout');try{if(navigator.share){await navigator.share({title:'PawPixl Arena',text:txt,url:u});return}}catch(x){if(x&&x.name==='AbortError')return}
-   let ok=false;try{await navigator.clipboard.writeText(txt+'\n'+u);ok=true}catch(x){}out.hidden=false;out.innerHTML=(ok?'<p><b>Copied!</b> Paste it anywhere.</p>':'<p>Copy this:</p>')+'<textarea readonly rows="3" aria-label="Share text">'+esc(txt+'\n'+u)+'</textarea>';const ta=out.querySelector('textarea');if(!ok){ta.focus();ta.select()}}};
- root.onchange=e=>{if(e.target.name==='arinv'){st.i=e.target.value;ev('inv:'+st.i);render()}};
- render.moved=false;render()}
-window.PPArena={mount,stop:()=>{if(A&&A.stop)A.stop()}};
+  if(b.dataset.c){e.preventDefault();go(b.getAttribute('href'));return}
+  if(b.dataset.back!=null){e.preventDefault();go(b.getAttribute('href'));return}
+  if(b.dataset.mode){if(st.mode===b.dataset.mode)return;st.mode=b.dataset.mode;store.set('pp.coach.mode',st.mode);if(st.mode==='razor')ev('razor');syncUrl();
+   root.querySelectorAll('[data-mode]').forEach(x=>x.setAttribute('aria-checked',String(x.dataset.mode===st.mode)));if(A&&A.paint)A.paint();if(DR){DR.querySelector('.ar-drc').innerHTML=DR.body()}return}
+  if(b.dataset.kg!=null){KG=+b.dataset.kg;if(DR)DR.querySelector('.ar-drc').innerHTML=DR.body();return}
+  if(b.dataset.kit!=null){if(A&&A.pause)A.pause();openKit(st.c);return}
+  if(b.dataset.why!=null){if(A&&A.pause)A.pause();drawer('Why this step?',whyBody);loadIcons();return}
+  if(b.dataset.cp){if(b.dataset.cp==='adv')st.adv=true;else{st.adv=false;st.cons={c0:0,key:keyC(),c6:6}[b.dataset.cp]}st.r='';render();return}
+  if(b.dataset.var){st.variant=b.dataset.var;render();return}
+  if(b.dataset.team!=null){const t=TEAMS().find(x=>x.key===b.dataset.team);st.team=t.key;st.tc=Object.assign({},t.defaults);st.r='';st.note='';st.step=-1;render();return}
+  if(b.dataset.k==='closest'){const S=PC.select(coach,ctx());if(S.fix){st.cons=S.fix.cons;st.tc=S.fix.tc;st.team=S.fix.team;st.note='Loaded the closest reviewed preset: '+S.closest.rotation_name+'.';render()}return}
+  if(b.dataset.go){const g=b.dataset.go;if(b.disabled)return;if(g==='again'){st.view='arena';st.step=-1;st.done=false;render();return}if(g==='arena'){st.step=-1;st.note=''}if(g==='team')st.note=st.note&&st.view==='team'?st.note:'';st.view=g;render();return}
+  if(b.dataset.k==='share'){ev('share');ev('share:rot');const c=C(),u=url(true),S=SEL||PC.select(coach,ctx()),txt='Finally figured out my '+c.name+' rotation thanks to PawPixl! '+(S.ok?S.rot.rotation_name+' ('+S.assumptions.join(', ')+')':'');
+   const out=root.querySelector('.ar-shout');try{if(navigator.share){await navigator.share({title:'PawPixl Arena: Rotation Coach',text:txt,url:u});return}}catch(x){if(x&&x.name==='AbortError')return}
+   let ok2=false;try{await navigator.clipboard.writeText(txt+'\n'+u);ok2=true}catch(x){}out.hidden=false;out.innerHTML=(ok2?'<p><b>Copied!</b> Paste it anywhere.</p>':'<p>Copy this:</p>')+'<textarea readonly rows="3" aria-label="Share text">'+esc(txt+'\n'+u)+'</textarea>';const ta=out.querySelector('textarea');if(!ok2){ta.focus();ta.select()}}};
+ root.onchange=e=>{const t=e.target;if(t.name==='argear'){st.gear=t.value;ev('inv:'+gearKey());render();return}if(t.dataset.cons!=null){st.cons=+t.value;st.adv=true;st.r='';render();return}if(t.dataset.tc){st.tc[t.dataset.tc]=+t.value;st.r='';st.note='';render();const s=root.querySelector('[data-tc="'+t.dataset.tc+'"]');if(s)s.focus();return}};
+ root.addEventListener('toggle',e=>{if(e.target.matches&&e.target.matches('details[data-cmp]')&&e.target.open)ev('cmp')},true);
+ async function shareX(kind){const c=C(),base=String(host.base||location.origin).replace(/\/+$/,'');ev('share');ev('share:'+kind);let txt,u;
+  if(kind==='kit'){const K=KC[KID||st.c]||{},q=(K.abilities||[]).find(a=>a.slot==='q')||{};txt='Learn your Genshin character in Razor language. '+(K.name||c.name)+': “'+(q.razor||'')+'” Try PawPixl Arena!';u=base+'/arena/'+(KID||st.c)+'?m=razor'}
+  else{txt='Does C'+(st.cons||2)+' change '+c.name+'’s rotation? Find out in PawPixl Arena!';u=base+'/arena/'+st.c+'?c='+(st.cons||2)}
+  try{if(navigator.share){await navigator.share({title:'PawPixl Arena: Rotation Coach',text:txt,url:u});return}}catch(x){if(x&&x.name==='AbortError')return}
+  let ok2=false;try{await navigator.clipboard.writeText(txt+'\n'+u);ok2=true}catch(x){}const box=document.createElement('div');box.className='ar-shout';box.innerHTML=(ok2?'<p><b>Copied!</b> Paste it anywhere.</p>':'<p>Copy this:</p>')+'<textarea readonly rows="3" aria-label="Share text">'+esc(txt+'\n'+u)+'</textarea>';const tgt=(DR&&DR.querySelector('.ar-drc'))||root.querySelector('.ar-app');tgt.appendChild(box)}
+ const start=()=>{render.moved=false;render()};if(st.c&&!KC[st.c]){root.innerHTML='<div class="panel empty">Loading '+esc(C().name)+'’s kit…</div>';loadKit(st.c).then(start)}else start()}
+const KC={};function loadKit(id){if(KC[id])return Promise.resolve(KC[id]);if(!/^[a-z0-9]+$/.test(id))return Promise.resolve(null);const v=((document.querySelector('script[src*="app.js"]')||{}).src||'').split('?')[1]||'';return fetch('/content/arena-kits/'+id+'.json'+(v?'?'+v:''),{cache:'no-cache'}).then(r=>r.ok?r.json():null).catch(()=>null).then(k=>{if(k)KC[id]=k;return k})}
+window.PPArena={mount,stop:()=>{if(A&&A.stop)A.stop();document.body.classList.remove('ar-lock');const d=document.querySelector('.ar-dr');if(d)d.remove()}};
 })();

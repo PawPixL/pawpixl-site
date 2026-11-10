@@ -56,7 +56,7 @@ async function insight(db, req, b, url) {
   const page = String(b.p || '').split('?')[0].replace(/[^\w\-\/%.]/g, '').slice(0, 120);
   if (page) { add('views', 'all'); add('page', page) }
   // PawPixl Arena: which steps people reach (fixed list of names, nothing personal)
-  if (/^(open|start|done|results|share|guide|char:[a-z0-9]{1,30}|inv:(f2p|mid|high))$/.test(String(b.a || ''))) add('arena', b.a);
+  if (/^(open|start|done|results|share|share:(kit|cons|rot)|guide|kit|razor|cmp|char:[a-z0-9]{1,30}|inv:(f2p|mid|high))$/.test(String(b.a || ''))) add('arena', b.a);
   if (b.s) {
     const c = /^[A-Z]{2}$/.test(cf.country || '') && cf.country !== 'XX' && cf.country !== 'T1' ? cf.country : '';
     add('visits', 'all'); add('country', c || '??'); if (c && cf.region) add('region', c + '|' + String(cf.region).slice(0, 60));
