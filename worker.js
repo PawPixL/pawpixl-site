@@ -24,7 +24,7 @@ function init(db) {
   return ready;
 }
 /* ---------------- Visitor insights (totals per day, nothing personal) ---------------- */
-const nyDay = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+const nyDay = (t) => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(t == null ? new Date() : new Date(t));
 const nyHour = () => +new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', hourCycle: 'h23' }).format(new Date()) % 24;
 function uaBits(ua) {
   const device = /iPad|Tablet|Android(?!.*Mobile)/i.test(ua) ? 'Tablet' : /Mobi|iPhone|iPod|Android/i.test(ua) ? 'Phone' : 'Computer';
@@ -227,7 +227,8 @@ async function news(req, env, url, ctx) {
   }
   if (p === 'insights') {
     const days = Math.max(1, Math.min(400, +url.searchParams.get('days') || 30));
-    const since = new Date(Date.now() - (days - 1) * 864e5).toISOString().slice(0, 10);
+    /* visits are saved under Eastern-time days, so the range starts on an Eastern-time day too (UTC is a day ahead every evening) */
+    const since = nyDay(Date.now() - (days - 1) * 864e5);
     const [tot, daily, first, allc, cnt] = await db.batch([
       db.prepare('SELECT k, v, SUM(n) AS n FROM ins WHERE d >= ? GROUP BY k, v').bind(since),
       db.prepare("SELECT d, k, SUM(n) AS n FROM ins WHERE d >= ? AND k IN ('visits', 'views') GROUP BY d, k ORDER BY d").bind(since),
