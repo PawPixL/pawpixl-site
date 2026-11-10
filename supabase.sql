@@ -24,3 +24,7 @@ insert into public.ping (id) values (1) on conflict do nothing;
 alter table public.ping enable row level security;
 drop policy if exists "anyone can read ping" on public.ping;
 create policy "anyone can read ping" on public.ping for select using (true);
+-- let the website reach these tables (newer Supabase projects don't always do this by themselves)
+grant usage on schema public to anon, authenticated;
+grant select on public.ping to anon, authenticated;
+grant select, insert, update, delete on public.profiles, public.favorites to authenticated;
