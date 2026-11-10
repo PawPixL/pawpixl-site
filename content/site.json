@@ -155,6 +155,15 @@
    "z": 1.2,
    "op": 0.85,
    "img": "content/games/sec-genshin-abyss-mw9ycy50.webp"
+  },
+  "genshin:stygian": {
+   "fx": 0.5,
+   "fy": 0.4,
+   "tx": 0.528,
+   "ty": 0.202,
+   "z": 2,
+   "op": 0.7,
+   "img": "content/games/sec-genshin-stygian-mw9ydpso.webp"
   }
  }
 }
