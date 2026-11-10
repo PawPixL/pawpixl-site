@@ -55,6 +55,8 @@ async function insight(db, req, b, url) {
   const cf = req.cf || {}, ua = req.headers.get('user-agent') || '', u = uaBits(ua);
   const page = String(b.p || '').split('?')[0].replace(/[^\w\-\/%.]/g, '').slice(0, 120);
   if (page) { add('views', 'all'); add('page', page) }
+  // PawPixl Arena: which steps people reach (fixed list of names, nothing personal)
+  if (/^(open|start|done|results|share|guide|char:[a-z0-9]{1,30}|inv:(f2p|mid|high))$/.test(String(b.a || ''))) add('arena', b.a);
   if (b.s) {
     const c = /^[A-Z]{2}$/.test(cf.country || '') && cf.country !== 'XX' && cf.country !== 'T1' ? cf.country : '';
     add('visits', 'all'); add('country', c || '??'); if (c && cf.region) add('region', c + '|' + String(cf.region).slice(0, 60));
@@ -459,7 +461,7 @@ async function api(req, env, url, ctx) {
             q.push(env.DB.prepare('INSERT INTO countries (c, n) VALUES (?, 1) ON CONFLICT(c) DO UPDATE SET n = n + 1').bind(c));
         }
         if (b.g) q.push(bump(env.DB, 'views'));
-        if (b.s || b.p) q.push(...await insight(env.DB, req, b, url));
+        if (b.s || b.p || b.a) q.push(...await insight(env.DB, req, b, url));
         if (q.length) await env.DB.batch(q);
       } catch (e) { return json({ ok: false }, 500); }
       return json({ ok: true });
