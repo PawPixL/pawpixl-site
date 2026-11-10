@@ -164,6 +164,15 @@
    "z": 2,
    "op": 0.7,
    "img": "content/games/sec-genshin-stygian-mw9ydpso.webp"
+  },
+  "genshin:theatre": {
+   "fx": 0.5,
+   "fy": 0.4,
+   "tx": 0.34,
+   "ty": 0.298,
+   "z": 2.15,
+   "op": 0.75,
+   "img": "content/games/sec-genshin-theatre-mw9yfb2r.webp"
   }
  }
 }
