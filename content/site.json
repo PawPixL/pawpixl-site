@@ -159,9 +159,9 @@
   "genshin:stygian": {
    "fx": 0.5,
    "fy": 0.4,
-   "tx": 0.535,
-   "ty": 0.304,
-   "z": 1.9,
+   "tx": 0.49,
+   "ty": 0.201,
+   "z": 2.3,
    "op": 0.7,
    "img": "content/games/sec-genshin-stygian-mw9ydpso.webp"
   },
