@@ -1,0 +1,647 @@
+{
+ "v": 1,
+ "enemy": {
+  "id": "dummy90",
+  "name": "Training Dummy",
+  "level": 90,
+  "note": "In the guided demo the dummy is only a visual target. If damage simulation is added later, its defense and resistance will be listed here."
+ },
+ "chars": [
+  {
+   "id": "yoimiya",
+   "name": "Yoimiya",
+   "el": "Pyro",
+   "weapon": "Bow",
+   "on": true,
+   "ready": true,
+   "play": "Normal Attack damage",
+   "desc": "Her Elemental Skill turns her Normal Attacks into Pyro arrows. She stays on the field and keeps firing while her team protects and buffs her.",
+   "teams": [
+    {
+     "name": "Vaporize Fireworks",
+     "members": [
+      {
+       "name": "Yoimiya",
+       "el": "Pyro",
+       "role": "Main DPS",
+       "does": "Fires Pyro arrows with her Normal Attacks while her Skill is active."
+      },
+      {
+       "name": "Xingqiu",
+       "el": "Hydro",
+       "role": "Off-field Hydro",
+       "does": "His Rain Swords strike alongside her attacks with Hydro, so her Pyro hits can Vaporize."
+      },
+      {
+       "name": "Bennett",
+       "el": "Pyro",
+       "role": "Buffer and healer",
+       "does": "His Burst field heals and gives an ATK bonus to whoever stands in it."
+      },
+      {
+       "name": "Layla",
+       "el": "Cryo",
+       "role": "Shielder",
+       "does": "Her shield keeps Yoimiya safe so she can keep attacking."
+      }
+     ],
+     "note": "Layla’s shield also fires Cryo Shooting Stars, which can Freeze or Melt with the team’s Hydro and Pyro instead of Vaporize. Many players still pick her for the comfort of a strong shield.",
+     "lesson": "Set up the supporters first, then let Yoimiya attack inside Bennett’s field while Xingqiu’s Rain Swords keep adding Hydro for Vaporize.",
+     "rotation": [
+      {
+       "who": "Layla",
+       "act": "Elemental Skill",
+       "name": "Nights of Formal Focus",
+       "el": "Cryo",
+       "fx": "shield",
+       "what": "Creates the Curtain of Slumber shield.",
+       "why": "A shield keeps Yoimiya from being knocked around while she attacks."
+      },
+      {
+       "who": "Xingqiu",
+       "act": "Elemental Skill",
+       "name": "Guhua Sword: Fatal Rainscreen",
+       "el": "Hydro",
+       "fx": "orb",
+       "what": "Slashes the target with Hydro and gives Energy back to the team.",
+       "why": "Puts Hydro on the target and helps charge his Burst.",
+       "aura": "Hydro"
+      },
+      {
+       "who": "Xingqiu",
+       "act": "Elemental Burst",
+       "name": "Guhua Sword: Raincutter",
+       "el": "Hydro",
+       "fx": "rain",
+       "what": "Summons Rain Swords that follow the active character.",
+       "why": "From now on, Rain Swords strike alongside Normal Attacks, adding Hydro even after he leaves the field.",
+       "aura": "Hydro"
+      },
+      {
+       "who": "Bennett",
+       "act": "Elemental Burst",
+       "name": "Fantastic Voyage",
+       "el": "Pyro",
+       "fx": "field",
+       "what": "Creates a field that heals and gives an ATK bonus.",
+       "why": "Yoimiya gets the ATK bonus while she stands inside the field."
+      },
+      {
+       "who": "Yoimiya",
+       "act": "Elemental Skill",
+       "name": "Niwabi Fire-Dance",
+       "el": "Pyro",
+       "fx": "orb",
+       "what": "Her Normal Attacks become Pyro Kindling Arrows for a short time.",
+       "why": "Without it her arrows are Physical, so they can’t Vaporize."
+      },
+      {
+       "who": "Yoimiya",
+       "act": "Normal Attacks",
+       "name": "Kindling Arrows",
+       "el": "Pyro",
+       "fx": "arrows",
+       "what": "A string of Pyro arrows while Rain Swords add Hydro.",
+       "why": "Pyro hitting a Hydro-soaked target triggers Vaporize, a big damage boost.",
+       "react": "Vaporize",
+       "ms": 2400
+      }
+     ]
+    }
+   ],
+   "inv": {
+    "f2p": {
+     "weapon": "Slingshot",
+     "refine": "5",
+     "weaponNote": "A 3-star bow; extra copies come from wishes all the time.",
+     "cons": "C0",
+     "talents": "6 / 6 / 6",
+     "level": "90",
+     "art": {
+      "pcs": "4-piece",
+      "set": "Shimenawa's Reminiscence",
+      "main": "ATK% / Pyro DMG Bonus / Crit Rate or Crit DMG",
+      "subs": "Average substats from regular domain runs"
+     },
+     "mates": [
+      {
+       "name": "Xingqiu",
+       "note": "C0"
+      },
+      {
+       "name": "Bennett",
+       "note": "C0"
+      },
+      {
+       "name": "Layla",
+       "note": "C0"
+      }
+     ],
+     "pros": [
+      "Everything here comes from regular play"
+     ],
+     "trade": [
+      "Slingshot has much lower base ATK than 4- and 5-star bows"
+     ]
+    },
+    "mid": {
+     "weapon": "Rust",
+     "refine": "1",
+     "weaponNote": "4-star bow that boosts Normal Attack DMG (and lowers Charged Attack DMG).",
+     "cons": "C0",
+     "talents": "8 / 8 / 8",
+     "level": "90",
+     "art": {
+      "pcs": "4-piece",
+      "set": "Shimenawa's Reminiscence",
+      "main": "ATK% / Pyro DMG Bonus / Crit Rate or Crit DMG",
+      "subs": "Good Crit substats"
+     },
+     "mates": [
+      {
+       "name": "Xingqiu",
+       "note": "C2 or higher: his Rain Swords last longer"
+      },
+      {
+       "name": "Bennett",
+       "note": "4-piece Noblesse Oblige for a team ATK bonus after his Burst"
+      },
+      {
+       "name": "Layla",
+       "note": "C0"
+      }
+     ],
+     "pros": [
+      "Rust suits her Normal Attack playstyle"
+     ],
+     "trade": [
+      "Rust is a 4-star from wishes, not guaranteed"
+     ]
+    },
+    "high": {
+     "weapon": "Thundering Pulse",
+     "refine": "1",
+     "weaponNote": "Her 5-star signature bow.",
+     "cons": "C0",
+     "talents": "9 / 9 / 9",
+     "level": "90",
+     "art": {
+      "pcs": "4-piece",
+      "set": "Shimenawa's Reminiscence",
+      "main": "ATK% / Pyro DMG Bonus / Crit Rate or Crit DMG",
+      "subs": "Strong Crit substats"
+     },
+     "mates": [
+      {
+       "name": "Xingqiu",
+       "note": "C6: more Rain Swords and Energy"
+      },
+      {
+       "name": "Bennett",
+       "note": "4-piece Noblesse Oblige"
+      },
+      {
+       "name": "Layla",
+       "note": "C0"
+      }
+     ],
+     "pros": [
+      "The strongest weapon for her playstyle"
+     ],
+     "trade": [
+      "A limited 5-star weapon",
+      "No constellations assumed; they’re very expensive"
+     ]
+    }
+   }
+  },
+  {
+   "id": "xiao",
+   "name": "Xiao",
+   "el": "Anemo",
+   "weapon": "Polearm",
+   "on": true,
+   "ready": true,
+   "play": "Plunging Attack damage",
+   "desc": "His Burst lets him leap high and crash down with Anemo plunges. His supporters set everything up first so his Burst window gets every buff.",
+   "teams": [
+    {
+     "name": "Wind Strike",
+     "members": [
+      {
+       "name": "Xiao",
+       "el": "Anemo",
+       "role": "Main DPS",
+       "does": "Repeated Anemo plunges during his Burst."
+      },
+      {
+       "name": "Faruzan",
+       "el": "Anemo",
+       "role": "Support",
+       "does": "Her Burst lowers enemies’ Anemo RES and gives the team an Anemo DMG Bonus."
+      },
+      {
+       "name": "Sucrose",
+       "el": "Anemo",
+       "role": "Support",
+       "does": "Her Skill makes Anemo Energy particles for Xiao and triggers Swirl."
+      },
+      {
+       "name": "Bennett",
+       "el": "Pyro",
+       "role": "Buffer and healer",
+       "does": "His Burst field heals and gives an ATK bonus."
+      }
+     ],
+     "note": "Xiao’s Burst slowly drains his HP, so Bennett’s healing helps him stay in the fight.",
+     "lesson": "Do all of the support setup first. Xiao’s Burst window is short, and every buff should already be active when he starts plunging.",
+     "rotation": [
+      {
+       "who": "Faruzan",
+       "act": "Elemental Burst",
+       "name": "The Wind’s Secret Ways",
+       "el": "Anemo",
+       "fx": "wind",
+       "what": "Lowers the target’s Anemo RES and gives the team an Anemo DMG Bonus.",
+       "why": "Makes every Anemo plunge that follows hit harder."
+      },
+      {
+       "who": "Sucrose",
+       "act": "Elemental Skill",
+       "name": "Astable Anemohypostasis Creation - 6308",
+       "el": "Anemo",
+       "fx": "wind",
+       "what": "A small Anemo blast that pulls enemies in.",
+       "why": "Anemo Energy particles go a long way toward charging Xiao’s Burst."
+      },
+      {
+       "who": "Bennett",
+       "act": "Elemental Burst",
+       "name": "Fantastic Voyage",
+       "el": "Pyro",
+       "fx": "field",
+       "what": "Creates a field that heals and gives an ATK bonus; its hit puts Pyro on the target.",
+       "why": "Xiao starts his Burst inside the field with the ATK bonus.",
+       "aura": "Pyro"
+      },
+      {
+       "who": "Xiao",
+       "act": "Elemental Burst",
+       "name": "Bane of All Evil",
+       "el": "Anemo",
+       "fx": "orb",
+       "what": "His attacks become Anemo and he can leap much higher.",
+       "why": "This is his damage window; everything before it was preparation.",
+       "aura": "Pyro"
+      },
+      {
+       "who": "Xiao",
+       "act": "High Plunge",
+       "name": "Plunging Attack",
+       "el": "Anemo",
+       "fx": "plunge",
+       "what": "Jumps high and crashes down with Anemo.",
+       "why": "Repeated high plunges are where most of his damage comes from. Anemo hitting Pyro triggers Swirl.",
+       "react": "Swirl",
+       "ms": 2200
+      },
+      {
+       "who": "Xiao",
+       "act": "High Plunge",
+       "name": "Plunging Attack (again)",
+       "el": "Anemo",
+       "fx": "plunge",
+       "what": "Keeps jumping and plunging until his Burst ends.",
+       "why": "Staying in the rhythm of jump, plunge, jump keeps his damage steady.",
+       "ms": 2200
+      }
+     ]
+    }
+   ],
+   "inv": {
+    "f2p": {
+     "weapon": "Kitain Cross Spear",
+     "refine": "1",
+     "weaponNote": "A craftable 4-star polearm.",
+     "cons": "C0",
+     "talents": "6 / 6 / 6",
+     "level": "90",
+     "art": {
+      "pcs": "4-piece",
+      "set": "Vermillion Hereafter",
+      "main": "ATK% / Anemo DMG Bonus / Crit Rate or Crit DMG",
+      "subs": "Average substats from regular domain runs"
+     },
+     "mates": [
+      {
+       "name": "Faruzan",
+       "note": "C0"
+      },
+      {
+       "name": "Sucrose",
+       "note": "C0"
+      },
+      {
+       "name": "Bennett",
+       "note": "C0"
+      }
+     ],
+     "pros": [
+      "No wishes needed for the weapon"
+     ],
+     "trade": [
+      "Lower damage than the stronger polearms"
+     ]
+    },
+    "mid": {
+     "weapon": "Deathmatch",
+     "refine": "1",
+     "weaponNote": "4-star polearm from the paid Battle Pass.",
+     "cons": "C0",
+     "talents": "8 / 8 / 8",
+     "level": "90",
+     "art": {
+      "pcs": "4-piece",
+      "set": "Vermillion Hereafter",
+      "main": "ATK% / Anemo DMG Bonus / Crit Rate or Crit DMG",
+      "subs": "Good Crit substats"
+     },
+     "mates": [
+      {
+       "name": "Faruzan",
+       "note": "C0"
+      },
+      {
+       "name": "Sucrose",
+       "note": "4-piece Viridescent Venerer"
+      },
+      {
+       "name": "Bennett",
+       "note": "4-piece Noblesse Oblige"
+      }
+     ],
+     "pros": [
+      "A Crit Rate weapon that suits him"
+     ],
+     "trade": [
+      "Needs the paid Battle Pass"
+     ]
+    },
+    "high": {
+     "weapon": "Primordial Jade Winged-Spear",
+     "refine": "1",
+     "weaponNote": "A 5-star polearm with a Crit Rate substat.",
+     "cons": "C0",
+     "talents": "9 / 9 / 9",
+     "level": "90",
+     "art": {
+      "pcs": "4-piece",
+      "set": "Vermillion Hereafter",
+      "main": "ATK% / Anemo DMG Bonus / Crit Rate or Crit DMG",
+      "subs": "Strong Crit substats"
+     },
+     "mates": [
+      {
+       "name": "Faruzan",
+       "note": "C6: a big upgrade to her support"
+      },
+      {
+       "name": "Sucrose",
+       "note": "4-piece Viridescent Venerer"
+      },
+      {
+       "name": "Bennett",
+       "note": "4-piece Noblesse Oblige"
+      }
+     ],
+     "pros": [
+      "Strong weapon plus a fully upgraded Faruzan"
+     ],
+     "trade": [
+      "A 5-star weapon from wishes",
+      "Faruzan C6 needs many copies of her"
+     ]
+    }
+   }
+  },
+  {
+   "id": "eula",
+   "name": "Eula",
+   "el": "Cryo",
+   "weapon": "Claymore",
+   "on": true,
+   "ready": true,
+   "play": "Physical Burst damage",
+   "desc": "During her Burst, her hits charge the Lightfall Sword. When it ends, it crashes down with a big Physical hit. Superconduct makes that hit land harder.",
+   "teams": [
+    {
+     "name": "Superconduct Lightfall",
+     "members": [
+      {
+       "name": "Eula",
+       "el": "Cryo",
+       "role": "Main DPS",
+       "does": "Builds Lightfall Sword stacks during her Burst for one huge Physical hit."
+      },
+      {
+       "name": "Fischl",
+       "el": "Electro",
+       "role": "Off-field Electro",
+       "does": "Oz applies Electro from off the field, so Cryo hits trigger Superconduct."
+      },
+      {
+       "name": "Diona",
+       "el": "Cryo",
+       "role": "Shielder and healer",
+       "does": "Her shield protects Eula and her Cryo particles charge Eula’s Burst."
+      },
+      {
+       "name": "Lisa",
+       "el": "Electro",
+       "role": "Support",
+       "does": "Her Burst applies Electro, and her passive lowers enemy DEF by 15%."
+      }
+     ],
+     "note": "Superconduct lowers the target’s Physical RES by 40% for 12 seconds. That’s why this team pairs Cryo with Electro for a Physical character.",
+     "lesson": "Shield and Electro first, then Eula’s Burst. Every hit during the Burst adds a Lightfall stack, so land as many hits as you can before the sword comes down.",
+     "rotation": [
+      {
+       "who": "Diona",
+       "act": "Elemental Skill",
+       "name": "Icy Paws",
+       "el": "Cryo",
+       "fx": "shield",
+       "what": "Creates a Cryo shield.",
+       "why": "Protects Eula, and her Cryo particles help charge Eula’s Burst."
+      },
+      {
+       "who": "Fischl",
+       "act": "Elemental Skill",
+       "name": "Nightrider",
+       "el": "Electro",
+       "fx": "bolt",
+       "what": "Summons Oz, who keeps striking with Electro.",
+       "why": "Oz keeps putting Electro on the target after Fischl leaves the field.",
+       "aura": "Electro"
+      },
+      {
+       "who": "Lisa",
+       "act": "Elemental Burst",
+       "name": "Lightning Rose",
+       "el": "Electro",
+       "fx": "bolt",
+       "what": "A rose that zaps nearby enemies with Electro.",
+       "why": "Her passive lowers enemy DEF by 15%, and the Electro sets up Superconduct.",
+       "aura": "Electro"
+      },
+      {
+       "who": "Eula",
+       "act": "Elemental Skill",
+       "name": "Icetide Vortex",
+       "el": "Cryo",
+       "fx": "arc",
+       "what": "A quick Cryo slash that gives her a Grimheart stack.",
+       "why": "Cryo on an Electro target triggers Superconduct: Physical RES down by 40%.",
+       "react": "Superconduct"
+      },
+      {
+       "who": "Eula",
+       "act": "Elemental Burst",
+       "name": "Glacial Illumination",
+       "el": "Cryo",
+       "fx": "stack",
+       "what": "Summons the Lightfall Sword above the target.",
+       "why": "Starts the window where her hits charge the sword.",
+       "stacks": 2
+      },
+      {
+       "who": "Eula",
+       "act": "Normal Attacks",
+       "name": "Favonius Bladework - Edel",
+       "el": "Physical",
+       "fx": "stack",
+       "what": "A string of heavy claymore swings.",
+       "why": "Each hit adds a stack to the Lightfall Sword, so more hits mean a bigger finish.",
+       "stacks": 10,
+       "ms": 2600
+      },
+      {
+       "who": "Eula",
+       "act": "Lightfall Sword",
+       "name": "Burst detonation",
+       "el": "Physical",
+       "fx": "detonate",
+       "what": "The sword crashes down with every stack she built.",
+       "why": "The big Physical hit lands while Superconduct is lowering Physical RES.",
+       "ms": 2400
+      }
+     ]
+    }
+   ],
+   "inv": {
+    "f2p": {
+     "weapon": "Snow-Tombed Starsilver",
+     "refine": "1",
+     "weaponNote": "A craftable 4-star claymore with a Physical DMG substat.",
+     "cons": "C0",
+     "talents": "6 / 6 / 6",
+     "level": "90",
+     "art": {
+      "pcs": "4-piece",
+      "set": "Pale Flame",
+      "main": "ATK% / Physical DMG Bonus / Crit Rate or Crit DMG",
+      "subs": "Average substats from regular domain runs"
+     },
+     "mates": [
+      {
+       "name": "Fischl",
+       "note": "C0"
+      },
+      {
+       "name": "Diona",
+       "note": "C0"
+      },
+      {
+       "name": "Lisa",
+       "note": "C0"
+      }
+     ],
+     "pros": [
+      "No wishes needed for the weapon"
+     ],
+     "trade": [
+      "Lower base ATK than the stronger claymores"
+     ]
+    },
+    "mid": {
+     "weapon": "Serpent Spine",
+     "refine": "1",
+     "weaponNote": "4-star claymore from the paid Battle Pass.",
+     "cons": "C0",
+     "talents": "8 / 8 / 8",
+     "level": "90",
+     "art": {
+      "pcs": "4-piece",
+      "set": "Pale Flame",
+      "main": "ATK% / Physical DMG Bonus / Crit Rate or Crit DMG",
+      "subs": "Good Crit substats"
+     },
+     "mates": [
+      {
+       "name": "Fischl",
+       "note": "C0"
+      },
+      {
+       "name": "Diona",
+       "note": "C0"
+      },
+      {
+       "name": "Lisa",
+       "note": "C0"
+      }
+     ],
+     "pros": [
+      "A Crit Rate weapon"
+     ],
+     "trade": [
+      "Needs the paid Battle Pass"
+     ]
+    },
+    "high": {
+     "weapon": "Song of Broken Pines",
+     "refine": "1",
+     "weaponNote": "Her 5-star signature claymore.",
+     "cons": "C0",
+     "talents": "9 / 9 / 9",
+     "level": "90",
+     "art": {
+      "pcs": "4-piece",
+      "set": "Pale Flame",
+      "main": "ATK% / Physical DMG Bonus / Crit Rate or Crit DMG",
+      "subs": "Strong Crit substats"
+     },
+     "mates": [
+      {
+       "name": "Fischl",
+       "note": "C6: Oz attacks alongside the active character"
+      },
+      {
+       "name": "Diona",
+       "note": "C0"
+      },
+      {
+       "name": "Lisa",
+       "note": "C0"
+      }
+     ],
+     "pros": [
+      "Her strongest weapon, plus a C6 Fischl"
+     ],
+     "trade": [
+      "A limited 5-star weapon"
+     ]
+    }
+   }
+  }
+ ]
+}
