@@ -136,5 +136,16 @@
   "z": 1.55,
   "op": 0.7,
   "img": "content/games/schedule-mw5n2oci.webp"
+ },
+ "secBg": {
+  "genshin:builds": {
+   "fx": 0.5,
+   "fy": 0.4,
+   "tx": 0.776,
+   "ty": 0.426,
+   "z": 1.4,
+   "op": 0.75,
+   "img": "content/games/sec-genshin-builds-mw9ybdzh.webp"
+  }
  }
 }
