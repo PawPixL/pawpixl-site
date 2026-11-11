@@ -1259,3 +1259,6 @@ body.ar-lock{overflow:hidden}
 @media (max-width:640px){.rx-top{grid-template-columns:1fr}.rx-scene{min-height:190px}.rx-el{flex:1 1 28%;min-width:0;padding:0 6px}}
 @media (prefers-reduced-motion:reduce){.rx-dummy.hit,.rx-pop.go{animation:none}.rx-pop.go{opacity:1}}
 .ar-vb.ar-ob{background:transparent;border:1px solid var(--gold,#e8b765);color:var(--gold,#e8b765)}
+.ar-vb.ar-cb{background:transparent;border:1px solid #9fd0ff;color:#9fd0ff}
+.ar-cond{margin:12px 0;padding:10px 14px;border-radius:12px;border:1px solid #9fd0ff;background:rgba(159,208,255,.08);font-size:13.5px;line-height:1.5}
+.ar-cond ul{margin:6px 0 6px 18px;padding:0}.ar-cond small{color:var(--muted,#9aa3c4)}

@@ -9,7 +9,9 @@
    (sources with links, a reviewed game version, a date, steps that only use team members...). */
 (function(){
 'use strict';
-const STATUS=['Verified','Needs Review','Unsupported','Outdated'];
+/* Conditional: checked against its source like Verified, but only works under the conditions written on it (Burst Energy,
+   constellations, weapons). It may be shown in the Arena, with those conditions, and is never labelled Verified. */
+const STATUS=['Verified','Conditional','Needs Review','Unsupported','Outdated'];const SHOWN=s=>s==='Verified'||s==='Conditional';
 const KSTATUS=['Verified','Ready for approval','Needs Review','Outdated'];
 const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const GEAR=[['acc','Accessible Gear','f2p'],['rec','Recommended Gear','mid'],['prem','Premium Gear','high']];
@@ -33,10 +35,10 @@ function rotProblems(r,coach,ctx){const out=[],add=(lv,t)=>out.push({id:r.rotati
  const M=new Set((r.team||[]).map(m=>m.id));(r.team_member_ids||[]).forEach(id=>{if(!M.has(id))add('error','Team member '+id+' has no name, element or role')});
  if(ctx.chars){(r.team||[]).forEach(m=>{const g=ctx.chars.get(m.name);if(!g)add('error','“'+m.name+'” isn’t in the game data');else{if(g.el!==m.el)add('error',m.name+' is '+g.el+', not '+m.el);if(m.wt&&g.wt&&g.wt!==m.wt)add('error',m.name+' uses a '+g.wt+', not a '+m.wt);if(g.id&&g.id!==m.id)add('error',m.name+'’s id should be '+g.id)}})}
  (r.ordered_actions||[]).forEach((a,i)=>{const s='Step '+(i+1);if(!ids.has(a.actor_id))add('error',s+': '+a.actor_id+' isn’t on this team');if(!a.action_notation||!a.display_text)add('error',s+' needs a notation and a description');
-  if(r.verification_status==='Verified')MODES.forEach(m=>{if(!String(a[m+'_explanation']||'').trim())add('error',s+' has no '+m[0].toUpperCase()+m.slice(1)+' explanation')})});
+  if(SHOWN(r.verification_status))MODES.forEach(m=>{if(!String(a[m+'_explanation']||'').trim())add('error',s+' has no '+m[0].toUpperCase()+m.slice(1)+' explanation')})});
  const mn=r.minimum_constellation_requirements||{},mx=r.maximum_constellation_requirements||{};Object.keys(mn).forEach(k=>{if(mx[k]!=null&&num(mn[k],0)>num(mx[k],6))add('error','Minimum constellation is above the maximum for '+k)});
  Object.entries(r.teammate_constellation_requirements||{}).forEach(([k,v])=>{if(!ids.has(k))add('error','Constellation rule for '+k+', who isn’t on the team');if(v&&num(v.min,0)>num(v.max,6))add('error','Impossible constellation range for '+k)});
- if(r.verification_status==='Verified'){const S=r.sources||[];if(!S.length)add('error','Verified, but no source is listed');S.forEach(s=>{if(!s||!s.name||!/^https:\/\//.test(s.url||''))add('error','A source needs a name and a https link')});
+ if(SHOWN(r.verification_status)){const S=r.sources||[];if(!S.length)add('error','Verified, but no source is listed');S.forEach(s=>{if(!s||!s.name||!/^https:\/\//.test(s.url||''))add('error','A source needs a name and a https link')});
   if(!r.source_game_version)add('error','Verified, but the reviewed game version is missing');if(!/^\d{4}-\d{2}-\d{2}$/.test(r.last_verified_at||''))add('error','Verified, but the review date is missing');
   if(!(r.common_mistakes||[]).length)add('warn','No common mistake listed')}
  return out}
@@ -47,7 +49,11 @@ function kitProblems(id,k){const out=[],add=(lv,t)=>out.push({id,lv,t});const ha
 function validate(coach,ctx){const out=[];const ids=new Set();(coach.rotations||[]).forEach(r=>{if(ids.has(r.rotation_id))out.push({id:r.rotation_id,lv:'error',t:'Two rotations use the id '+r.rotation_id});ids.add(r.rotation_id);out.push(...rotProblems(r,coach,ctx))});
  Object.entries(coach.kits||{}).forEach(([id,k])=>out.push(...kitProblems(id,k)));return out}
 /* the only way a badge is earned */
-const canBadge=(r,coach)=>!!r&&r.verification_status==='Verified'&&!rotProblems(r,coach).some(x=>x.lv==='error');
+/* canBadge: may this rotation be shown in the Arena at all (Verified or Conditional, and every structural check passes).
+   An incomplete draft has no steps, which is a structural error here, so it can never be played. */
+const canBadge=(r,coach)=>!!r&&SHOWN(r.verification_status)&&!rotProblems(r,coach).some(x=>x.lv==='error');
+/* the word the Arena shows next to a rotation: Verified only when nothing conditional applies to it */
+const shownAs=r=>!r?'':(r.verification_status==='Conditional'||(r.audit&&r.audit.label==='Conditional'))?'Conditional':'Verified';
 const kitOk=(k,id)=>!!k&&k.status==='Verified'&&!kitProblems(id,k).some(x=>x.lv==='error');
 const kitComplete=(k,id)=>!!k&&!kitProblems(id,k).some(x=>x.lv==='error');
 /* what the website gets: reviewed kits, and rotations that are Verified, pass every check and are approved */
@@ -180,6 +186,6 @@ function pageText(coach,c,e,o){o=o||{};const k=o.kit||(coach.kits||{})[c.id]||{a
  const S=[];T.forEach(t=>t.rotations.forEach(r=>(r.sources||[]).forEach(s=>{if(!S.some(x=>x.name===s.name))S.push(s)})));if(S.length)b+='<p>Rotations reviewed against: '+S.map(s=>e(s.name)).join(', ')+'.</p>';
  if(o.guide)b+='<p>Want the weapons, artifacts and stats too? See the <a href="'+e(o.guide)+'"'+(o.link?' data-link':'')+'>'+e(c.name)+' build guide</a>.</p>';return b+'</div>'}
 const pageDesc=c=>'Learn '+c.name+'’s kit and team rotations step by step: what each ability does, what to press, and why, for your constellation and gear. Free, no account needed.';
-const api={reactionBook,basicKits,bodyOf,bodyFromText,same,PHASE,readNotation,stepText,norm,KSTATUS,kitComplete,asMate,pageText,pageDesc,STATUS,GEAR,SLOTS,MODES,CHANGE,teamKey,validate,rotProblems,kitProblems,canBadge,kitOk,publicCoach,teams,select,resolve,consRules,consUpTo,abilityFor,shareQuery,readQuery};
+const api={shownAs,reactionBook,basicKits,bodyOf,bodyFromText,same,PHASE,readNotation,stepText,norm,KSTATUS,kitComplete,asMate,pageText,pageDesc,STATUS,GEAR,SLOTS,MODES,CHANGE,teamKey,validate,rotProblems,kitProblems,canBadge,kitOk,publicCoach,teams,select,resolve,consRules,consUpTo,abilityFor,shareQuery,readQuery};
 if(typeof window!=='undefined')window.PPCoach=api;if(typeof module!=='undefined')module.exports=api;
 })();
