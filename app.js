@@ -1009,8 +1009,8 @@ const arenaChar=(cfg,id)=>((cfg&&cfg.chars)||[]).find(c=>c&&c.id===id&&c.on&&c.r
 /* anonymous Arena events go into the same visitor insights (daily totals only, nothing personal) */
 /* guide → Arena clicks (the “Learn This Rotation / Kit” button on a build guide) */
 document.addEventListener('click',e=>{try{if(e.target&&e.target.closest&&e.target.closest('.arena-cta'))arenaEv('g2a')}catch(x){}},true);
-function arenaEv(name){const on=!!(S.site.stats||(S.site.news&&S.site.news.on));if(!on||arenaPv()||!/^(open|start|done|results|share|share:(kit|cons|rot)|guide|kit|razor|cmp|easy|g2a|practice|practice:done|battle|battle:win|battle:lose|char:[a-z0-9]{1,30}|rot:[a-z0-9][a-z0-9-]{2,79}|inv:(f2p|mid|high))$/.test(name))return;const b=JSON.stringify({a:name});try{if(navigator.sendBeacon&&navigator.sendBeacon('/api/hit',b))return}catch(e){}fetch('/api/hit',{method:'POST',body:b,keepalive:true}).catch(()=>{})}
-function loadArenaJS(){if(window.PPArena&&window.PPCoach)return Promise.resolve();const v=((document.querySelector('script[src*="app.js"]')||{}).src||'').split('?')[1]||'';const load=(src,must)=>new Promise((res,rej)=>{const s=document.createElement('script');s.src=src+(v?'?'+v:'');s.onload=res;s.onerror=must?rej:res;document.head.appendChild(s)});/* the artwork first (optional: the Arena still works without it), then the Arena itself */return load('/arena/art.js',false).then(()=>load('/arena/coach.js',true)).then(()=>Promise.all([load('/arena/sfx.js',false),load('/arena/stage.js',false),load('/arena/battle.js',false)])).then(()=>load('/arena.js',true))}
+function arenaEv(name){const on=!!(S.site.stats||(S.site.news&&S.site.news.on));if(!on||arenaPv()||!/^(open|start|done|results|share|share:(kit|cons|rot)|guide|kit|razor|cmp|easy|g2a|practice|practice:done|char:[a-z0-9]{1,30}|rot:[a-z0-9][a-z0-9-]{2,79}|inv:(f2p|mid|high))$/.test(name))return;const b=JSON.stringify({a:name});try{if(navigator.sendBeacon&&navigator.sendBeacon('/api/hit',b))return}catch(e){}fetch('/api/hit',{method:'POST',body:b,keepalive:true}).catch(()=>{})}
+function loadArenaJS(){if(window.PPArena&&window.PPCoach)return Promise.resolve();const v=((document.querySelector('script[src*="app.js"]')||{}).src||'').split('?')[1]||'';const load=(src,must)=>new Promise((res,rej)=>{const s=document.createElement('script');s.src=src+(v?'?'+v:'');s.onload=res;s.onerror=must?rej:res;document.head.appendChild(s)});/* the artwork first (optional: the Arena still works without it), then the Arena itself */return load('/arena/art.js',false).then(()=>load('/arena/coach.js',true)).then(()=>Promise.all([load('/arena/sfx.js',false),load('/arena/stage.js',false)])).then(()=>load('/arena.js',true))}
 async function pArena(sub){if(!arenaOn())return pMissing();nav('genshin','arena');setTheme('Pyro');const pv=arenaPv()&&!(S.site.arena&&S.site.arena.on);
  const cfg=await loadArena(),IX=(cfg.coach||{}).index||{},L=Object.entries(IX).map(([id,x])=>{const c=(cfg.chars||[]).find(y=>y&&y.id===id&&y.on&&y.ready&&!y.hold);return c||{id,name:x.name,play:x.role||'',el:x.el}});
  let PC=null;try{await loadArenaJS();PC=window.PPCoach}catch(e){}
@@ -1098,29 +1098,109 @@ const norm=x=>String(x||'').toLowerCase().replace(/[^a-z0-9]/g,'');const DB={};c
 const COND=/\b(when|whenever|after|while|within|for \d|stacks?|if|upon|each time|every|nearby|party|on-field|off-field|on the field|hits?|triggers?|based on|nightsoul|moonsign|bond of life|teammates?|opponents?|enemies|cooldown|duration|lasts|seconds|consum\w*|obtain\w*|exceeds?|below|above|less than|more than|at least|charge level|lunar|reactions?|shield|sprint|dash|plunge|swap|switch|healed|heals|regenerat\w*|energy is|current hp|cast|casting|using|uses|use|attacks?|defeat\w*|can be triggered|once|times)\b|\d+(\.\d+)?s\b/i;
 const EL=['pyro','hydro','anemo','electro','cryo','geo','dendro'];
 const ST={'atk':['atk_','atk'],'hp':['hp_','hp'],'max hp':['hp_','hp'],'def':['def_','def'],'crit rate':['cr','cr'],'crit dmg':['cd','cd'],'elemental mastery':['em','em'],'energy recharge':['er','er'],'healing bonus':['heal','heal'],'physical dmg':['phys','phys'],'physical dmg bonus':['phys','phys']};
-const SN='(ATK|Max HP|HP|DEF|CRIT Rate|CRIT DMG|Elemental Mastery|Energy Recharge|Healing Bonus|Physical DMG Bonus|Physical DMG)';
-const TY={'normal attack':['na'],'charged attack':['ca'],'normal and charged attack':['na','ca'],'elemental skill':['skill'],'elemental burst':['burst'],'plunging attack':['plunge']};
-const TN='(Normal and Charged Attack|Normal Attack|Charged Attack|Elemental Skill|Elemental Burst|Plunging Attack)';
-const num=(v,p)=>p?+v/100:+v;
-function stat(o,name,v,p){const m=ST[name.toLowerCase()];if(!m)return;const k=p?m[0]:m[1];if(!p&&['cr','cd','er','heal','phys'].includes(k))return;o[k]=(o[k]||0)+num(v,p&&true)}
-function sentence(s,o){s=s.trim().replace(/^Additionally,\s*/i,'');if(!s||COND.test(s))return;/* "by 28% of Energy Recharge" style bonuses are conversions, not flat stats */if(/\d%?\s+of\b/i.test(s))return;let m;
- if((m=s.match(new RegExp('^(?:Increases |Gain (?:a |an )?)(?:the equipping character\'s |the wielder\'s )?'+SN+' (?:is )?(?:by )?\\+?([\\d.]+)(%?)(?=[ .,]|$)','i'))))return stat(o,m[1],m[2],m[3]);
- if((m=s.match(new RegExp('^'+SN+' (?:is )?(?:increased by |\\+)([\\d.]+)(%?)(?=[ .,]|$)','i'))))return stat(o,m[1],m[2],m[3]);
- if((m=s.match(/^(?:Gain (?:a |an )?([\d.]+)% (?:All )?Elemental DMG Bonus(?: for all elements)?|Increases (?:All )?Elemental DMG Bonus by ([\d.]+)%|Increases all Elemental DMG Bonus(?:es)? by ([\d.]+)%)(?=[ .,]|$)/i))){const v=+(m[1]||m[2]||m[3])/100;EL.forEach(e=>o[e]=(o[e]||0)+v);return}
- if((m=s.match(/^(?:Gain (?:a |an )?([\d.]+)% (Pyro|Hydro|Anemo|Electro|Cryo|Geo|Dendro) DMG Bonus|(Pyro|Hydro|Anemo|Electro|Cryo|Geo|Dendro) DMG Bonus (?:is )?(?:increased by |\+)([\d.]+)%)(?=[ .,]|$)/i))){const e=(m[2]||m[3]).toLowerCase();o[e]=(o[e]||0)+ +(m[1]||m[4])/100;return}
- if((m=s.match(new RegExp('^(?:Increases |Increases the equipping character\'s )'+TN+' DMG by ([\\d.]+)%(?=[ .,]|$)','i')))||(m=s.match(new RegExp('^'+TN+' DMG (?:is increased by |\\+)([\\d.]+)%(?=[ .,]|$)','i')))){(TY[m[1].toLowerCase()]||[]).forEach(k=>o[k]=(o[k]||0)+ +m[2]/100);return}
- if((m=s.match(/^Increases DMG (?:dealt )?(?:by the character equipping this weapon )?by ([\d.]+)%(?=[ .,]|$)/i))){o.dmg=(o.dmg||0)+ +m[1]/100;return}}
-function passiveStats(text){const o={};String(text||'').replace(/\n/g,' ').split(/(?<=\.)\s+|;\s+/).forEach(s=>sentence(s,o));return o}
+const SN='(ATK|Max HP|HP|DEF|CRIT Rate|CRIT DMG|Elemental Mastery|Energy Recharge|Healing Bonus)';
+/* a number that is not part of a "8/16/28" list, and a % that is not the start of "% of <another stat>" (a conversion) */
+const N='(?<![\\d/.])(\\d+(?:\\.\\d+)?)',PC='%(?! of)(?![\\d/])';
+const TWA='(?:(?:Normal|Charged|Plunging)(?: Attacks?)?|Elemental Skills?|Elemental Bursts?)',TW='((?:'+TWA+'(?:, and |, | and |\\/| or ))*(?:(?:Normal|Charged|Plunging) Attacks?|Elemental Skills?|Elemental Bursts?))';
+const ELW='(Pyro|Hydro|Anemo|Electro|Cryo|Geo|Dendro|Physical|All Elemental|Elemental)';
+const OWN="(?:the equipping character's |the wielder's |the character's |this character's |all party members' |all nearby party members' |nearby party members' |their |his |her |your |its |own )?";
+const add=(o,k,v)=>{o[k]=(o[k]||0)+v};
+function stat(o,name,v,p){const m=ST[name.toLowerCase()];if(!m)return;const k=p?m[0]:m[1];if(!p&&['cr','cd','er','heal','phys'].includes(k))return;add(o,k,p?+v/100:+v)}
+const tyKeys=t=>{const k=[];if(/Normal/i.test(t))k.push('na');if(/Charged/i.test(t))k.push('ca');if(/Plunging/i.test(t))k.push('plunge');if(/Skill/i.test(t))k.push('skill');if(/Burst/i.test(t))k.push('burst');return k};
+const stKey=w=>/HP/i.test(w)?'hp':/DEF/i.test(w)?'def':/Mastery/i.test(w)?'em':'atk';
+/* Every plain bonus named in one sentence, wherever it sits in the sentence. Bonuses that only apply to one kind of hit's
+   crit, to other party members, or to reactions are left out. Stat conversions ("X% of Max HP") come back under _ keys. */
+function effects(s){const o={};let t=' '+String(s||'').replace(/\s+/g,' ')+' ';
+ if(/other (?:nearby )?party members|other than the equipping|excluding the equipping|party members other than|is changed to|new character taking the field|for every [\d,]+|every [\d,]+ (?:HP|Max HP|DEF|ATK|Elemental Mastery|Energy)|per [\d,]+/i.test(t))return o;
+ t=t.replace(/(?:\bits|Elemental Skills?|Elemental Bursts?|(?:Normal|Charged|Plunging) Attacks?) CRIT (?:Rate|DMG)[^.,;]*/gi,' ~ ').replace(/CRIT (?:Rate|DMG) (?:from|of|for|against)[^.,;]*/gi,' ~ ');
+ const take=(src,fn)=>{t=t.replace(new RegExp(src,'gi'),function(){fn(arguments);return' ~ '})};
+ /* conversions first, so their numbers are never read as plain bonuses */
+ take("ATK Bonus (?:is |will be )?(?:based on|increased by an additional) "+N+"% of (?:the wielder's |their )?Max HP",m=>add(o,'_atkHP',+m[1]/100));
+ take('gains? '+N+'% of (?:their|his|her) Elemental Mastery as bonus ATK',m=>add(o,'_atkEM',+m[1]/100));
+ take("Elemental Mastery by "+N+"% of (?:their|the equipping character's|the wielder's) Max HP",m=>add(o,'_emHP',+m[1]/100));
+ const flat=(types,v,st)=>{(o._flat||(o._flat=[])).push({cat:tyKeys(types),st:stKey(st),v:+v/100})};
+ take(TW+' DMG (?:is |are |will be )?increased by '+N+'% of (?:the |their |his |her )?(Max HP|DEF|ATK|Elemental Mastery)',m=>flat(m[1],m[2],m[3]));
+ take('increasing DMG dealt by '+TW+' by '+N+'% of (?:the |their |his |her )?(Max HP|DEF|ATK|Elemental Mastery)',m=>flat(m[1],m[2],m[3]));
+ /* "ATK and Elemental Mastery will be increased by 12% and 48 respectively" */
+ take(SN+' and '+SN+' (?:is |are |will be )?increased by '+N+'(%?) and '+N+'(%?) respectively',m=>{stat(o,m[1],m[3],m[4]);stat(o,m[2],m[5],m[6])});
+ /* damage of one kind of attack */
+ const ty=m=>tyKeys(m[1]).forEach(k=>add(o,k,+m[2]/100));
+ take(TW+' DMG (?:dealt )?(?:is |are |will be |will )?(?:further )?(?:increased|increases|increase|boosted) by (?:an additional )?'+N+PC,ty);
+ take('gains? (?:an additional |a |an )?'+N+'% '+TW+' DMG',m=>tyKeys(m[2]).forEach(k=>add(o,k,+m[1]/100)));
+ take(TW+' (?:will )?deals? '+N+'% (?:more|increased) DMG',ty);
+ take('(?:increases?|increasing) '+OWN+TW+' DMG by (?:an additional )?'+N+PC,ty);
+ take('(?<=~ +)and '+TW+' DMG by '+N+PC,ty);
+ take('decreases '+OWN+TW+' DMG by '+N+PC,m=>tyKeys(m[1]).forEach(k=>add(o,k,-m[2]/100)));
+ take('DMG dealt by '+OWN+TW+' (?:is |are |will be )?increased by '+N+PC,ty);
+ take(TW+' DMG \\+'+N+PC,ty);
+ /* elemental and physical damage bonuses */
+ const el=(w,v,own)=>{w=w.toLowerCase();v=+v/100;if(w==='physical')add(o,'phys',v);else if(w==='all elemental'||w==='elemental'){if(own)add(o,'el',v);else EL.forEach(e=>add(o,e,v))}else add(o,w,v)};
+ take('(?:a |an )?'+N+'% '+ELW+" DMG Bonus( for the character's Elemental Type| for their (?:corresponding )?(?:element|Elemental Type))?(?: for all elements)?",m=>el(m[2],m[1],!!m[3]));
+ take(ELW+' DMG Bonus(?:es)? (?:is |will be )?(?:increased by |increases by |\\+)'+N+PC,m=>el(m[1],m[2]));
+ take('(?:increases?|increasing) '+OWN+'(?:all )?'+ELW+' DMG(?: Bonus(?:es)?)? by '+N+PC,m=>el(m[1],m[2]));
+ take(ELW+' DMG (?:dealt |inflicted )?(?:by the equipping character )?(?:is |will be )?(?:increased|increases) by '+N+PC,m=>el(m[1],m[2]));
+ take(ELW+' DMG \\+'+N+PC,m=>el(m[1],m[2]));
+ /* stats */
+ const END='(%?)(?! of)(?![\\d/%])';
+ take(OWN+SN+' (?:is |are |will be |will )?(?:further )?(?:increased|increases|increase|raised|boosted) by (?:an additional )?'+N+END,m=>stat(o,m[1],m[2],m[3]));
+ take('(?:increases?|increasing|raises?|raising|boosts?) '+OWN+SN+' by (?:an additional )?\\+?'+N+END,m=>stat(o,m[1],m[2],m[3]));
+ take('(?<=~ +)(?:and|as well as) '+OWN+SN+' by '+N+END,m=>stat(o,m[1],m[2],m[3]));
+ take('the '+SN+' of all (?:nearby )?party members (?:is |will be )?increased by '+N+END,m=>stat(o,m[1],m[2],m[3]));
+ take(SN+' \\+'+N+END,m=>stat(o,m[1],m[2],m[3]));
+ take('(?:a |an )?'+N+'(%?) '+SN+' increase',m=>stat(o,m[3],m[1],m[2]));
+ take('losing '+N+'(%?) '+SN,m=>stat(o,m[3],-m[1],m[2]));
+ take('(?:gains?|gaining|grants?|granting|provides?|providing|obtains?|obtaining|receives?) (?:a |an )?'+N+'(%?) '+SN+'(?! DMG)(?! Bonus)(?! as)',m=>stat(o,m[3],m[1],m[2]));
+ /* all damage */
+ const dmg=m=>add(o,'dmg',+m[1]/100);
+ take('deals? '+N+'% (?:more|increased) DMG',dmg);
+ take('Increases DMG against [^.,;]*? by '+N+PC,dmg);
+ take('(?:increases?|increasing) (?:all )?DMG (?:dealt )?(?:by the character equipping this weapon |by the wielder of this weapon )?by '+N+PC,dmg);
+ take('(?:all |the )?DMG dealt (?:by the wielder of this weapon |by the equipping character |by the character )?(?:is |will be )?increased by '+N+PC,dmg);
+ take("(?:their|the equipping character's|the wielder's) DMG(?: dealt)? (?:is |will be )?increased by "+N+PC,dmg);
+ return o}
+const has=o=>Object.keys(o).length>0;
+const merge=(a,b,k)=>{k=k==null?1:k;Object.entries(b).forEach(([x,v])=>{if(x==='_flat')a._flat=(a._flat||[]).concat(v.map(f=>Object.assign({},f,{v:f.v*k})));else if(Array.isArray(v))a[x]=v;else a[x]=(a[x]||0)+v*k});return a};
+/* split a passive into sentences and say which ones only apply some of the time */
+const bare=s=>s.replace(/based on (?=[\d.]+% of)/gi,'').replace(/^(?:Obtain|Gain)s? (?=(?:a |an )?[\d.]+%? )/i,'').replace(/Stamina Consumption/gi,'').replace(/\b(?:(?:Normal|Charged|Plunging)(?: Attacks?)?(?:, and |, | and |\/| or ))*(?:Normal|Charged|Plunging) Attacks?\b/gi,'NCP');
+const isCond=s=>COND.test(bare(s))||/^["“]?[A-Z][\w'’ -]*(?::[\w'’ -]+)?["”]?(?::| increases)/.test(s)&&!/^(ATK|HP|Max HP|DEF|CRIT|Elemental|Energy|Normal|Charged|Plunging|Increases|Gain)\b/.test(s)||/^(This effect|This buff|These effects|The effect|Its effects|This further|This will)\b/i.test(s);
+function sentences(text){return String(text||'').replace(/\n/g,' ').split(/(?<=\.)\s+|;\s+|,\s+and (?=(?:when|if|after|whenever)\b)/i).map(s=>s.trim().replace(/^Additionally,\s*/i,'').replace(/^·\s*/,'')).filter(Boolean)}
+/* always-on bonuses of a weapon passive or 4-piece text (refinement numbers already filled in) */
+function passiveStats(text){const o={};sentences(text).forEach(s=>{if(isCond(s))return;merge(o,effects(s))});return o}
+const WT4=/If the wielder of this artifact set uses an? ([A-Za-z ,]+?), increases their Normal Attack DMG by (\d+)%/i,WT4b=/Increases Charged Attack DMG by (\d+)% if the character uses an? ([A-Za-z ,]+?)\./i;
+/* how many stacks a sentence (or the one right after it) allows */
+const STK=[/max(?:imum)?(?: of)? (\d+) stacks/i,/(\d+) max stacks/i,/stacks? up to (\d+) times/i,/up to (\d+) stacks/i,/maximum of (\d+) times/i,/max (\d+) times/i];
+const stk=s=>{for(const r of STK){const m=String(s||'').match(r);if(m)return +m[1]}return 0};
+/* the parts of a passive that depend on a condition and add something the Lab can count. Each comes back with the game's
+   own sentence, so the visitor decides whether the condition is met. b2 = the set's 2-piece stats, for 4-piece texts that boost it. */
+function cond(text,b2){const S=sentences(text),out=[];const all=[...new Set(S.map(stk).filter(Boolean))];
+ S.forEach((s,i)=>{if(!isCond(s)||WT4.test(s)||WT4b.test(s))return;let m,o={},max=1,vals=null;
+  if(b2&&(m=s.match(/increases the 2-Piece Set Bonus by (\d+)% of its starting value/i))){merge(o,b2,+m[1]/100)}
+  else if(b2&&(m=s.match(/the 2-set effect is increased by (\d+)%/i))){merge(o,b2,+m[1]/100)}
+  else{/* "10/20/30/48%" lists: one value per stack or level, so work the bonus out for each step */
+   const lists=(s.match(/(?<![\d.\/])\d+(?:\.\d+)?%?(?:\/\d+(?:\.\d+)?%?){1,5}/g)||[]).filter(x=>/%/.test(x)||s.indexOf(x+'%')>=0);
+   if(lists.length){const n=lists[0].split('/').length;if(lists.some(x=>x.split('/').length!==n))return;
+    const at=k=>{let t=s;lists.forEach(x=>{t=t.replace(x,x.replace(/%/g,'').split('/')[k]+(/%/.test(x)?'%':''))});return effects(t.replace(/(?<![\d.\/])\d(?:\/\d){1,5}(?![\d%\/])/g,'#'))};
+    vals=[];for(let k=0;k<n;k++)vals.push(at(k));o=vals[n-1];max=n}
+   else o=effects(s)}
+  if(!has(o))return;
+  if(!vals){max=stk(s)||(S[i+1]&&/^(This effect|Max|Maximum|Can stack|Stacks|This further|The effect|Both of these effects)/i.test(S[i+1])?stk(S[i+1]):0)||(/each stack|per stack/i.test(s)&&all.length===1?all[0]:0)||1;if(max===1&&/\bfor (?:each|every)\b|\beach stack\b|\bper stack\b/i.test(s))return}
+  out.push({i,s,o,max,vals})});
+ return out}
+/* the bonuses from the conditional parts a visitor switched on: on = {sentence index: stacks} */
+function condStats(text,b2,on){const o={};if(!on)return o;cond(text,b2).forEach(c=>{const n=Math.min(c.max,Math.max(0,+on[c.i]||0));if(!n)return;if(c.vals)merge(o,c.vals[n-1]);else merge(o,c.o,n)});return o}
 /* a few 4-piece bonuses that are always on but worded differently */
 function special4(text,ctx,o){const t=String(text||'');let m;
- if((m=t.match(/If the wielder of this artifact set uses an? ([A-Za-z ,]+?), increases their Normal Attack DMG by (\d+)%/i))){const L=m[1].split(/,\s*|\s+or\s+/).map(x=>x.trim().toLowerCase());if(ctx.wt&&L.includes(ctx.wt.toLowerCase()))o.na=(o.na||0)+ +m[2]/100}
+ const wts=x=>x.split(/,\s*|\s+or\s+/).map(y=>y.replace(/^an? /i,'').trim().toLowerCase()).filter(Boolean);
+ if((m=t.match(WT4))){if(ctx.wt&&wts(m[1]).includes(ctx.wt.toLowerCase()))o.na=(o.na||0)+ +m[2]/100}
+ if((m=t.match(WT4b))){if(ctx.wt&&wts(m[2]).includes(ctx.wt.toLowerCase()))o.ca=(o.ca||0)+ +m[1]/100}
  if((m=t.match(/Increases Elemental Burst DMG by (\d+)% of Energy Recharge\. A maximum of (\d+)% bonus DMG can be obtained/i)))o._burstER=[+m[1]/100,+m[2]/100];
+ if((m=t.match(/Increases Vaporize and Melt DMG by (\d+)%/i)))o._amp=(o._amp||0)+ +m[1]/100;
  return o}
 /* weapon bonuses that convert one stat into another and are always on */
 function specialW(text,o){const t=String(text||'').replace(/\n/g,' ');let m;
  if((m=t.match(/ATK increased by ([\d.]+)% of Energy Recharge over the base 100%\. You can gain a maximum bonus of ([\d.]+)% ATK/i)))o._atkER=[+m[1]/100,+m[2]/100];
- t.split(/(?<=\.)\s+/).forEach(s=>{const x=s.replace(/^Additionally,\s*/i,'');const mm=x.match(/^provides an ATK Bonus based on ([\d.]+)% of the wielder's Max HP\.?$/i);if(mm)o._atkHP=(o._atkHP||0)+ +mm[1]/100});return o}
-g.ppPassive={passiveStats,special4,specialW};if(typeof module!=='undefined')module.exports={passiveStats,special4,specialW};
+ return o}
+g.ppPassive={passiveStats,special4,specialW,cond,condStats,effects};if(typeof module!=='undefined')module.exports={passiveStats,special4,specialW,cond,condStats,effects};
 })(window);
 
 const DBC={};const tt=x=>S.lang==='en'?x:trText(x);
@@ -1431,25 +1511,61 @@ function presetSubs(kind,scale,base){const p=PRESET[kind]||PRESET.typical,v={};S
  SUBK.forEach(k=>v[k]=Math.round(v[k]*(PCT(k)?1000:10))/(PCT(k)?1000:10));return v}
 const subCV=v=>Math.round(((v.cr||0)*2+(v.cd||0))*100);
 function fmtParam(f,P,lvl){return f.replace(/\{(param\d+):([A-Z0-9]+)\}/g,(m,k,fm)=>{const a=P[k];if(!a)return'?';const v=a[Math.min(a.length,lvl)-1];if(fm==='I')return String(Math.round(v));const pc=/P$/.test(fm),d=+(fm.match(/F(\d)/)||[0,pc?0:0])[1];const x=pc?v*100:v;return(pc&&!/F\d/.test(fm)?String(Math.round(x)):x.toFixed(d))+(pc?'%':'')})}
-function hitsOf(f,P,lvl){/* turns "{param1:F1P} ATK + {param2:F1P} EM" style text into hits: each hit is a list of [value, stat] terms */
- const alts=f.split('/');const out=[];for(const al of alts){const T=[];const re=/\{(param\d+):([A-Z0-9]+)\}\s*(Max HP|HP|ATK|DEF|Elemental Mastery|EM)?\s*(?:[×x\*](\d+))?/g;let m;while((m=re.exec(al))){if(!/P$/.test(m[2]))continue;const a=P[m[1]];if(!a)continue;const st=m[3]?(/HP/.test(m[3])?'hp':m[3]==='DEF'?'def':/Elemental|EM/.test(m[3])?'em':'atk'):'atk';T.push({v:a[Math.min(a.length,lvl)-1],st,n:+m[4]||1})}if(!T.length)continue;const mixed=new Set(T.map(t=>t.st)).size>1;if(mixed)out.push({terms:T,n:1});else T.forEach(t=>out.push({terms:[t],n:t.n}))}return out}
+function hitsOf(f,P,lvl){/* turns "{param1:F1P} ATK + {param2:F1P} EM" style text into hits: each hit is a list of [value, stat] terms.
+ a = which "/" alternative it belongs to (Low/High plunge are two choices, not a sum); el = an element the row names itself;
+ rel = a percentage of another attack's damage (not of a stat), which the Lab can't turn into a number on its own */
+ const alts=f.split('/');const out=[];alts.forEach((al,ai)=>{const T=[];const re=/\{(param\d+):([A-Z0-9]+)\}\s*(Max HP|HP|ATK|DEF|Elemental Mastery|EM|Physical|Normal Attack DMG|Charged Attack DMG|Corresponding Character's ATK)?\s*(?:[×x\*]\s*(\d+))?/g;let m;
+  while((m=re.exec(al))){if(!/P$/.test(m[2]))continue;const a=P[m[1]];if(!a)continue;const w=m[3]||'';const st=/HP/.test(w)?'hp':w==='DEF'?'def':/Elemental|EM/.test(w)?'em':'atk';const t={v:a[Math.min(a.length,lvl)-1],st,n:+m[4]||1};if(w==='Physical')t.el='phys';if(/Attack DMG|Corresponding/.test(w))t.rel=true;T.push(t)}
+  if(!T.length)return;const grp=al.match(/\)\s*[×x\*]\s*(\d+)\s*$/);const mixed=new Set(T.map(t=>t.st)).size>1;
+  if(mixed)out.push({terms:T,n:grp?+grp[1]:1,a:ai,rel:T.some(t=>t.rel)});else T.forEach(t=>out.push({terms:[t],n:t.n,a:ai,el:t.el,rel:t.rel}))});return out}
+/* does this character's own skill, burst or attack text say their normal attacks turn into their element? (weapon users only) */
+function labInfuse(cd){if(!cd||cd.wt==='Catalyst')return'';const E=cd.el;const R=[new RegExp('(?:Normal|Charged)[^.]*Attacks?[^.]*(?:converted|convert|infused|become|transformed)[^.]*\\b'+E+' DMG','i'),new RegExp('convert\\w*[^.]*(?:Normal|attack DMG)[^.]*\\b'+E+' DMG','i'),new RegExp('(?:Normal|Charged)[^.]*Attacks?[^.]*deal (?:Nightsoul-aligned )?'+E+' DMG that cannot be overridden','i'),new RegExp('(?:blade|weapons?)[^.]*infused with '+E+'\\b','i'),new RegExp('(?:obtain|gain)s? an? '+E+' Infusion','i')];
+ for(const t of (cd.t||[]).concat(cd.pa||[])){for(const x of String(t.d||'').replace(/\n/g,' ').split(/(?<=\.)\s+/)){if(R.some(r=>r.test(x)))return x.replace(/^[·\s]+/,'').trim()}}return''}
 function labStats(L){const cd=L.cd,lv=cd.lv[L.li],w=L.w,wl=w?w.lv[Math.min(L.wli,w.lv.length-1)]:null;const B={hp:lv[2],atk:lv[3]+(wl?wl[2]:0),def:lv[4]};const s={hp_:0,atk_:0,def_:0,hp:0,atk:0,def:0,cr:.05,cd:.5,er:1,em:0,heal:0,phys:0,skill:0,burst:0,na:0,ca:0,plunge:0};ELK2.forEach(e=>s[e]=0);
  const add=(k,v)=>{if(k==='el')k=cd.el.toLowerCase();s[k]=(s[k]||0)+v};
  if(cd.sub){if(cd.sub==='cr'||cd.sub==='cd')s[cd.sub]=lv[5];else if(cd.sub==='er')s.er+=lv[5];else add(cd.sub,lv[5])}
  if(wl&&w.ms)add(w.ms,wl[3]);
- const got=[];const note=(src,o)=>Object.entries(o).forEach(([k,v])=>{if(k[0]==='_')return;add(k,v);got.push([src,k,v])});
- if(w&&w.tpl){const vals=w.ref[Math.min(L.ri||0,w.ref.length-1)]||[];let t=w.tpl;vals.forEach((v,i)=>{t=t.split('{'+i+'}').join(v)});const o=ppPassive.passiveStats(t);ppPassive.specialW(t,o);note('w',o);s._atkHP=o._atkHP||0;s._atkER=o._atkER||null}
+ /* got = what was counted from the weapon passive (w) and the 4-piece (a4); a "c" in the 4th slot marks a part the visitor switched on */
+ const got=[];const note=(src,o,c)=>Object.entries(o).forEach(([k,v])=>{if(k==='_flat'){s._flat=(s._flat||[]).concat(v);v.forEach(f=>got.push([src,'flat',f.v,c?'c':'',f]));return}if(k[0]==='_'){if(Array.isArray(v))s[k]=v;else s[k]=(s[k]||0)+v;if(k==='_amp')got.push([src,'amp',v,c?'c':'']);return}add(k,v);got.push([src,k,v,c?'c':''])});
+ if(w&&w.tpl){const vals=w.ref[Math.min(L.ri||0,w.ref.length-1)]||[];let t=w.tpl;vals.forEach((v,i)=>{t=t.split('{'+i+'}').join(v)});const o=ppPassive.passiveStats(t);ppPassive.specialW(t,o);note('w',o);note('w',ppPassive.condStats(t,null,L.cw),true)}
  if(L.art){add('hp',MAIN5.hp);add('atk',MAIN5.atk);add(L.sands,MAIN5[L.sands]);add(L.goblet,L.goblet==='phys'?MAIN5.phys:ELK2.includes(L.goblet)?MAIN5.el:MAIN5[L.goblet]);add(L.circlet,MAIN5[L.circlet]);SUBK.forEach(k=>add(k,+L.subs[k]||0))}
- const sets=[];if(L.art){if(L.s1)sets.push(L.s1);if(L.mode==='22'&&L.s2&&L.s2!==L.s1)sets.push(L.s2)}(L.sets||[]).filter(a=>sets.includes(a.id)).forEach(a=>{if(a.b2)Object.entries(a.b2).forEach(([k,v])=>{add(k,v);got.push(['a2',k,v,a.id])});if(L.mode==='4'&&a.e4){const o=ppPassive.passiveStats(a.e4);ppPassive.special4(a.e4,{wt:cd.wt},o);note('a4',o);if(o._burstER)s._burstER=o._burstER}});
+ const sets=[];if(L.art){if(L.s1)sets.push(L.s1);if(L.mode==='22'&&L.s2&&L.s2!==L.s1)sets.push(L.s2)}(L.sets||[]).filter(a=>sets.includes(a.id)).forEach(a=>{if(a.b2)Object.entries(a.b2).forEach(([k,v])=>{add(k,v);got.push(['a2',k,v,a.id])});if(L.mode==='4'&&a.e4){const o=ppPassive.passiveStats(a.e4);ppPassive.special4(a.e4,{wt:cd.wt},o);note('a4',o);note('a4',ppPassive.condStats(a.e4,a.b2,L.c4),true)}});
+ /* buffs the visitor typed in (their own skill, passives, teammates): added like any other stat */
+ if(L.bf)LABBF.forEach(k=>{const v=+L.bf[k]||0;if(v)add(k,v)});
  if(s._atkER){const v=Math.min(s._atkER[1],Math.max(0,s.er-1)*s._atkER[0]);s.atk_+=v;got.push(['w','atk_',v,'er'])}
- const HP=B.hp*(1+s.hp_)+s.hp;let ATK=B.atk*(1+s.atk_)+s.atk;if(s._atkHP){const v=HP*s._atkHP;ATK+=v;got.push(['w','atk',v,'hp'])}
+ /* conversions, in the order the stats depend on each other: HP first, then Elemental Mastery, then ATK */
+ const HP=B.hp*(1+s.hp_)+s.hp;if(s._emHP){const v=HP*s._emHP;s.em+=v;got.push(['w','em',v,'hp'])}
+ let ATK=B.atk*(1+s.atk_)+s.atk;if(s._atkHP){const v=HP*s._atkHP;ATK+=v;got.push(['w','atk',v,'hp'])}if(s._atkEM){const v=s.em*s._atkEM;ATK+=v;got.push(['w','atk',v,'em'])}
  if(s._burstER){const v=Math.min(s._burstER[1],s.er*s._burstER[0]);s.burst=(s.burst||0)+v;got.push(['a4','burst',v,'er'])}
  return{B,s,got,HP,ATK,DEF:B.def*(1+s.def_)+s.def}}
-function labDmg(L,R,t,label,hit){const cd=L.cd;const nm=label.toLowerCase();const cat=t.k==='e'?'skill':t.k==='q'?'burst':/charged|aimed/.test(nm)?'ca':/plung/.test(nm)?'plunge':'na';
- const el=(t.k!=='na'||cd.wt==='Catalyst')?cd.el.toLowerCase():(/aimed shot charge level 1|charged aimed|fully-charged/i.test(nm)&&cd.wt==='Bow'?cd.el.toLowerCase():'phys');
- const stat={atk:R.ATK,hp:R.HP,def:R.DEF,em:R.s.em};const base=hit.terms.reduce((a,x)=>a+x.v*stat[x.st],0);const bonus=1+(R.s[el]||0)+(R.s[cat]||0)+(R.s.dmg||0);
+/* Vaporize and Melt multiply the hit that triggers them: 2x for Hydro on Pyro and Pyro on Cryo, 1.5x the other way round,
+   times (1 + 2.78 x EM / (EM + 1400) + any reaction bonus). No other reaction is modelled. */
+const AMP={vape:{pyro:1.5,hydro:2},melt:{pyro:2,cryo:1.5}};
+function labAmp(rx,el,em,bonus){const m=(AMP[rx]||{})[el];return m?m*(1+2.78*em/(em+1400)+(bonus||0)):1}
+/* what kind of attack a row is, and its element. Bows: the numbered hits, the plain Aimed Shot and plunges are physical;
+   every other row of the attack talent is a charged shot in the character's element */
+function labKind(cd,t,label,inf){const nm=label.toLowerCase(),own=cd.el.toLowerCase();if(t.k!=='na')return{cat:t.k==='e'?'skill':'burst',el:own};
+ const plain=/^\d+-hit|^aimed shot$/.test(nm.trim()),plunge=/plung/.test(nm);const cat=plunge?'plunge':/charged|aimed|kesagiri|saichimonji/.test(nm)||(cd.wt==='Bow'&&!plain)?'ca':'na';
+ return{cat,el:cd.wt==='Catalyst'?own:cd.wt==='Bow'&&!plain&&!plunge?own:inf?own:'phys'}}
+function labDmg(L,R,t,label,hit){const cd=L.cd;const K=labKind(cd,t,label,L.inf),cat=K.cat;
+ const own=cd.el.toLowerCase();const el=hit.el||K.el;
+ const stat={atk:R.ATK,hp:R.HP,def:R.DEF,em:R.s.em};let base=hit.terms.reduce((a,x)=>a+x.v*stat[x.st],0);(R.s._flat||[]).forEach(f=>{if(f.cat.includes(cat))base+=f.v*stat[f.st]});
+ const bonus=1+(R.s[el]||0)+(R.s[cat]||0)+(R.s.dmg||0);
  const Lc=L.cd.lv[L.li][0],Le=+L.elv||90,defM=(Lc+100)/((Lc+100)+(Le+100)),res=(+L.res||0)/100,resM=res<0?1-res/2:res<.75?1-res:1/(4*res+1);
- const nc=base*bonus*defM*resM,cr=Math.min(1,Math.max(0,R.s.cr));return{nc,c:nc*(1+R.s.cd),avg:nc*(1+cr*R.s.cd),el}}
+ const amp=labAmp(L.rx,el,R.s.em,R.s._amp);const nc=base*bonus*defM*resM*amp,cr=Math.min(1,Math.max(0,R.s.cr));return{nc,c:nc*(1+R.s.cd),avg:nc*(1+cr*R.s.cd),el,amp:amp!==1}}
+/* a build's hand-typed substats and switched-on effects, packed small enough to travel in a link */
+const labPcs=P=>(P||[]).map(p=>p.subs.map(([k,v])=>k+Math.round(v*(PCT(k)?1000:10))).join('-')).join('.');
+function labPcsIn(str,mains){const G=String(str||'').split('.');if(G.length!==5)return null;const out=[];for(let i=0;i<5;i++){const subs=[];for(const x of G[i].split('-')){const m=x.match(/^([a-z]+_?)(\d{1,6})$/);if(!m||!SUBK.includes(m[1])||m[1]===mains[i]||subs.some(y=>y[0]===m[1]))return null;subs.push([m[1],Math.min(6*SUBMAX[m[1]],+m[2]/(PCT(m[1])?1000:10))])}if(subs.length!==4)return null;out.push({main:mains[i],subs})}return out}
+const LABBF=['atk','atk_','hp_','def_','em','cr','cd','dmg'],LABBFN={atk:'ATK (flat)',atk_:'ATK %',hp_:'HP %',def_:'DEF %',em:'Elemental Mastery',cr:'CRIT Rate %',cd:'CRIT DMG %',dmg:'DMG Bonus %'};
+const labBf=o=>LABBF.filter(k=>+(o||{})[k]>0).map(k=>k+Math.round(o[k]*(PCT(k)?1000:10))).join('-');
+const labBfIn=str=>{const o={};String(str||'').split('-').forEach(x=>{const m=x.match(/^([a-z]+_?)(\d{1,6})$/);if(m&&LABBF.includes(m[1]))o[m[1]]=Math.min(PCT(m[1])?10:99999,+m[2]/(PCT(m[1])?1000:10))});return o};
+const labOn=o=>Object.entries(o||{}).filter(([,n])=>n>0).map(([i,n])=>i+'x'+n).join('-');
+const labOnIn=str=>{const o={};String(str||'').split('-').forEach(x=>{const m=x.match(/^(\d{1,2})x(\d{1,2})$/);if(m)o[m[1]]=+m[2]});return o};
+/* which talent rows are damage, and the numbers for each: used by the damage tables and by the build comparison */
+const labIsDmg=nm=>(/DMG/i.test(nm)||/^(Aimed Shot|Fully-Charged Aimed Shot|Aimed Shot Charge Level \d+|Level \d+ Aimed Shot|Charged Attack|DoT)$/i.test(nm.trim()))&&!/Bonus|Reduction|Increase|Stamina|RES\b|Absorption|Shield|Healing|Regenerat|Interval/i.test(nm);
+function labRows(L,R,eff){const out=[];(L.cd.t||[]).forEach((t,ti)=>{const lv=eff?eff(t.k):10;t.lab.forEach((l,li)=>{const[nm,f]=l.split('|');if(!f||!labIsDmg(nm))return;const H=hitsOf(f,t.p,lv).filter(h=>!h.rel);if(!H.length)return;
+  /* one number per row for comparing: the first "/" choice, every hit of it added up */
+  const a0=H[0].a,D=H.filter(h=>h.a===a0).map(h=>({h,d:labDmg(L,R,t,nm,h)}));const sum=fn=>D.reduce((a,x)=>a+fn(x.d)*x.h.n,0);out.push({k:t.k,ti,li,nm,avg:sum(d=>d.avg),nc:sum(d=>d.nc),c:sum(d=>d.c)})})});return out}
 async function pLab(gid){if(!dbOn())return pDbSoon(gid,'Build Lab');nav(gid,'lab');meta('Build Lab · try any Genshin build','Pick a character, weapon and artifacts to see their stats and sample damage numbers.');
  try{await Promise.all([dbGet(gid,'chars'),dbGet(gid,'weapons'),dbGet(gid,'artifacts')])}catch(e){return pDbSoon(gid,'Build Lab')}
  return'<section>'+dbTabs(gid,'l')+'<div class="shead"><div><div class="eyebrow">'+esc((gameMeta(gid)||{}).name||'')+'</div><h1 class="disp" style="font-size:clamp(40px,6vw,64px)">Build Lab</h1><p class="muted" style="margin:6px 0 0">Try any character with any weapon and artifacts. Stats come straight from the game data; damage numbers are samples.</p></div></div><div class="lab" id="lab"><div class="panel"><p class="muted">Loading…</p></div></div></section>'}
@@ -1466,7 +1582,7 @@ function labPick(o){const old=document.querySelector('.lpk');if(old)old.remove()
 const opt=(v,t,sel)=>'<option value="'+esc(v)+'"'+(sel?' selected':'')+'>'+esc(t)+'</option>';
 async function afterLab(gid){const box=$('#lab');if(!box)return;let C,W,A;try{[C,W,A]=await Promise.all([dbGet(gid,'chars'),dbGet(gid,'weapons'),dbGet(gid,'artifacts')])}catch(e){return}const CBX=await cbGet(gid);
  const q=new URLSearchParams(location.search);const R0=(S.games[gid]||{}).roster||[];
- const st=LAB&&LAB.gid===gid?LAB:{gid,c:'',li:-1,cons:0,tl:{na:9,e:9,q:9},w:'',wli:99,ri:0,art:true,mode:'4',s1:'',s2:'',sands:'atk_',goblet:'el',circlet:'cr',preset:'typical',subs:null,elv:90,res:10};LAB=st;
+ const st=LAB&&LAB.gid===gid?LAB:{gid,c:'',li:-1,cons:0,tl:{na:9,e:9,q:9},w:'',wli:99,ri:0,art:true,mode:'4',s1:'',s2:'',sands:'atk_',goblet:'el',circlet:'cr',preset:'typical',subs:null,elv:90,res:10,cw:null,c4:null,inf:null,rx:'',bf:{},pin:null};LAB=st;
  if(q.get('c'))st.c=q.get('c');if(q.get('w'))st.w=q.get('w');if(q.get('a'))st.s1=q.get('a');
  const wq=q.get('w')&&W.list.find(w=>w.id===q.get('w'));
  /* no character chosen yet: start on a picker instead of guessing one */
@@ -1479,11 +1595,23 @@ async function afterLab(gid){const box=$('#lab');if(!box)return;let C,W,A;try{[C
  const loadChar=async id=>{let c=null;try{c=await getJSON('/content/'+gid+'/db/c/'+encodeURIComponent(id)+'.json')}catch(e){return null}if(S.lang!=='en'){try{c._t=await getJSON('/content/'+gid+'/db/c/'+encodeURIComponent(id)+'.'+S.lang+'.json')}catch(e){}}return c};
  let cd=await loadChar(st.c);if(!cd){st.c=C.list[0].id;cd=await loadChar(st.c)}if(!cd){box.innerHTML='<div class="panel empty"><b>Couldn’t load the character data</b>Please try again later.</div>';return}
  const setChar=async(id,keep)=>{const x=await loadChar(id);if(!x)return;cd=x;st.c=id;if(!keep||st.li<0||st.li>=cd.lv.length)st.li=cd.lv.findIndex(b=>b[0]===90&&b[1]===6);if(st.li<0)st.li=cd.lv.length-1;const okW=W.list.find(w=>w.id===st.w&&w.t===cd.wt);if(!okW){const sig=W.list.find(w=>(w.sig||[]).includes(cd.id));st.w=(sig||W.list.find(w=>w.t===cd.wt&&w.r===5)||W.list.find(w=>w.t===cd.wt)||{}).id||''}
-  if(!keep||!st.subs||st.c!==st._filled){const sc=scaleOf(cd);st.scale=sc;st.sands=sc==='em'?'em':sc+'_';st.goblet='el';st.circlet='cr';st.subs=presetSubs(st.preset,sc);st.auto=true;st.circAuto=true;applySrc(myCard()?'mine':cbOf().length?'cb:0':'blank')}if(st._url){fromUrl();st._url=false}draw()};
+  if(!keep||!st.subs||st.c!==st._filled){const sc=scaleOf(cd);st.scale=sc;st.sands=sc==='em'?'em':sc+'_';st.goblet='el';st.circlet='cr';st.subs=presetSubs(st.preset,sc);st.auto=true;st.circAuto=true;st.inf=!!labInfuse(cd);st.rx='';st.bf={};applySrc(myCard()?'mine':cbOf().length?'cb:0':'blank')}if(st._url){fromUrl();st._url=false}draw()};
  /* a shared link: put the build back exactly */
  const fromUrl=()=>{const g=k=>q.get(k);if(g('a2')&&st.s1){st.s2=g('a2');st.mode='22'}const cn=+g('cn');if(cn>=0&&cn<=6)st.cons=cn;const tl=(g('tl')||'').split('-').map(Number);if(tl.length===3&&tl.every(x=>x>=1&&x<=10))st.tl={na:tl[0],e:tl[1],q:tl[2]};
   const r=+g('r');if(r>=1&&r<=5)st.ri=r-1;const m=(g('m')||'').split('.');if(m.length===3){if(SANDS.includes(m[0]))st.sands=m[0];if(['el','hp_','atk_','def_','em','phys'].includes(m[1]))st.goblet=m[1];if(CIRC.includes(m[2])){st.circlet=m[2];st.circAuto=false}}
-  if(['typical','good','great'].includes(g('p')))st.preset=g('p');if(g('na'))st.art=false};
+  if(['typical','good','great'].includes(g('p')))st.preset=g('p');if(g('na'))st.art=false;
+   const lv=+g('lv'),wl=+g('wl');if(g('lv')&&lv>=0&&lv<cd.lv.length)st.li=lv;if(g('wl')&&wl>=0&&wl<99)st.wli=wl;
+   if(g('sb')){const P=labPcsIn(g('sb'),['hp','atk',st.sands,st.goblet,st.circlet]);if(P){st.pieces=P;st.auto=false;st.subs=subsOf(P)}}
+   if(g('cw'))st.cw={id:st.w,on:labOnIn(g('cw'))};if(g('c4'))st.c4={id:st.s1,on:labOnIn(g('c4'))};
+   if(g('inf')==='1'||g('inf')==='0')st.inf=g('inf')==='1';if(['vape','melt'].includes(g('rx')))st.rx=g('rx');if(g('bf'))st.bf=labBfIn(g('bf'));
+   const el=+g('el'),rs=+g('rs');if([90,95,100,103].includes(el))st.elv=el;if(g('rs')!=null&&g('rs')!==''&&rs>=-200&&rs<=1000)st.res=rs;
+   if(g('vs')){const b=decB(g('vs'));if(b)st.pin={c:st.c,b}}};
+  /* a whole build as one short string (for the pinned build in a comparison link), and back again with every part checked */
+  const encB=b=>[b.w||'',Math.min(b.wli,98),(b.ri||0)+1,b.mode,b.s1||'',b.s2||'',b.sands,b.goblet,b.circlet,b.preset,b.cons,[b.tl.na,b.tl.e,b.tl.q].join('-'),b.li,b.art?1:0,b.cw&&b.cw.id===b.w?labOn(b.cw.on):'',b.c4&&b.c4.id===b.s1?labOn(b.c4.on):'',b.auto===false?labPcs(b.pieces):'',b.circAuto===false?1:0].join('*');
+  const decB=str=>{const f=String(str||'').split('*');if(f.length!==18)return null;const wi=W.list.find(w=>w.id===f[0]&&w.t===cd.wt);const set=id=>A.list.some(a=>a.id===id)?id:'';const tl=f[11].split('-').map(Number);
+   if(!wi||!SANDS.includes(f[6])||!['el','hp_','atk_','def_','em','phys'].includes(f[7])||!CIRC.includes(f[8])||!['typical','good','great'].includes(f[9])||tl.length!==3||!tl.every(x=>x>=1&&x<=10))return null;
+   const b={w:wi.id,wli:Math.max(0,Math.min(99,+f[1]||0)),ri:Math.max(0,Math.min(4,(+f[2]||1)-1)),mode:f[3]==='22'?'22':'4',s1:set(f[4]),s2:set(f[5]),sands:f[6],goblet:f[7],circlet:f[8],preset:f[9],cons:Math.max(0,Math.min(6,+f[10]||0)),tl:{na:tl[0],e:tl[1],q:tl[2]},li:Math.max(0,Math.min(cd.lv.length-1,+f[12]||0)),art:f[13]==='1',auto:true,circAuto:f[17]!=='1',pieces:null,subs:null,scale:st.scale||scaleOf(cd),cw:null,c4:null};
+   if(f[14])b.cw={id:b.w,on:labOnIn(f[14])};if(f[15])b.c4={id:b.s1,on:labOnIn(f[15])};if(f[16]){const P=labPcsIn(f[16],['hp','atk',b.sands,b.goblet,b.circlet]);if(P){b.pieces=P;b.auto=false;b.subs=subsOf(P)}}return b};
  st._url=!!q.get('c');
  /* use PawPixl's own build card for this character (weapon, artifact sets and main stats), if there is one */
  const mkMain=(t,slot)=>{t=String(t||'').toLowerCase();let k=/crit rate/.test(t)?'cr':/crit dmg/.test(t)?'cd':/heal/.test(t)?'heal':/energy|\ber\b/.test(t)?'er':/mastery|\bem\b/.test(t)?'em':/phys/.test(t)?'phys':/(pyro|hydro|anemo|electro|cryo|geo|dendro|elemental) dmg/.test(t)?'el':/atk/.test(t)?'atk_':/hp/.test(t)?'hp_':/def/.test(t)?'def_':'';const ok=slot==='s'?SANDS:slot==='g'?['el','hp_','atk_','def_','em','phys']:CIRC;return ok.includes(k)?k:''};
@@ -1499,10 +1627,20 @@ async function afterLab(gid){const box=$('#lab');if(!box)return;let C,W,A;try{[C
   
   mainsFrom(x.main||[]);st.mine=!!(wi||sets.length)};
  const roster=nm=>R0.find(r=>norm(r.name)===norm(nm));
- const draw=()=>{const w=W.list.find(x=>x.id===st.w)||null;const mainsFor=c=>['hp','atk',st.sands,st.goblet,c];if(st.auto===false&&st.pieces){st.pieces.forEach((p,i)=>{if(i>1)p.main=mainsFor(st.circlet)[i];p.subs.forEach(x=>{if(x[0]===p.main){const u=SUBK.find(k=>k!==p.main&&!p.subs.some(y=>y[0]===k));if(u)x[0]=u}})});st.subs=subsOf(st.pieces)}
-  if(st.auto!==false||st.circAuto!==false){const z={};SUBK.forEach(k=>z[k]=0);const fit=c=>{const o=Object.assign({},st,{cd,w,sets:A.list,subs:z,circlet:c});const R0=labStats(o);const pc=st.auto!==false?piecesFrom(planOf(st.preset,st.scale||scaleOf(cd),R0.s),mainsFor(c)):st.pieces;const sb=st.auto!==false?subsOf(pc):st.subs;const R1=labStats(Object.assign({},o,{subs:sb}));return{c,sb,pc,v:1+Math.min(1,R1.s.cr)*R1.s.cd}};
-   /* a player picks the crit circlet that gives the better average hit (until a circlet is chosen by hand) */
-   let best=fit(st.circlet);if(st.circAuto!==false&&(st.circlet==='cr'||st.circlet==='cd')){const o2=fit(st.circlet==='cr'?'cd':'cr');if(o2.v>best.v+1e-9)best=o2;st.circlet=best.c}if(st.auto!==false){st.subs=best.sb;st.pieces=best.pc}}const L=Object.assign({},st,{cd,w,sets:A.list});const R=labStats(L);const eff=k=>Math.min(15,(st.tl[k]||1)+(st.cons>=3&&cd.c3===k?3:0)+(st.cons>=5&&cd.c5===k?3:0));
+  /* Fill in the automatic parts of a build (substats, crit circlet) and work out its numbers. S is the build on screen or the
+     pinned one; the fight (enemy, reaction, infusion) always comes from the screen, so both builds face the same fight. */
+  const BF=['li','cons','tl','w','wli','ri','art','mode','s1','s2','sands','goblet','circlet','preset','auto','circAuto','pieces','subs','scale','cw','c4'];
+  const snap=()=>{const b={};BF.forEach(k=>b[k]=st[k]==null?st[k]:JSON.parse(JSON.stringify(st[k])));return b};
+  const pinOK=()=>!!(st.pin&&st.pin.c===st.c&&st.pin.b);
+  const solve=S=>{const w=W.list.find(x=>x.id===S.w)||null;const mainsFor=c=>['hp','atk',S.sands,S.goblet,c];
+   const X={cd,w,sets:A.list,cw:S.cw&&S.cw.id===S.w?S.cw.on:null,c4:S.c4&&S.c4.id===S.s1?S.c4.on:null,elv:st.elv,res:st.res,rx:st.rx,bf:st.bf||{},inf:st.inf==null?(st.inf=!!labInfuse(cd)):st.inf};
+   if(S.auto===false&&S.pieces){S.pieces.forEach((p,i)=>{if(i>1)p.main=mainsFor(S.circlet)[i];p.subs.forEach(x=>{if(x[0]===p.main){const u=SUBK.find(k=>k!==p.main&&!p.subs.some(y=>y[0]===k));if(u)x[0]=u}})});S.subs=subsOf(S.pieces)}
+   if(S.auto!==false||S.circAuto!==false){const z={};SUBK.forEach(k=>z[k]=0);const fit=c=>{const o=Object.assign({},S,X,{subs:z,circlet:c});const R0=labStats(o);const pc=S.auto!==false?piecesFrom(planOf(S.preset,S.scale||scaleOf(cd),R0.s),mainsFor(c)):S.pieces;const sb=S.auto!==false?subsOf(pc):S.subs;const R1=labStats(Object.assign({},o,{subs:sb}));return{c,sb,pc,v:1+Math.min(1,R1.s.cr)*R1.s.cd}};
+    /* a player picks the crit circlet that gives the better average hit (until a circlet is chosen by hand) */
+    let best=fit(S.circlet);if(S.circAuto!==false&&(S.circlet==='cr'||S.circlet==='cd')){const o2=fit(S.circlet==='cr'?'cd':'cr');if(o2.v>best.v+1e-9)best=o2;S.circlet=best.c}if(S.auto!==false){S.subs=best.sb;S.pieces=best.pc}}
+   const L=Object.assign({},S,X);const R=labStats(L);const eff=k=>Math.min(15,(S.tl[k]||1)+(S.cons>=3&&cd.c3===k?3:0)+(S.cons>=5&&cd.c5===k?3:0));return{L,R,eff,w}};
+  const draw=()=>{const{L,R,eff,w}=solve(st);const PIN=pinOK()?solve(st.pin.b):null;const rowsNow=labRows(L,R,eff),rowsPin=PIN?labRows(PIN.L,PIN.R,PIN.eff):null;
+   const wText=x=>{if(!x||!x.tpl)return'';let t=x.tpl;(x.ref[Math.min(L.ri||0,x.ref.length-1)]||[]).forEach((v,i)=>{t=t.split('{'+i+'}').join(v)});return t};
   const rr=roster(cd.n);const E=EL[cd.el]||['#556','#778','#99a'];
   const popW=()=>{const seen=new Map();cbOf().forEach(b=>(b.w||[]).forEach((id,r)=>{if(!seen.has(id)||seen.get(id)>r)seen.set(id,r)}));const L=[...seen.entries()].sort((a,b)=>a[1]-b[1]).map(([id])=>W.list.find(x=>x.id===id&&x.t===cd.wt)).filter(Boolean).slice(0,8);if(!L.length)return'';
    return'<div class="lab-pop"><small>Popular picks</small><div>'+L.map(x=>'<button type="button" data-qw="'+esc(x.id)+'" title="'+esc(N(x))+'" aria-label="'+esc(N(x))+'" aria-pressed="'+(x.id===st.w)+'">'+icHTML(gid,x.ic,x.r,'','xs')+'</button>').join('')+'</div></div>'};
@@ -1511,34 +1649,62 @@ async function afterLab(gid){const box=$('#lab');if(!box)return;let C,W,A;try{[C
   const pkBtn=(id,ic,name,sub)=>'<button type="button" class="lab-pk" id="'+id+'">'+ic+'<span data-nt><b>'+esc(name)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</span><i>Change</i></button>';
   const setBtn=(id,v)=>{const a=A.list.find(x=>x.id===v);return pkBtn(id,a?icHTML(gid,(a.p.flower||a.p.circlet||{}).ic,Math.max(...(a.rl.length?a.rl:[4])),'','sm'):'<span class="dbic sm none"></span>',a?N(a):tt('No set'),a?tt(a.b2?'2-piece adds stats':'2-piece is an effect'):tt('Tap to pick a set'))};
   const elKey=cd.el.toLowerCase();
-  const gotHTML=src=>{const L=R.got.filter(g=>g[0]===src);if(!L.length)return src==='w'&&w&&w.ef?'<p class="lab-note lab-got off"><span>Passive effects that depend on a condition are not counted.</span></p>':'';return'<p class="lab-note lab-got"><span>'+(src==='w'?'Counted from the weapon':'Counted from the 4-piece')+'</span>: '+L.map(g=>'<b>'+(PCT(g[1])?'+'+fmtSt(g[1],g[2]):'+'+Math.round(g[2]).toLocaleString())+'</b> <span>'+esc(STN[g[1]]||(g[1]==='dmg'?'DMG Bonus':g[1]))+'</span>'+(g[3]==='hp'?' <span>(from Max HP)</span>':g[3]==='er'?' <span>(from Energy Recharge)</span>':'')).join(', ')+'</p>'};
-  const rows=[['HP',Math.round(R.HP).toLocaleString(),Math.round(R.B.hp).toLocaleString()+' + '+Math.round(R.HP-R.B.hp).toLocaleString()],['ATK',Math.round(R.ATK).toLocaleString(),Math.round(R.B.atk).toLocaleString()+' + '+Math.round(R.ATK-R.B.atk).toLocaleString()],['DEF',Math.round(R.DEF).toLocaleString(),Math.round(R.B.def).toLocaleString()+' + '+Math.round(R.DEF-R.B.def).toLocaleString()],['Elemental Mastery',Math.round(R.s.em).toLocaleString()],['CRIT Rate',fmtSt('cr',R.s.cr)],['CRIT DMG',fmtSt('cd',R.s.cd)],['Energy Recharge',fmtSt('er',R.s.er)],[cd.el+' DMG Bonus',fmtSt('x',R.s[elKey]||0)],['Physical DMG Bonus',fmtSt('x',R.s.phys)],['Healing Bonus',fmtSt('x',R.s.heal)]].concat(['skill','burst','na','ca','plunge'].filter(k=>R.s[k]).map(k=>[STN[k]+' Bonus',fmtSt('x',R.s[k])]));
+   const gotHTML=src=>{const G0=R.got.filter(g=>g[0]===src);if(!G0.length)return'';const SW={atk:'ATK',hp:'Max HP',def:'DEF',em:'Elemental Mastery'},TW={na:'Normal Attack',ca:'Charged Attack',plunge:'Plunging Attack',skill:'Elemental Skill',burst:'Elemental Burst'};
+    const one=g=>{const sw=g[3]==='c'?' <span class="chip">switched on</span>':'';if(g[1]==='flat'){const f=g[4];return'<b>+'+(Math.round(f.v*1000)/10)+'% '+SW[f.st]+'</b> <span>added to each '+esc(f.cat.map(k=>TW[k]).join(' and '))+' hit</span>'+sw}
+     return'<b>'+(g[2]<0?'−':'+')+(PCT(g[1])?fmtSt(g[1],Math.abs(g[2])):Math.round(Math.abs(g[2])).toLocaleString())+'</b> <span>'+esc(STN[g[1]]||(g[1]==='dmg'?'DMG Bonus':g[1]==='amp'?'Vaporize and Melt DMG':g[1]))+'</span>'+(g[3]==='hp'?' <span>(from Max HP)</span>':g[3]==='er'?' <span>(from Energy Recharge)</span>':g[3]==='em'?' <span>(from Elemental Mastery)</span>':sw)};
+    return'<p class="lab-note lab-got"><span>'+(src==='w'?'Counted from the weapon':'Counted from the 4-piece')+'</span>: '+G0.map(one).join(', ')+'</p>'};
+   /* the parts of a passive that only apply some of the time: the game's own sentence next to a switch (or a stack count) */
+   const condHTML=(kind,text,b2,on)=>{const C=text?ppPassive.cond(text,b2):[];if(!C.length)return'';return'<div class="lab-cond"><small>These depend on the fight. Switch on the ones you keep up.</small>'+C.map(c=>{const n=Math.min(c.max,+(on||{})[c.i]||0);return'<label class="lab-co'+(n?' on':'')+'">'+(c.max>1?'<select data-'+kind+'="'+c.i+'" aria-label="Stacks">'+[...Array(c.max+1)].map((_,k)=>opt(k,k?k+' of '+c.max:'Off',k===n)).join('')+'</select>':'<input type="checkbox" data-'+kind+'="'+c.i+'"'+(n?' checked':'')+'>')+'<span data-nt>'+esc(c.s)+'</span></label>'}).join('')+'</div>'};
+  const rows=[['HP',Math.round(R.HP).toLocaleString(),Math.round(R.B.hp).toLocaleString()+' + '+Math.round(R.HP-R.B.hp).toLocaleString()],['ATK',Math.round(R.ATK).toLocaleString(),Math.round(R.B.atk).toLocaleString()+' + '+Math.round(R.ATK-R.B.atk).toLocaleString()],['DEF',Math.round(R.DEF).toLocaleString(),Math.round(R.B.def).toLocaleString()+' + '+Math.round(R.DEF-R.B.def).toLocaleString()],['Elemental Mastery',Math.round(R.s.em).toLocaleString()],['CRIT Rate',fmtSt('cr',R.s.cr)],['CRIT DMG',fmtSt('cd',R.s.cd)],['Energy Recharge',fmtSt('er',R.s.er)],[cd.el+' DMG Bonus',fmtSt('x',R.s[elKey]||0)],['Physical DMG Bonus',fmtSt('x',R.s.phys)],['Healing Bonus',fmtSt('x',R.s.heal)]].concat(R.s.dmg?[['All DMG Bonus',fmtSt('x',R.s.dmg)]]:[]).concat(['skill','burst','na','ca','plunge'].filter(k=>R.s[k]).map(k=>[STN[k]+' Bonus',fmtSt('x',R.s[k])]));
+   /* ---- comparing two builds of the same character ---- */
+   const pct=x=>(x>=0?'+':'−')+(Math.abs(x)*100).toFixed(1)+'%',cls=x=>Math.abs(x)<.0005?'eq':x>0?'up':'dn';
+   const descB=X=>{const S=X.L,ws=X.w?N(X.w)+(X.w.ref.length>1?' R'+((S.ri||0)+1):''):tt('No weapon');const ss=!S.art?tt('no artifacts'):[S.s1,S.mode==='22'?S.s2:''].filter(Boolean).map(id=>N(A.list.find(a=>a.id===id)||{n:id})).join(' + ')||tt('no set');return ws+' · '+ss+(S.art?' · '+(S.auto===false?tt('own substats'):tt({typical:'Typical',good:'Good',great:'Great'}[S.preset])+' substats'):'')+(S.cons?' · C'+S.cons:'')};
+   const cmpHTML=()=>{const srcs=(myCard()?[['mine','PawPixl’s build']]:[]).concat(cbOf().map((b,i)=>['cb:'+i,'Community build '+(i+1)]));
+    if(!PIN)return'<div class="panel lab-sec lab-cmp" style="--e0:#2f7a5f;--e1:#6fe0b0"><div class="eyebrow">Compare builds</div><p class="lab-note" style="margin-top:6px">Pin the build you have now, then change the weapon, artifacts or anything else. Every number shows how far it moved.</p><div class="lab-cmpb"><button type="button" class="btn" id="lpin">Pin this build</button>'+(srcs.length?'<label><span>or compare with</span><select id="lvs"><option value="">Choose a build</option>'+srcs.map(([v,t])=>opt(v,t,false)).join('')+'</select></label>':'')+'</div></div>';
+    const SL=X=>[['HP',X.R.HP,0],['ATK',X.R.ATK,0],['DEF',X.R.DEF,0],['Elemental Mastery',X.R.s.em,0],['CRIT Rate',X.R.s.cr,1],['CRIT DMG',X.R.s.cd,1],['Energy Recharge',X.R.s.er,1],[cd.el+' DMG Bonus',X.R.s[elKey]||0,1]];const a=SL(PIN),b=SL({R});
+    const sum=(rows,k)=>rows.filter(r=>r.k===k).reduce((x,r)=>x+r.avg,0);const G=[['na','Normal Attack'],['e','Elemental Skill'],['q','Elemental Burst']].map(([k,t])=>({t,a:sum(rowsPin,k),b:sum(rowsNow,k)})).filter(g=>g.a>0&&g.b>0);
+    return'<div class="panel lab-sec lab-cmp on" style="--e0:#2f7a5f;--e1:#6fe0b0"><div class="row"><div class="eyebrow">Comparing two builds</div><span class="sp"></span><button type="button" class="btn ghost" id="lunpin" style="height:30px;font-size:12px">Stop comparing</button></div>'
+     +'<div class="lab-vs"><div><small>Pinned</small><b data-nt>'+esc(descB(PIN))+'</b></div><div><small>This build</small><b data-nt>'+esc(descB({L,w}))+'</b></div></div>'
+     +(G.length?'<div class="lab-big">'+G.map(g=>{const x=g.b/g.a-1;return'<div class="'+cls(x)+'"><small>'+g.t+'</small><b>'+pct(x)+'</b></div>'}).join('')+'</div><p class="lab-note" style="margin-top:6px">Average damage of every row in that talent’s table, added up, this build against the pinned one. Each attack has its own change in the tables below.</p>':'')
+     +'<table class="lab-st lab-ct"><thead><tr><th></th><th>Pinned</th><th>This build</th><th>Change</th></tr></thead><tbody>'+a.map((r,i)=>{const d=b[i][1]-r[1];const f=v=>r[2]?fmtSt('x',v):Math.round(v).toLocaleString();return'<tr><td>'+esc(r[0])+'</td><td>'+f(r[1])+'</td><td><b>'+f(b[i][1])+'</b></td><td class="'+cls(r[2]?d:d/Math.max(1,r[1]))+'">'+(Math.abs(r[2]?d:Math.round(d))<(r[2]?.0005:1)?'same':(d>0?'+':'−')+(r[2]?(Math.abs(d)*100).toFixed(1)+'%':Math.round(Math.abs(d)).toLocaleString()))+'</td></tr>'}).join('')+'</tbody></table>'
+     +'<div class="lab-cmpb"><button type="button" class="btn" id="lswap">Swap them</button><button type="button" class="btn ghost" id="lrepin">Pin this build instead</button><button type="button" class="btn ghost" id="lshare2">Copy comparison link</button></div></div>'};
+   const infTxt=labInfuse(cd);
   const lvO=cd.lv.map((b,i)=>opt(i,tt('Lv')+' '+lvLabel(b[0],b[1],cd.lv),i===st.li)).join('');const CT=cd._t||{};
-  const tal=(cd.t||[]).map((t,ti)=>{const tT=(CT.t||[])[ti]||null;const lv=eff(t.k),boosted=lv>(st.tl[t.k]||1);const TC={na:['#3c5a99','#7fa6ff'],e:[E[0],E[1]],q:['#b0457e','#ff8fc8']}[t.k]||E;return'<div class="panel lab-t lab-sec" style="--e0:'+TC[0]+';--e1:'+TC[1]+'"><div class="row"><div><div class="eyebrow">'+(t.k==='na'?'Normal Attack':t.k==='e'?'Elemental Skill':'Elemental Burst')+'</div><b data-nt>'+esc((tT&&tT.n)||t.n)+'</b></div><span class="sp"></span><span class="chip'+(boosted?' new':'')+'"><span>Lv</span> '+lv+(boosted?' (+'+(lv-(st.tl[t.k]||1))+')':'')+'</span></div><table class="lab-tb"><thead><tr><th></th><th>Scaling</th><th>Non-crit</th><th>Crit</th><th>Average</th></tr></thead><tbody>'+t.lab.map((l,li)=>{const[nm,f]=l.split('|');if(!f)return'';const tl=(tT&&tT.lab&&tT.lab[li])||'';const[nmT,fT]=tl?tl.split('|'):[nm,f];const txt=fmtParam(fT||f,t.p,lv);const isD=/DMG/i.test(nm)&&!/Bonus|Reduction|Increase|Stamina|RES\b|Absorption|Shield|Healing|Regenerat/i.test(nm);const H=isD?hitsOf(f,t.p,lv):[];
-   const cell=fn=>H.length?H.map(h=>{const d=labDmg(L,R,t,nm,h);return Math.round(fn(d)).toLocaleString()+(h.n>1?' ×'+h.n:'')}).join(' + '):'';
-   return'<tr'+(H.length?' class="dmg"':'')+'><td data-nt>'+esc(nmT||nm)+'</td><td data-nt>'+esc(txt)+'</td><td>'+cell(d=>d.nc)+'</td><td>'+cell(d=>d.c)+'</td><td>'+cell(d=>d.avg)+'</td></tr>'}).join('')+'</tbody></table></div>'}).join('');
+  const tal=(cd.t||[]).map((t,ti)=>{const tT=(CT.t||[])[ti]||null;const lv=eff(t.k),boosted=lv>(st.tl[t.k]||1);const TC={na:['#3c5a99','#7fa6ff'],e:[E[0],E[1]],q:['#b0457e','#ff8fc8']}[t.k]||E;return'<div class="panel lab-t lab-sec" style="--e0:'+TC[0]+';--e1:'+TC[1]+'"><div class="row"><div><div class="eyebrow">'+(t.k==='na'?'Normal Attack':t.k==='e'?'Elemental Skill':'Elemental Burst')+'</div><b data-nt>'+esc((tT&&tT.n)||t.n)+'</b></div><span class="sp"></span><span class="chip'+(boosted?' new':'')+'"><span>Lv</span> '+lv+(boosted?' (+'+(lv-(st.tl[t.k]||1))+')':'')+'</span></div><table class="lab-tb"><thead><tr><th></th><th>Scaling</th><th>Non-crit</th><th>Crit</th><th>Average</th></tr></thead><tbody>'+t.lab.map((l,li)=>{const[nm,f]=l.split('|');if(!f)return'';const tl=(tT&&tT.lab&&tT.lab[li])||'';const[nmT,fT]=tl?tl.split('|'):[nm,f];const txt=fmtParam(fT||f,t.p,lv);const H=labIsDmg(nm)?hitsOf(f,t.p,lv).filter(h=>!h.rel):[];
+    /* hits of one attack are added with "+"; "/" separates choices such as Low/High plunge */
+   const cell=fn=>{if(!H.length)return'';const by={};H.forEach(h=>{(by[h.a]||(by[h.a]=[])).push(Math.round(fn(labDmg(L,R,t,nm,h))).toLocaleString()+(h.n>1?' ×'+h.n:''))});return Object.values(by).map(x=>x.join(' + ')).join(' / ')};
+   const rp=rowsPin&&rowsPin.find(r=>r.ti===ti&&r.li===li),rn=rowsNow.find(r=>r.ti===ti&&r.li===li);const dl=rp&&rn&&rp.avg>0?rn.avg/rp.avg-1:null;
+   return'<tr'+(H.length?' class="dmg"':'')+'><td data-nt>'+esc(nmT||nm)+'</td><td data-nt>'+esc(txt)+'</td><td>'+cell(d=>d.nc)+'</td><td>'+cell(d=>d.c)+'</td><td>'+cell(d=>d.avg)+(dl!=null?'<small class="lab-d '+cls(dl)+'">'+(cls(dl)==='eq'?'same':pct(dl))+'</small>':'')+'</td></tr>'}).join('')+'</tbody></table></div>'}).join('');
   const cons=(cd.c||[]).map((c,i)=>{const x=(CT.c||[])[i]||c;return'<li class="'+(i<st.cons?'on':'')+'" data-nt><b>C'+(i+1)+' · '+esc(x.n||c.n)+'</b><span>'+esc(x.d||c.d)+'</span></li>'}).join('');
   const sets=[st.s1,st.mode==='22'?st.s2:''].filter(Boolean).map(id=>A.list.find(a=>a.id===id)).filter(Boolean);
   box.innerHTML='<div class="lab-in"><div class="panel lab-who" style="--c0:'+E[0]+';--c1:'+E[1]+'"><button type="button" class="pic lab-whob" id="lwho" title="Pick another character" aria-label="Pick another character"'+(rr&&rr.icon?' style="background-image:url(\'/'+esc(rr.icon)+'\')"':'')+'>'+(rr&&rr.icon?'':'<span>'+esc(cd.n.trim()[0])+'</span>')+'<i>Change</i></button><div><b data-nt>'+esc(CT.n||cd.n)+'</b><small>'+stars(cd.r)+' <span>'+esc(cd.el)+'</span> · <span>'+esc(cd.wt)+'</span></small>'+(st.src==='mine'&&st.mine?'<small class="lab-mine">Starting from PawPixl’s build card</small>':/^cb:/.test(st.src||'')?'<small class="lab-mine">Starting from a community build</small>':'')+'</div>'+(rr?'<a class="btn" href="/'+gid+'/builds/'+esc(rr.id)+'" data-link>Guide</a>':'')+'</div>'
    +'<div class="panel lab-sec" style="--e0:'+E[0]+';--e1:'+E[1]+'"><div class="eyebrow">Character</div><div class="lab-f"><label>Character'+pkBtn('lc',faceHTML(cd.n,cd.el,'sm'),CT.n||cd.n,tt(cd.el)+' · '+tt(cd.wt))+'</label><label>Level<select id="ll">'+lvO+'</select></label></div><div class="lab-f"><label>Start from<select id="lsrc">'+(myCard()?opt('mine',tt('PawPixl’s build'),st.src==='mine'):'')+cbOf().map((b,i)=>opt('cb:'+i,tt('Community build')+': '+String(b.t||'').replace(new RegExp('^\\s*'+cd.n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*','i'),'').replace(/\s*build$/i,'').trim(),st.src==='cb:'+i)).join('')+opt('blank',tt('Blank'),st.src==='blank')+'</select></label></div>'
    +'<div class="lab-f"><label>Constellation<div class="dbref" id="lcons">'+[0,1,2,3,4,5,6].map(n=>'<button type="button" data-cn="'+n+'" aria-pressed="'+(st.cons===n)+'">C'+n+'</button>').join('')+'</div></label></div>'
    +'<div class="lab-f three">'+['na','e','q'].map(k=>'<label>'+(k==='na'?'Normal Attack':k==='e'?'Skill':'Burst')+'<select data-tk="'+k+'">'+[...Array(10)].map((_,i)=>opt(i+1,tt('Lv')+' '+(i+1),st.tl[k]===i+1)).join('')+'</select></label>').join('')+'</div></div>'
-   +'<div class="panel lab-sec" style="--e0:#a8692f;--e1:#e0a54e"><div class="eyebrow">Weapon</div><div class="lab-f"><label>Weapon'+pkBtn('lw',w?icHTML(gid,w.ic,w.r,'','sm'):'',w?N(w):tt('Pick a weapon'),w?w.r+'★ · '+tt(STN[w.ms]||'No substat'):'')+'</label>'+(w?'<label>Level<select id="lwl">'+w.lv.map((b,i)=>opt(i,tt('Lv')+' '+lvLabel(b[0],b[1],w.lv),i===Math.min(st.wli,w.lv.length-1))).join('')+'</select></label>':'')+'</div>'+popW()+(w&&w.ref.length>1?'<div class="lab-f"><label>Refinement<div class="dbref" id="lref">'+w.ref.map((_,i)=>'<button type="button" data-rf="'+i+'" aria-pressed="'+(st.ri===i)+'">R'+(i+1)+'</button>').join('')+'</div></label></div>':'')+(w?'<p class="lab-note" data-nt><a href="/'+gid+'/weapons/'+esc(w.id)+'" data-link><b>'+esc(TX(w,'ef')||N(w))+'</b></a>'+(w.ef?': '+passiveHTML(w,Math.min(st.ri,w.ref.length-1)):'')+'</p>'+gotHTML('w'):'')+'</div>'
+   +'<div class="panel lab-sec" style="--e0:#a8692f;--e1:#e0a54e"><div class="eyebrow">Weapon</div><div class="lab-f"><label>Weapon'+pkBtn('lw',w?icHTML(gid,w.ic,w.r,'','sm'):'',w?N(w):tt('Pick a weapon'),w?w.r+'★ · '+tt(STN[w.ms]||'No substat'):'')+'</label>'+(w?'<label>Level<select id="lwl">'+w.lv.map((b,i)=>opt(i,tt('Lv')+' '+lvLabel(b[0],b[1],w.lv),i===Math.min(st.wli,w.lv.length-1))).join('')+'</select></label>':'')+'</div>'+popW()+(w&&w.ref.length>1?'<div class="lab-f"><label>Refinement<div class="dbref" id="lref">'+w.ref.map((_,i)=>'<button type="button" data-rf="'+i+'" aria-pressed="'+(st.ri===i)+'">R'+(i+1)+'</button>').join('')+'</div></label></div>':'')+(w?'<p class="lab-note" data-nt><a href="/'+gid+'/weapons/'+esc(w.id)+'" data-link><b>'+esc(TX(w,'ef')||N(w))+'</b></a>'+(w.ef?': '+passiveHTML(w,Math.min(st.ri,w.ref.length-1)):'')+'</p>'+gotHTML('w')+condHTML('cw',wText(w),null,L.cw):'')+'</div>'
    +'<div class="panel lab-sec" style="--e0:#6b4f9e;--e1:#b48cf0"><div class="row"><div class="eyebrow">Artifacts</div><span class="sp"></span><label class="row" style="gap:6px;font-size:13px;font-weight:600"><input type="checkbox" id="lart"'+(st.art?' checked':'')+'> Equipped</label></div>'+(st.art?'<div class="lab-f"><label>Sets<select id="lmode">'+opt('4',tt('4-piece'),st.mode==='4')+opt('22','2 + 2',st.mode==='22')+'</select></label></div><div class="lab-f"><label>'+(st.mode==='22'?'First set (2 pieces)':'Set (4 pieces)')+setBtn('ls1',st.s1)+'</label>'+(st.mode==='22'?'<label>Second set (2 pieces)'+setBtn('ls2',st.s2)+'</label>':'')+'</div>'
    +popA()+'<div class="lab-f three"><label>Sands<select id="lsa">'+SANDS.map(k=>opt(k,tt(STN[k]),st.sands===k)).join('')+'</select></label><label>Goblet<select id="lgo">'+opt('el',tt(cd.el+' DMG Bonus'),st.goblet==='el')+['hp_','atk_','def_','em','phys'].map(k=>opt(k,tt(STN[k]),st.goblet===k)).join('')+'</select></label><label>Circlet<select id="lci">'+CIRC.map(k=>opt(k,tt(STN[k]),st.circlet===k)).join('')+'</select></label></div>'
    +'<div class="lab-f"><label>Substats<div class="dbref" id="lpre">'+[['typical','Typical'],['good','Good'],['great','Great']].map(([k,t])=>'<button type="button" data-pr="'+k+'" aria-pressed="'+(st.auto!==false&&st.preset===k)+'">'+t+'</button>').join('')+'</div></label></div><p class="lab-note lab-cv"><span>'+(st.auto===false?'Your own substats':{typical:'Typical: a casual build',good:'Good: a well-built character',great:'Great: a well-farmed endgame build'}[st.preset])+'</span> · <span>Crit value</span> <b>'+subCV(st.subs)+'</b></p><details class="lab-pcs"'+(st.pcsOpen?' open':'')+'><summary>Edit each piece (main stat and substats)</summary><div class="lab-pg">'+(st.pieces||[]).map((p,i)=>{const fixed=i<2;const mOpt=i===2?SANDS:i===3?['el','hp_','atk_','def_','em','phys']:CIRC;return'<div class="lab-pc"><b>'+tt({flower:'Flower of Life',plume:'Plume of Death',sands:'Sands of Eon',goblet:'Goblet of Eonothem',circlet:'Circlet of Logos'}[PCK[i]])+'</b>'+(fixed?'<div class="lab-mn"><span>'+tt(STN[p.main])+'</span> '+(i===0?'4,780':'311')+'</div>':'<select data-pm="'+i+'" aria-label="Main stat">'+mOpt.map(k=>opt(k,tt(k==='el'?cd.el+' DMG Bonus':STN[k]),p.main===k)).join('')+'</select>')+p.subs.map((x,j)=>'<div class="lab-sr"><select data-ps="'+i+'.'+j+'" aria-label="Substat">'+SUBK.filter(k=>k!==p.main).map(k=>opt(k,tt(STN[k]),k===x[0])).join('')+'</select><input type="number" min="0" step="'+(PCT(x[0])?'0.1':'1')+'" data-pv="'+i+'.'+j+'" value="'+(PCT(x[0])?Math.round(x[1]*1000)/10:Math.round(x[1]))+'" aria-label="Value"></div>').join('')+'</div>'}).join('')+'</div><p class="lab-note">5-star pieces at +20. Each piece has 4 different substats and can’t repeat its own main stat.</p></details>'
-   +(sets.length?'<div class="lab-note">'+sets.map(a=>{const c4=R.got.some(g=>g[0]==='a4');return'<p><a href="/'+gid+'/artifacts/'+esc(a.id)+'" data-link><b data-nt>'+esc(N(a))+'</b></a> <span>2-piece</span>: <span data-nt>'+esc(TX(a,'e2'))+'</span> '+(a.b2?'<span class="chip">counted</span>':'<span class="chip ghost">not counted</span>')+(st.mode==='4'&&a.e4?'<br><span>4-piece</span>: <span data-nt>'+esc(TX(a,'e4'))+'</span> '+(c4?'<span class="chip">counted</span>':'<span class="chip ghost">not counted</span>'):'')+'</p>'}).join('')+gotHTML('a4')+'</div>':'')
+   +(sets.length?'<div class="lab-note">'+sets.map(a=>{const c4=R.got.some(g=>g[0]==='a4');return'<p><a href="/'+gid+'/artifacts/'+esc(a.id)+'" data-link><b data-nt>'+esc(N(a))+'</b></a> <span>2-piece</span>: <span data-nt>'+esc(TX(a,'e2'))+'</span> '+(a.b2?'<span class="chip">counted</span>':'<span class="chip ghost">not counted</span>')+(st.mode==='4'&&a.e4?'<br><span>4-piece</span>: <span data-nt>'+esc(TX(a,'e4'))+'</span> '+(c4?'<span class="chip">counted</span>':'<span class="chip ghost">not counted</span>'):'')+'</p>'}).join('')+gotHTML('a4')+(st.mode==='4'&&sets[0]&&sets[0].e4?condHTML('c4',sets[0].e4,sets[0].b2,L.c4):'')+'</div>':'')
    :'')+'</div>'
-   +'<div class="panel lab-sec" style="--e0:#b33a4a;--e1:#ff7a8a"><div class="eyebrow">Enemy</div><div class="lab-f"><label>Enemy level<select id="lel">'+[90,95,100,103].map(v=>opt(v,tt('Lv')+' '+v,+st.elv===v)).join('')+'</select></label><label>Enemy RES %<input type="number" id="lres" step="5" value="'+st.res+'"></label></div></div></div>'
-   +'<div class="lab-out"><div class="panel lab-sec lab-stats" style="--e0:'+E[0]+';--e1:'+E[1]+'"><div class="row"><div class="eyebrow">Stats</div><span class="sp"></span><button class="btn" type="button" id="lshare" style="height:32px;font-size:12.5px">Copy link</button></div><table class="lab-st">'+rows.map(r=>'<tr><td>'+esc(r[0])+'</td><td><b>'+r[1]+'</b>'+(r[2]?'<small>'+r[2]+'</small>':'')+'</td></tr>').join('')+'</table></div>'+tal
+    +'<div class="panel lab-sec" style="--e0:#b33a4a;--e1:#ff7a8a"><div class="eyebrow">The fight</div><div class="lab-f"><label>Enemy level<select id="lel">'+[90,95,100,103].map(v=>opt(v,tt('Lv')+' '+v,+st.elv===v)).join('')+'</select></label><label>Enemy RES %<input type="number" id="lres" step="5" value="'+st.res+'"></label></div>'
+    +(cd.wt!=='Catalyst'?'<div class="lab-f"><label>Normal, charged and plunging attacks deal<select id="linf">'+opt('0','Physical damage',!st.inf)+opt('1',cd.el+' damage',!!st.inf)+'</select></label></div>'+(infTxt?'<p class="lab-note" data-nt>'+esc(infTxt)+'</p>':''):'')
+    +(AMP.vape[elKey]||AMP.melt[elKey]?'<div class="lab-f"><label>Reaction<select id="lrx">'+opt('','None',!st.rx)+(AMP.vape[elKey]?opt('vape','Vaporize (×'+AMP.vape[elKey]+')',st.rx==='vape'):'')+(AMP.melt[elKey]?opt('melt','Melt (×'+AMP.melt[elKey]+')',st.rx==='melt'):'')+'</select></label></div>'+(st.rx&&AMP[st.rx][elKey]?'<p class="lab-note">Shown as if every '+esc(cd.el)+' hit triggers it. In a real fight only some hits do.</p>':''):'')
+    +'<details class="lab-pcs lab-bf"'+(st.bfOpen||labBf(st.bf)?' open':'')+'><summary>Buffs from your skill, passives and team</summary><p class="lab-note">The Lab doesn’t know what your character’s own skill or your teammates add. Type in what you have while it is active (for example the ATK a skill gives, or a teammate’s burst). When you compare, both builds get the same buffs.</p><div class="lab-f three">'+LABBF.map(k=>'<label>'+LABBFN[k]+'<input type="number" min="0" step="'+(PCT(k)?'1':'10')+'" data-bf="'+k+'" value="'+((+(st.bf||{})[k]||0)?(PCT(k)?Math.round(st.bf[k]*1000)/10:Math.round(st.bf[k])):'')+'" placeholder="0"></label>').join('')+'</div></details>'
+    +'</div></div>'
+
+   +'<div class="lab-out"><div class="panel lab-sec lab-stats" style="--e0:'+E[0]+';--e1:'+E[1]+'"><div class="row"><div class="eyebrow">Stats</div><span class="sp"></span><button class="btn" type="button" id="lshare" style="height:32px;font-size:12.5px">Copy link</button></div><table class="lab-st">'+rows.map(r=>'<tr><td>'+esc(r[0])+'</td><td><b>'+r[1]+'</b>'+(r[2]?'<small>'+r[2]+'</small>':'')+'</td></tr>').join('')+'</table></div>'+cmpHTML()+tal
    +'<div class="panel lab-sec" style="--e0:#2f5f8a;--e1:#7cc4ff"><div class="eyebrow" style="margin-bottom:10px">Constellations</div><ul class="lab-c">'+cons+'</ul></div>'
    +((cd.pa||[]).length?'<details class="panel lab-pa"><summary class="eyebrow">Passive talents</summary>'+(CT.pa&&CT.pa.length?CT.pa:cd.pa).map(p=>'<p data-nt><b>'+esc(p.n)+'</b><br>'+esc(p.d)+'</p>').join('')+'</details>':'')
-   +'<div class="panel lab-disc"><b>About these numbers</b><p>Stats add up the character, weapon and artifacts, plus the weapon and set bonuses that are always on, exactly as the game data lists them. Damage is a sample: one hit on the enemy set above, with no reactions, teammate buffs, conditional weapon or set effects, character passives or constellation effects beyond the +3 talent levels. Your in-game numbers will usually be higher.</p></div></div>';
+    +'<div class="panel lab-disc"><b>About these numbers</b><p>Stats add up the character, weapon and artifacts, plus the weapon and set bonuses that are always on, exactly as the game data lists them, and any effect you switched on. Damage is one hit on the enemy set under The fight. Not included unless you type them in under The fight: teammate buffs and the character’s own skill buffs and passives. Never included: constellation effects beyond the +3 talent levels, and reactions other than Vaporize and Melt. Your in-game numbers will differ whenever those apply.</p></div></div>';
   wire()};
  const upd=()=>{const p=new URLSearchParams();p.set('c',st.c);if(st.w)p.set('w',st.w);if(st.s1)p.set('a',st.s1);
   /* the whole build travels in the link, so "Copy link" opens exactly what you see (hand-typed substats aside) */
   if(st.mode==='22'&&st.s2)p.set('a2',st.s2);if(st.cons)p.set('cn',st.cons);const tl=[st.tl.na,st.tl.e,st.tl.q].join('-');if(tl!=='9-9-9')p.set('tl',tl);if(st.ri)p.set('r',st.ri+1);
-  p.set('m',[st.sands,st.goblet,st.circlet].join('.'));if(st.preset!=='typical')p.set('p',st.preset);if(!st.art)p.set('na','1');history.replaceState(null,'',location.pathname+'?'+p.toString())};
+  p.set('m',[st.sands,st.goblet,st.circlet].join('.'));if(st.preset!=='typical')p.set('p',st.preset);if(!st.art)p.set('na','1');
+   const dli=cd.lv.findIndex(b=>b[0]===90&&b[1]===6);if(st.li!==(dli<0?cd.lv.length-1:dli))p.set('lv',st.li);if(st.wli<99)p.set('wl',st.wli);
+   if(st.art&&st.auto===false&&st.pieces)p.set('sb',labPcs(st.pieces));const cw=st.cw&&st.cw.id===st.w?labOn(st.cw.on):'',c4=st.c4&&st.c4.id===st.s1?labOn(st.c4.on):'';if(cw)p.set('cw',cw);if(c4)p.set('c4',c4);
+   if(st.inf!==!!labInfuse(cd))p.set('inf',st.inf?'1':'0');if(st.rx)p.set('rx',st.rx);{const bf=labBf(st.bf);if(bf)p.set('bf',bf)}if(+st.elv!==90)p.set('el',st.elv);if(+st.res!==10)p.set('rs',st.res);if(pinOK())p.set('vs',encB(st.pin.b));history.replaceState(null,'',location.pathname+'?'+p.toString())};
  const wire=()=>{upd();const on=(sel,ev,fn)=>{const e=$(sel);if(e)e[ev]=fn};
   const charPick=()=>labPick({title:'Pick a character',tabs:['Pyro','Hydro','Anemo','Electro','Dendro','Cryo','Geo'],cur:cd.id,items:C.list.map(c=>({id:c.id,n:N(c),en:c.n,tab:c.el,sub:tt(c.el)+' · '+tt(c.wt),ic:faceHTML(c.n,c.el)})),onPick:id=>setChar(id,true)});on('#lc','onclick',charPick);on('#lwho','onclick',charPick);on('#ll','onchange',e=>{st.li=+e.target.value;draw()});
   document.querySelectorAll('[data-cn]').forEach(b=>b.onclick=()=>{st.cons=+b.dataset.cn;draw()});document.querySelectorAll('[data-tk]').forEach(s=>s.onchange=()=>{st.tl[s.dataset.tk]=+s.value;draw()});
@@ -1554,7 +1720,15 @@ async function afterLab(gid){const box=$('#lab');if(!box)return;let C,W,A;try{[C
   on('#lsrc','onchange',e=>{applySrc(e.target.value);st.auto=true;draw()});
   document.querySelectorAll('[data-qw]').forEach(b=>b.onclick=()=>{st.w=b.dataset.qw;st.ri=0;draw()});
   document.querySelectorAll('[data-qa]').forEach(b=>b.onclick=()=>{const op=b.dataset.qa.split('+');st.s1=op[0];st.s2=op[1]||'';st.mode=op.length>1?'22':'4';draw()});
-  on('#lel','onchange',e=>{st.elv=+e.target.value;draw()});on('#lres','onchange',e=>{st.res=+e.target.value||0;draw()});
+   const sw=(kind,idOf)=>document.querySelectorAll('[data-'+kind+']').forEach(e=>e.onchange=()=>{const id=idOf();if(!st[kind]||st[kind].id!==id)st[kind]={id,on:{}};st[kind].on[e.dataset[kind]]=e.type==='checkbox'?(e.checked?1:0):+e.value;draw()});sw('cw',()=>st.w);sw('c4',()=>st.s1);
+   on('#linf','onchange',e=>{st.inf=e.target.value==='1';draw()});{const d=document.querySelector('.lab-bf');if(d)d.ontoggle=()=>{st.bfOpen=d.open}}
+   document.querySelectorAll('[data-bf]').forEach(e=>e.onchange=()=>{const k=e.dataset.bf;let v=Math.max(0,+e.value||0);v=PCT(k)?Math.min(10,v/100):Math.min(99999,v);st.bf=st.bf||{};st.bf[k]=v;st.bfOpen=true;draw()});on('#lrx','onchange',e=>{st.rx=e.target.value;draw()});
+   on('#lpin','onclick',()=>{st.pin={c:st.c,b:snap()};draw()});on('#lrepin','onclick',()=>{st.pin={c:st.c,b:snap()};draw()});on('#lunpin','onclick',()=>{st.pin=null;draw()});
+   on('#lswap','onclick',()=>{const cur=snap();Object.assign(st,JSON.parse(JSON.stringify(st.pin.b)));st.pin={c:st.c,b:cur};draw()});
+   /* compare with PawPixl's card or a community build: build it off to the side, pin it, and leave the build on screen alone */
+   on('#lvs','onchange',e=>{const v=e.target.value;if(!v)return;const keep=snap(),ks=st.src,km=st.mine,kf=st._filled;applySrc(v);st.auto=true;st.cw=null;st.c4=null;solve(st);const b=snap();Object.assign(st,keep);st.src=ks;st.mine=km;st._filled=kf;st.pin={c:st.c,b};draw()});
+   const copy=async e=>{const t=e.target,was=t.textContent;try{await navigator.clipboard.writeText(location.href);t.textContent='Copied!'}catch(x){t.textContent='Copy the address bar'}setTimeout(()=>{if(document.body.contains(t))t.textContent=was},1800)};on('#lshare2','onclick',copy);
+   on('#lel','onchange',e=>{st.elv=+e.target.value;draw()});on('#lres','onchange',e=>{st.res=+e.target.value||0;draw()});
   on('#lshare','onclick',async e=>{try{await navigator.clipboard.writeText(location.href);e.target.textContent='Copied!'}catch(x){e.target.textContent='Copy the address bar'}setTimeout(()=>{const b=$('#lshare');if(b)b.textContent='Copy link'},1800)})};
  await setChar(st.c,!!(LAB&&LAB.li>=0&&LAB.c===st.c))}
 
