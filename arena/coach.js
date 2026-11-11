@@ -53,10 +53,26 @@ const kitComplete=(k,id)=>!!k&&!kitProblems(id,k).some(x=>x.lv==='error');
 /* what the website gets: reviewed kits, and rotations that are Verified, pass every check and are approved */
 /* what the website gets: c.index (which kits are published; each kit is its own file, loaded only when needed),
    and rotations that are Verified, pass every check, are approved and belong to a published kit. kits = the kit files. */
-function publicCoach(full){const c=JSON.parse(JSON.stringify(full||{}));const kits=Object.fromEntries(Object.entries(c.kits||{}).filter(([id,k])=>kitOk(k,id)&&k.publish!==false).map(([id,k])=>{delete k.edited;delete k.notes;delete k.unresolved;delete k.history;(k.sources||[]).forEach(s=>delete s.batch);(k.abilities||[]).forEach(a=>{delete a.edited;delete a.batch});return[id,k]}));
- c.index=Object.fromEntries(Object.entries(kits).map(([id,k])=>[id,{name:k.name||'',el:k.el||'',wt:k.wt||'',role:k.role||'',verified_at:k.verified_at||'',version:k.version||''}]));
+/* ---------- every character, with the game's own ability text ----------
+   A character with no PawPixl explanation yet still gets a "basic" kit: names and the official descriptions only, marked
+   basic so the website labels it as official text. Nothing here is written or guessed by PawPixl. */
+const NEVER=new Set(['manekin','manekina']);
+/* which of the two generic stage figures a character gets: read from the pronouns in the official ability text, with a
+   checked list as the fallback (some texts use no pronoun, and Fischl's "he" is Oz) */
+const FEM=new Set('aino aloy amber arlecchino barbara beidou candace charlotte chasca chevreuse chiori citlali clorinde collei columbina dehya diona dori emilie escoffier eula faruzan fischl furina ganyu hutao iansan ineffa jahoda jean kachina kamisatoayaka keqing kirara klee kujousara kukishinobu lanyan lauma layla linnea lisa lynette mavuika mona mualani nahida navia nefer nicole nilou ningguang noelle odette prune qiqi raidenshogun rosaria sandrone sangonomiyakokomi sayu shenhe sigewinne skirk sucrose varesa vesna vodyanitsa xiangling xianyun xilonen xinyan yaemiko yanfei yaoyao yelan yoimiya yumemizukimizuki yunjin zibai'.split(' '));
+const MASC=new Set('sethos venti'.split(' '));
+function bodyFromText(k){const t=((k&&k.abilities)||[]).map(a=>a.canon||'').join(' ');const f=(t.match(/\b(she|her|hers|herself)\b/gi)||[]).length,m=(t.match(/\b(he|him|his|himself)\b/gi)||[]).length;return f>=2&&f>m*2?'f':m>=2&&m>f*2?'m':''}
+function bodyOf(name,ix,kit){const id=norm(name);const x=ix&&ix[id];return(x&&x.body)||(FEM.has(id)?'f':MASC.has(id)?'m':'')||(kit?bodyFromText(kit):'')||'m'}
+function basicKits(CK,have){const out={};Object.entries((CK&&CK.chars)||{}).forEach(([id0,k])=>{const id=norm(k&&k.name||id0);if(!id||NEVER.has(id)||(have&&have[id]))return;
+  const ab=((k&&k.abilities)||[]).filter(a=>a&&a.slot&&String(a.name||'').trim()&&String(a.canon||'').trim()).map(a=>({slot:a.slot,name:a.name,type:a.type||'',canon:a.canon}));
+  if(!['na','e','q'].every(sl=>ab.some(a=>a.slot===sl)))return;out[id]={name:k.name,el:k.el||'',wt:k.wt||'',r:k.r||'',version:k.ver||'',basic:true,sources:[{name:CK.src?'Released game text ('+CK.src+')':'Released game text'}],abilities:ab}});return out}
+function publicCoach(full,CK){const c=JSON.parse(JSON.stringify(full||{}));const kits=Object.fromEntries(Object.entries(c.kits||{}).filter(([id,k])=>kitOk(k,id)&&k.publish!==false).map(([id,k])=>{delete k.edited;delete k.notes;delete k.unresolved;delete k.history;(k.sources||[]).forEach(s=>delete s.batch);(k.abilities||[]).forEach(a=>{delete a.edited;delete a.batch});return[id,k]}));
+ c.index=Object.fromEntries(Object.entries(kits).map(([id,k])=>[id,{name:k.name||'',el:k.el||'',wt:k.wt||'',role:k.role||'',verified_at:k.verified_at||'',version:k.version||'',body:bodyOf(k.name||id,null,k)}]));
  c.rotations=(c.rotations||[]).filter(r=>canBadge(r,full)&&r.approved!==false&&kits[norm(r.character_id)]).map(r=>{delete r.review_notes;delete r.approved;delete r.edited_at;delete r.import_batch;return r});
- ['kits','research','fp','flags','suggest','sources','seenTeams','teamIndex','progress','kitsVersion','log','history','importUndo'].forEach(k=>delete c[k]);c.kits={};return{coach:c,kits}}
+ ['kits','research','fp','flags','suggest','sources','seenTeams','teamIndex','progress','kitsVersion','log','history','importUndo'].forEach(k=>delete c[k]);c.kits={};
+ /* then everyone else, official text only (when the Studio passes the game-text kits in) */
+ if(CK){const B=basicKits(CK,kits);Object.entries(B).forEach(([id,k])=>{kits[id]=k;c.index[id]={name:k.name,el:k.el,wt:k.wt,role:'',basic:true,version:k.version||'',body:bodyOf(k.name,null,k)}})}
+ return{coach:c,kits}}
 /* ---------- choosing a rotation ---------- */
 const lo=(r,id)=>id===r.character_id?num((r.minimum_constellation_requirements||{})[id],0):num(((r.teammate_constellation_requirements||{})[id]||{}).min,0);
 const hi=(r,id)=>id===r.character_id?num((r.maximum_constellation_requirements||{})[id],6):num(((r.teammate_constellation_requirements||{})[id]||{}).max,6);
@@ -136,6 +152,6 @@ function pageText(coach,c,e,o){o=o||{};const k=o.kit||(coach.kits||{})[c.id]||{a
  const S=[];T.forEach(t=>t.rotations.forEach(r=>(r.sources||[]).forEach(s=>{if(!S.some(x=>x.name===s.name))S.push(s)})));if(S.length)b+='<p>Rotations reviewed against: '+S.map(s=>e(s.name)).join(', ')+'.</p>';
  if(o.guide)b+='<p>Want the weapons, artifacts and stats too? See the <a href="'+e(o.guide)+'"'+(o.link?' data-link':'')+'>'+e(c.name)+' build guide</a>.</p>';return b+'</div>'}
 const pageDesc=c=>'Learn '+c.name+'’s kit and team rotations step by step: what each ability does, what to press, and why, for your constellation and gear. Free, no account needed.';
-const api={same,PHASE,readNotation,stepText,norm,KSTATUS,kitComplete,asMate,pageText,pageDesc,STATUS,GEAR,SLOTS,MODES,CHANGE,teamKey,validate,rotProblems,kitProblems,canBadge,kitOk,publicCoach,teams,select,resolve,consRules,consUpTo,abilityFor,shareQuery,readQuery};
+const api={basicKits,bodyOf,bodyFromText,same,PHASE,readNotation,stepText,norm,KSTATUS,kitComplete,asMate,pageText,pageDesc,STATUS,GEAR,SLOTS,MODES,CHANGE,teamKey,validate,rotProblems,kitProblems,canBadge,kitOk,publicCoach,teams,select,resolve,consRules,consUpTo,abilityFor,shareQuery,readQuery};
 if(typeof window!=='undefined')window.PPCoach=api;if(typeof module!=='undefined')module.exports=api;
 })();
