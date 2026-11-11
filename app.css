@@ -1074,3 +1074,33 @@ body.ar-lock{overflow:hidden}
  .ar-rz p{font-size:17.5px!important}
  .ar-tools .btn{min-height:42px}
 }
+
+/* ---- Home hero, rebalanced (Nov 2026). Same pieces, same look; only where they sit changed.
+   Wide screens: picture + name on one line; the search row and the social row line up edge to edge under them;
+   the quote card and The Paw Post fill the right column from top to bottom, so both sides end on the same line. */
+.hero .hfind{margin:0;width:100%;max-width:none}
+@media (min-width:1101px){
+ .hero{grid-template-columns:auto minmax(0,1fr) 372px;grid-template-areas:"av id q" "find find q" "soc soc q";column-gap:28px;row-gap:16px;align-items:center;padding-block:34px 4px}
+ .hero .avatar{grid-area:av;margin:0;width:148px;height:148px}
+ .hero .hid{grid-area:id;align-self:center;min-width:0}
+ .hero .hid h1{line-height:.92}
+ .hero .hid p.tag{margin-top:10px}
+ .hero .hfind{grid-area:find}
+ .hero .hsoc{grid-area:soc;align-self:stretch;margin:0}
+ .hero .hsoc .soc{min-height:44px}
+ .hero .qslot{grid-area:q;align-self:stretch;display:flex;flex-direction:column;gap:14px;width:auto}
+ .hero .qslot #qbox{flex:1 1 auto;display:flex;min-height:0}
+ .hero .qslot #qbox>.qotd{flex:1 1 auto;display:flex;flex-direction:column;box-sizing:border-box;height:auto}
+ .hero .qslot #qbox>.qotd .qrow{flex:1 1 auto;align-items:center}
+ .hero .qslot .nl{flex:none}
+}
+/* medium screens: picture + name, then search, socials and the quote/newsletter pair, each the full width */
+@media (min-width:821px) and (max-width:1100px){
+ .hero{grid-template-areas:"av id" "find find" "soc soc" "q q";align-items:center;row-gap:16px}
+ .hero .avatar{grid-area:av;margin:0}.hero .hid{grid-area:id}.hero .hfind{grid-area:find}.hero .hsoc{grid-area:soc;margin:0}.hero .qslot{grid-area:q}
+}
+/* phones: one centred column in reading order */
+@media (max-width:820px){
+ .hero{grid-template-areas:"av" "id" "find" "soc" "q";row-gap:14px}
+ .hero .avatar{grid-area:av}.hero .hid{grid-area:id}.hero .hfind{grid-area:find}.hero .hsoc{grid-area:soc;margin:0}.hero .qslot{grid-area:q}
+}
