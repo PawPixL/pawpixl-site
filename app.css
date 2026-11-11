@@ -1262,3 +1262,10 @@ body.ar-lock{overflow:hidden}
 .ar-vb.ar-cb{background:transparent;border:1px solid #9fd0ff;color:#9fd0ff}
 .ar-cond{margin:12px 0;padding:10px 14px;border-radius:12px;border:1px solid #9fd0ff;background:rgba(159,208,255,.08);font-size:13.5px;line-height:1.5}
 .ar-cond ul{margin:6px 0 6px 18px;padding:0}.ar-cond small{color:var(--muted,#9aa3c4)}
+.ar-vb.ar-sb{background:transparent;border:1px dashed #c9c9d6;color:#c9c9d6}
+.ar-gplay{list-style:none;padding:0;margin:8px 0}.ar-gplay li{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line2,#2a3050)}.ar-gplay li:first-child{border-top:0}
+.ar-gb{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.ar-gb .btn.sm{min-height:36px}
+.ar-more-t{margin-top:18px}.ar-cond.ar-start{border-style:dashed;border-color:#c9c9d6;background:rgba(201,201,214,.07)}.ar-cond.ar-prac{border-color:var(--line2,#2a3050);background:rgba(255,255,255,.03)}
+.ar-ko{display:inline-block;padding:1px 7px;border-radius:999px;border:1px solid #c9c9d6;color:#c9c9d6;font-size:11px;font-weight:700;letter-spacing:.02em}
+/* an item on a card that has no page yet: its name on hover, a normal pointer, no link */
+.hot.nolink{cursor:default}.hot.nolink:hover{box-shadow:none;background:transparent}

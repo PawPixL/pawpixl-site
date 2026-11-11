@@ -51,9 +51,24 @@ function validate(coach,ctx){const out=[];const ids=new Set();(coach.rotations||
 /* the only way a badge is earned */
 /* canBadge: may this rotation be shown in the Arena at all (Verified or Conditional, and every structural check passes).
    An incomplete draft has no steps, which is a structural error here, so it can never be played. */
-const canBadge=(r,coach)=>!!r&&SHOWN(r.verification_status)&&!rotProblems(r,coach).some(x=>x.lv==='error');
+const canBadge=(r,coach)=>!!r&&r.tier!=='starter'&&SHOWN(r.verification_status)&&!rotProblems(r,coach).some(x=>x.lv==='error');
+/* ---------- Starter rotations: a third tier, below Verified and Conditional ----------
+   For a guide team nobody has documented a rotation for, a plain default order made from the team alone: each support uses
+   their Skill and Burst, then the main damage dealer takes the field. It is never stored in the rotation library, never
+   labelled Verified or Conditional, and its Energy is always shown as unknown. It is only offered when the team's main
+   damage dealer can be told from the roles on record, and when the Studio's mechanical checks pass. */
+const STARTER_LABEL='Starter rotation, not verified';
+function starterMain(ids,roleOf,featured){const role=id=>String(roleOf(id)||'');const main=ids.filter(id=>/main\s*dps|on-?field/i.test(role(id)));if(main.length===1)return main[0];if(main.length>1)return main.includes(featured)?featured:'';
+ const dps=ids.filter(id=>/\bdps\b|damage dealer/i.test(role(id))&&!/sub[- ]?dps|off-?field/i.test(role(id)));if(dps.length===1)return dps[0];if(dps.length>1)return dps.includes(featured)?featured:'';return''}
+/* the order itself: supports in the order the guide lists them, Skill then Burst; then the main: Skill, Burst, Normal Attacks */
+function starterOrder(ids,main){if(!main||!ids.includes(main)||ids.length!==4||new Set(ids).size!==4)return[];const out=[];ids.filter(x=>x!==main).forEach(id=>{out.push([id,'e'],[id,'q'])});out.push([main,'e'],[main,'q'],[main,'n']);return out}
+const starterSeq=(ids,main)=>starterOrder(ids,main).map(([id,a])=>ids.indexOf(id)+a).join('.');
+/* the same order as a rotation-shaped record, so the Studio can run its mechanical checks on it. Never saved anywhere. */
+function starterRecord(members,main,featured){const ids=members.map(m=>m.id);const ord=starterOrder(ids,main);if(!ord.length)return null;const by=new Map(members.map(m=>[m.id,m]));const acts=[];
+ ids.filter(x=>x!==main).concat([main]).forEach(id=>{const m=by.get(id),isMain=id===main,note=isMain?'E Q N5':'E Q',txt=isMain?'Skill, Burst, then Normal Attacks':'Skill, then Burst';const ex=m.name+': '+txt+'.';acts.push({actor_id:id,action_type:isMain?'attack':'burst',action_notation:note,display_text:txt,simple_explanation:ex,razor_explanation:ex,detailed_explanation:ex,animation_effect:'orb',element:m.el||'',reaction:'',aura:'',required_conditions:[],optional:false,branch_conditions:[]})});
+ return{rotation_id:'starter-'+ids.slice().sort().join('-'),tier:'starter',character_id:featured||main,team_member_ids:ids.slice(),team:members.map(m=>({id:m.id,name:m.name,el:m.el,wt:m.wt,role:m.id===main?'Main DPS':'',does:''})),rotation_name:STARTER_LABEL,rotation_type:'standard',playstyle:'',minimum_constellation_requirements:{},maximum_constellation_requirements:{},teammate_constellation_requirements:{},required_weapon_conditions:[],required_artifact_conditions:[],energy_assumptions:'',enemy_assumptions:'',ordered_actions:acts,rotation_notation:acts.map(a=>by.get(a.actor_id).name+' '+a.action_notation).join(' > '),sources:[],verification_status:'Starter',approved:false}}
 /* the word the Arena shows next to a rotation: Verified only when nothing conditional applies to it */
-const shownAs=r=>!r?'':(r.verification_status==='Conditional'||(r.audit&&r.audit.label==='Conditional'))?'Conditional':'Verified';
+const shownAs=r=>!r?'':r.tier==='starter'?STARTER_LABEL:(r.verification_status==='Conditional'||(r.audit&&r.audit.label==='Conditional'))?'Conditional':'Verified';
 const kitOk=(k,id)=>!!k&&k.status==='Verified'&&!kitProblems(id,k).some(x=>x.lv==='error');
 const kitComplete=(k,id)=>!!k&&!kitProblems(id,k).some(x=>x.lv==='error');
 /* what the website gets: reviewed kits, and rotations that are Verified, pass every check and are approved */
@@ -186,6 +201,6 @@ function pageText(coach,c,e,o){o=o||{};const k=o.kit||(coach.kits||{})[c.id]||{a
  const S=[];T.forEach(t=>t.rotations.forEach(r=>(r.sources||[]).forEach(s=>{if(!S.some(x=>x.name===s.name))S.push(s)})));if(S.length)b+='<p>Rotations reviewed against: '+S.map(s=>e(s.name)).join(', ')+'.</p>';
  if(o.guide)b+='<p>Want the weapons, artifacts and stats too? See the <a href="'+e(o.guide)+'"'+(o.link?' data-link':'')+'>'+e(c.name)+' build guide</a>.</p>';return b+'</div>'}
 const pageDesc=c=>'Learn '+c.name+'’s kit and team rotations step by step: what each ability does, what to press, and why, for your constellation and gear. Free, no account needed.';
-const api={shownAs,reactionBook,basicKits,bodyOf,bodyFromText,same,PHASE,readNotation,stepText,norm,KSTATUS,kitComplete,asMate,pageText,pageDesc,STATUS,GEAR,SLOTS,MODES,CHANGE,teamKey,validate,rotProblems,kitProblems,canBadge,kitOk,publicCoach,teams,select,resolve,consRules,consUpTo,abilityFor,shareQuery,readQuery};
+const api={STARTER_LABEL,starterMain,starterOrder,starterSeq,starterRecord,shownAs,reactionBook,basicKits,bodyOf,bodyFromText,same,PHASE,readNotation,stepText,norm,KSTATUS,kitComplete,asMate,pageText,pageDesc,STATUS,GEAR,SLOTS,MODES,CHANGE,teamKey,validate,rotProblems,kitProblems,canBadge,kitOk,publicCoach,teams,select,resolve,consRules,consUpTo,abilityFor,shareQuery,readQuery};
 if(typeof window!=='undefined')window.PPCoach=api;if(typeof module!=='undefined')module.exports=api;
 })();
