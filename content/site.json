@@ -175,5 +175,11 @@
    "img": "content/games/sec-genshin-theatre-mw9yfb2r.webp"
   }
  },
- "gver": ""
+ "gver": "",
+ "kits": {
+  "on": true,
+  "n": 129,
+  "at": "2026-11-11T20:26:02.703Z",
+  "src": "genshin-db 5.2.15"
+ }
 }
