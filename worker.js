@@ -53,10 +53,10 @@ function sourceOf(ref, app, host) {
 async function insight(db, req, b, url) {
   const d = nyDay(), q = [], add = (k, v) => { v = String(v == null ? '' : v).slice(0, 120); if (v !== '') q.push(db.prepare('INSERT INTO ins (d, k, v, n) VALUES (?, ?, ?, 1) ON CONFLICT(d, k, v) DO UPDATE SET n = n + 1').bind(d, k, v)) };
   const cf = req.cf || {}, ua = req.headers.get('user-agent') || '', u = uaBits(ua);
-  const page = String(b.p || '').split('?')[0].replace(/[^\w\-\/%.]/g, '').slice(0, 120);
+  const page0 = String(b.p || '').split('?')[0].replace(/[^\w\-\/%.]/g, '').slice(0, 120), page = page0[0] === '/' ? page0 : '';
   if (page) { add('views', 'all'); add('page', page) }
   // PawPixl Arena: which steps people reach (fixed list of names, nothing personal)
-  if (/^(open|start|done|results|share|share:(kit|cons|rot)|guide|kit|razor|cmp|char:[a-z0-9]{1,30}|inv:(f2p|mid|high))$/.test(String(b.a || ''))) add('arena', b.a);
+  if (/^(open|start|done|results|share|share:(kit|cons|rot)|guide|kit|razor|cmp|easy|g2a|practice|practice:done|char:[a-z0-9]{1,30}|rot:[a-z0-9][a-z0-9-]{2,79}|inv:(f2p|mid|high))$/.test(String(b.a || ''))) add('arena', b.a);
   if (b.s) {
     const c = /^[A-Z]{2}$/.test(cf.country || '') && cf.country !== 'XX' && cf.country !== 'T1' ? cf.country : '';
     add('visits', 'all'); add('country', c || '??'); if (c && cf.region) add('region', c + '|' + String(cf.region).slice(0, 60));
@@ -69,6 +69,10 @@ async function insight(db, req, b, url) {
   if (Math.random() < 0.01) { const old = new Date(Date.now() - 400 * 864e5).toISOString().slice(0, 10); q.push(db.prepare('DELETE FROM ins WHERE d < ?').bind(old)) }
   return q;
 }
+/* same-site check that never throws: a missing Origin is allowed (same-origin GET/POST from older browsers), anything else must match */
+const sameSite = (req, url) => { const o = req.headers.get('origin'); if (!o) return true; try { return new URL(o).host === url.host; } catch (e) { return false; } };
+/* compare secrets without leaking how many leading characters matched */
+async function safeEq(a, b) { const enc = new TextEncoder(); const [x, y] = await Promise.all([crypto.subtle.digest('SHA-256', enc.encode(String(a))), crypto.subtle.digest('SHA-256', enc.encode(String(b)))]); const u = new Uint8Array(x), v = new Uint8Array(y); let d = 0; for (let i = 0; i < u.length; i++) d |= u[i] ^ v[i]; return d === 0; }
 const json = (o, s = 200, extra = {}) => new Response(JSON.stringify(o), { status: s, headers: { 'content-type': 'application/json', ...extra } });
 const bump = (db, k) => db.prepare('INSERT INTO counters (k, n) VALUES (?, 1) ON CONFLICT(k) DO UPDATE SET n = n + 1').bind(k);
 
@@ -157,7 +161,7 @@ async function pump(env, info, issueId) {
   await note(db, rows.length);
   return { sent: rows.length, pending: total - rows.length, limited: total - rows.length > 0 };
 }
-function authed(req, env) { const h = req.headers.get('authorization') || ''; return !!env.NEWS_KEY && h === 'Bearer ' + env.NEWS_KEY; }
+async function authed(req, env) { const h = req.headers.get('authorization') || ''; return !!env.NEWS_KEY && await safeEq(h, 'Bearer ' + env.NEWS_KEY); }
 async function news(req, env, url, ctx) {
   const p = url.pathname.slice('/api/news/'.length), db = env.DB;
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
@@ -167,8 +171,7 @@ async function news(req, env, url, ctx) {
 
   if (p === 'subscribe') {
     if (req.method !== 'POST') return json({ ok: false }, 405);
-    const origin = req.headers.get('origin');
-    if (origin && new URL(origin).host !== url.host) return json({ ok: false }, 403);
+    if (!sameSite(req, url)) return json({ ok: false }, 403);
     let b = {}; try { b = JSON.parse((await req.text()).slice(0, 2000)); } catch (e) {}
     if (b.website) return json({ ok: true });                       // filled-in hidden field = bot
     const email = String(b.email || '').trim().toLowerCase(), topics = cleanTopics(b.topics);
@@ -219,7 +222,7 @@ async function news(req, env, url, ctx) {
   }
 
   /* ---- PawPixl Studio only (password in the Authorization header) ---- */
-  if (!authed(req, env)) return json({ ok: false, error: env.NEWS_KEY ? 'password' : 'no-password' }, 401, CORS);
+  if (!(await authed(req, env))) return json({ ok: false, error: env.NEWS_KEY ? 'password' : 'no-password' }, 401, CORS);
   if (p.startsWith('seo/')) return seoApi(p.slice(4), req, env, url, db, ctx);
   if (p === 'stats') {
     const all = (await db.prepare('SELECT topics FROM subs WHERE ok = 1').all()).results;
@@ -420,8 +423,7 @@ async function api(req, env, url, ctx) {
     }
     if (url.pathname === '/api/feedback') {
       if (req.method !== 'POST' || !env.DB) return json({ ok: false }, 405);
-      const origin = req.headers.get('origin');
-      if (origin && new URL(origin).host !== url.host) return json({ ok: false }, 403);
+      if (!sameSite(req, url)) return json({ ok: false }, 403);
       let b = {}; try { b = JSON.parse((await req.text()).slice(0, 4000)); } catch (e) {}
       if (b.website) return json({ ok: true });                                   // hidden field filled in = bot
       const clean = (v, n) => String(v || '').replace(/[\u0000-\u0008\u000b-\u001f]/g, '').trim().slice(0, n);
@@ -445,8 +447,7 @@ async function api(req, env, url, ctx) {
     }
     if (url.pathname === '/api/hit') {
       if (req.method !== 'POST' || !env.DB) return json({ ok: false }, 405);
-      const origin = req.headers.get('origin');
-      if (origin && new URL(origin).host !== url.host) return json({ ok: false }, 403);
+      if (!sameSite(req, url)) return json({ ok: false }, 403);
       let b = {};
       try { b = JSON.parse((await req.text()).slice(0, 600)); } catch (e) {}
       const ua = req.headers.get('user-agent') || '';
