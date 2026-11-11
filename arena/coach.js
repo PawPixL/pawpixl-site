@@ -66,12 +66,40 @@ function bodyOf(name,ix,kit){const id=norm(name);const x=ix&&ix[id];return(x&&x.
 function basicKits(CK,have){const out={};Object.entries((CK&&CK.chars)||{}).forEach(([id0,k])=>{const id=norm(k&&k.name||id0);if(!id||NEVER.has(id)||(have&&have[id]))return;
   const ab=((k&&k.abilities)||[]).filter(a=>a&&a.slot&&String(a.name||'').trim()&&String(a.canon||'').trim()).map(a=>({slot:a.slot,name:a.name,type:a.type||'',canon:a.canon}));
   if(!['na','e','q'].every(sl=>ab.some(a=>a.slot===sl)))return;out[id]={name:k.name,el:k.el||'',wt:k.wt||'',r:k.r||'',version:k.ver||'',basic:true,sources:[{name:CK.src?'Released game text ('+CK.src+')':'Released game text'}],abilities:ab}});return out}
+/* ---------- the reaction book: which characters' own ability text names which reaction or combat system ----------
+   Built only from the game's ability text the Studio holds. Nothing is added: every line is a sentence from that text, and
+   "who turns X into Y" is read from sentences that say so in words ("it will be converted into the Lunar-Charged reaction"). */
+const BOOK=[['Basic reactions','Vaporize',/\bVaporize\b/],['Basic reactions','Melt',/\bMelt\b/],['Basic reactions','Overloaded',/\bOverloaded\b/],['Basic reactions','Superconduct',/\bSuperconduct\b/],
+ ['Basic reactions','Electro-Charged',/\bElectro-Charged\b/],['Basic reactions','Frozen',/\bFrozen\b|\bFreezes?\b/],['Basic reactions','Shatter',/\bShatter(?:ed)?\b/],['Basic reactions','Swirl',/(?<!Stellar )\bSwirl(?:s|ed)?\b/],
+ ['Basic reactions','Crystallize',/(?<!Lunar-)\bCrystallize\b/],['Basic reactions','Burning',/\bBurning(?= reactions?\b| DMG\b|,| or | and )|(?:, |\bor |\band |\btrigger\w* (?:a |the )?)Burning\b/],['Basic reactions','Bloom',/(?<!Lunar-)\bBloom\b/],
+ ['Basic reactions','Hyperbloom',/\bHyperbloom\b/],['Basic reactions','Burgeon',/\bBurgeon\b/],['Basic reactions','Quicken',/\bQuicken\b/],['Basic reactions','Aggravate',/\bAggravate\b/],['Basic reactions','Spread',/(?:, |\bor |\band |\btrigger\w* (?:a |the )?)Spread\b|\bSpread(?= reactions?\b| DMG\b|,| or | and )/],
+ ['Lunar reactions','Lunar-Charged',/\bLunar-Charged\b/],['Lunar reactions','Lunar-Bloom',/\bLunar-Bloom\b/],['Lunar reactions','Lunar-Crystallize',/\bLunar-Crystallize\b/],['Lunar reactions','Moonsign',/\bMoonsign\b/],
+ ['Stellar reactions','Stellar-Conduct',/\bStellar-Conduct\b/],['Stellar reactions','Stellar Swirl',/\bStellar Swirl\b/],['Stellar reactions','Stellar Glimmer',/\bStellar Glimmer\b/],['Stellar reactions','Radiance',/\bRadiance: Stellar|\bRadiance state\b/],['Stellar reactions','Polestar Field',/\bPolestar Field\b/],
+ ['Nightsoul','Nightsoul’s Blessing',/\bNightsoul['’]s Blessing\b/],['Nightsoul','Nightsoul Burst',/\bNightsoul Bursts?\b/],['Nightsoul','Nightsoul points',/\bNightsoul points?\b/],['Nightsoul','Nightsoul-aligned damage',/\bNightsoul-aligned\b/],
+ ['Hexerei','Hexerei',/\bHexerei\b/],
+ ['Other systems','Bond of Life',/\bBond of Life\b/],['Other systems','Arkhe: Pneuma and Ousia',/\bPneuma\b|\bOusia\b/],['Other systems','Elemental Infusion',/\b(?:Pyro|Hydro|Anemo|Electro|Dendro|Cryo|Geo) Infusion\b|\binfused with (?:Pyro|Hydro|Anemo|Electro|Dendro|Cryo|Geo)\b|\bconverted (?:in)?to (?:AoE )?(?:Pyro|Hydro|Anemo|Electro|Dendro|Cryo|Geo) DMG\b/],
+ ['Other systems','Elemental absorption',/\bElemental Absorption\b.{8}|.{8}\bElemental Absorption\b|\bcomes into contact with (?:Hydro|Pyro)|\binteracts with Hydro\/Pyro/]];
+const RXN=['Lunar-Crystallize','Lunar-Charged','Lunar-Bloom','Stellar-Conduct','Stellar Swirl','Stellar Glimmer','Electro-Charged','Hydro-Crystallize','Hydro Crystallize','Cryo Crystallize','Pyro Crystallize','Electro Crystallize','Crystallize','Cryo Swirl','Hydro Swirl','Pyro Swirl','Electro Swirl','Swirl','Superconduct','Hyperbloom','Burgeon','Bloom','Frozen','Vaporize','Melt','Overloaded','Burning','Quicken','Aggravate','Spread','Shatter'];
+const RXRE=new RegExp('(?<![A-Za-z-])('+RXN.map(n=>n.replace(/[-]/g,'\\-')).join('|')+')(?![A-Za-z-])','g');
+const bookSlot=a=>{const sl=String(a.slot||'');return sl==='na'?'Normal Attack':sl==='e'?'Skill':sl==='q'?'Burst':/^c[1-6]$/.test(sl)?'C'+sl[1]:/^a[14]$/.test(sl)?'Passive (Ascension '+sl[1]+')':'Passive'};
+const bookSents=t=>String(t||'').split(/(?<=[.!?;])\s+|\n+/).map(x=>x.replace(/^[·•\s]+/,'').trim()).filter(x=>x.length>12);
+const bookClip=(x,n)=>x.length>n?x.slice(0,n-1).replace(/\s+\S*$/,'')+'…':x;
+function reactionBook(CK){const chars=(CK&&CK.chars)||{};const T=BOOK.map(([g,name,re])=>({g,name,who:[]}));const conv={};const els={};
+ Object.entries(chars).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name))).forEach(([id0,k])=>{const id=norm(k&&k.name||id0);if(!id||NEVER.has(id)||!k.name)return;if(k.el)(els[k.el]=els[k.el]||[]).push(id);
+  const got={};(k.abilities||[]).forEach(a=>{if(!a||!a.canon)return;const con=/^c[1-6]$/.test(String(a.slot||''));bookSents(a.canon).forEach(s=>{
+    BOOK.forEach(([g,name,re],i)=>{if(!re.test(s))return;const L=got[i]=got[i]||[];if(L.length<2&&!(L.length&&con)&&!L.some(x=>x[1]===s))L.push([bookSlot(a),bookClip(s,300),con?1:0])});
+    /* "X ... converted into / changed to / becomes ... Y": the reactions named before the verb turn into the ones named after it, in order */
+    const m=s.match(/^(.*?\btrigger\w*\b.*?)(?:\bit (?:will be|is) (?:converted (?:in)?to|changed to)|\bit becomes)\b(.*)$/);if(m&&!con){const A=[...m[1].matchAll(RXRE)].map(x=>x[1].replace('Hydro-Crystallize','Hydro Crystallize')),B=[...m[2].split(/,? (?:with|and (?:party|the Base)|respectively)/)[0].matchAll(RXRE)].map(x=>x[1]);
+     if(A.length&&A.length===B.length)A.forEach((f,j)=>{if(f===B[j])return;const key=f+'>'+B[j];const c=conv[key]=conv[key]||{from:f,to:B[j],who:[]};if(!c.who.some(w=>w[0]===id))c.who.push([id,bookSlot(a),bookClip(s,300)])})}})});
+  Object.keys(got).forEach(i=>{const L=got[i];T[i].who.push([id,L[0][0],L[0][1]].concat(L[1]?[L[1][0],L[1][1]]:[]))})});
+ return{v:1,src:CK&&CK.src?'Released game text ('+CK.src+')':'Released game text',topics:T.filter(t=>t.who.length),conv:Object.values(conv),els}}
 function publicCoach(full,CK){const c=JSON.parse(JSON.stringify(full||{}));const kits=Object.fromEntries(Object.entries(c.kits||{}).filter(([id,k])=>kitOk(k,id)&&k.publish!==false).map(([id,k])=>{delete k.edited;delete k.notes;delete k.unresolved;delete k.history;(k.sources||[]).forEach(s=>delete s.batch);(k.abilities||[]).forEach(a=>{delete a.edited;delete a.batch});return[id,k]}));
  c.index=Object.fromEntries(Object.entries(kits).map(([id,k])=>[id,{name:k.name||'',el:k.el||'',wt:k.wt||'',role:k.role||'',verified_at:k.verified_at||'',version:k.version||'',body:bodyOf(k.name||id,null,k)}]));
  c.rotations=(c.rotations||[]).filter(r=>canBadge(r,full)&&r.approved!==false&&kits[norm(r.character_id)]).map(r=>{delete r.review_notes;delete r.approved;delete r.edited_at;delete r.import_batch;return r});
  ['kits','research','fp','flags','suggest','sources','seenTeams','teamIndex','progress','kitsVersion','log','history','importUndo'].forEach(k=>delete c[k]);c.kits={};
  /* then everyone else, official text only (when the Studio passes the game-text kits in) */
  if(CK){const B=basicKits(CK,kits);Object.entries(B).forEach(([id,k])=>{kits[id]=k;c.index[id]={name:k.name,el:k.el,wt:k.wt,role:'',basic:true,version:k.version||'',body:bodyOf(k.name,null,k)}})}
+ if(CK)c.book=reactionBook(CK);
  return{coach:c,kits}}
 /* ---------- choosing a rotation ---------- */
 const lo=(r,id)=>id===r.character_id?num((r.minimum_constellation_requirements||{})[id],0):num(((r.teammate_constellation_requirements||{})[id]||{}).min,0);
@@ -152,6 +180,6 @@ function pageText(coach,c,e,o){o=o||{};const k=o.kit||(coach.kits||{})[c.id]||{a
  const S=[];T.forEach(t=>t.rotations.forEach(r=>(r.sources||[]).forEach(s=>{if(!S.some(x=>x.name===s.name))S.push(s)})));if(S.length)b+='<p>Rotations reviewed against: '+S.map(s=>e(s.name)).join(', ')+'.</p>';
  if(o.guide)b+='<p>Want the weapons, artifacts and stats too? See the <a href="'+e(o.guide)+'"'+(o.link?' data-link':'')+'>'+e(c.name)+' build guide</a>.</p>';return b+'</div>'}
 const pageDesc=c=>'Learn '+c.name+'’s kit and team rotations step by step: what each ability does, what to press, and why, for your constellation and gear. Free, no account needed.';
-const api={basicKits,bodyOf,bodyFromText,same,PHASE,readNotation,stepText,norm,KSTATUS,kitComplete,asMate,pageText,pageDesc,STATUS,GEAR,SLOTS,MODES,CHANGE,teamKey,validate,rotProblems,kitProblems,canBadge,kitOk,publicCoach,teams,select,resolve,consRules,consUpTo,abilityFor,shareQuery,readQuery};
+const api={reactionBook,basicKits,bodyOf,bodyFromText,same,PHASE,readNotation,stepText,norm,KSTATUS,kitComplete,asMate,pageText,pageDesc,STATUS,GEAR,SLOTS,MODES,CHANGE,teamKey,validate,rotProblems,kitProblems,canBadge,kitOk,publicCoach,teams,select,resolve,consRules,consUpTo,abilityFor,shareQuery,readQuery};
 if(typeof window!=='undefined')window.PPCoach=api;if(typeof module!=='undefined')module.exports=api;
 })();
