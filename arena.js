@@ -14,7 +14,8 @@ const CHG={unknown:'Not reviewed yet',none:'Same rotation',rotation:'Changes the
 let W=256;const H=144;
 let A=null;/* the running arena */
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-const reduced=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
+const reduced=()=>{try{if(window.PPStage&&PPStage.calm())return true;return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
+const sfx=(n,o)=>{try{return window.PPSfx&&PPSfx.play(n,o)}catch(e){return false}};
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 /* ---------------- artwork ---------------- */
 const ART={};function loadArt(map){Object.entries(map||{}).forEach(([k,src])=>{if(!src||ART[k])return;const im=new Image();ART[k]={ok:false};im.onload=()=>{ART[k]={ok:true,im};if(A&&A.redraw)A.redraw()};im.onerror=()=>{ART[k]={ok:false}};im.src='/'+String(src).replace(/^\/+/,'')})}
@@ -55,7 +56,7 @@ function mount(root,host){if(A&&A.stop)A.stop();const cfg=host.cfg||{},PC=window
  const query=()=>PC.shareQuery({team:st.team,r:st.r,cons:st.cons,tc:st.tc,gear:st.gear,mode:st.mode,variant:st.variant});
  const url=abs=>(abs?String(host.base||location.origin).replace(/\/+$/,''):'')+'/arena'+(st.c?'/'+st.c+(st.view==='pick'||st.view==='setup'&&!abs?'':'?'+query()):'');
  const syncUrl=()=>{try{const u=url(false);history.replaceState(null,'',u+(host.preview?(u.includes('?')?'&':'?')+'preview=arena':''))}catch(e){}};
- const steps=['Character','Setup','Team','Rotation','Results'],vi={pick:0,setup:1,team:2,arena:3,done:4};
+ const steps=['Character','Setup','Team','Rotation','Results'],vi={pick:0,setup:1,team:2,arena:3,done:4,battle:2};
  function head(){return'<ol class="ar-steps" aria-label="Progress">'+steps.map((s,i)=>'<li'+(i===vi[st.view]?' aria-current="step"':'')+(i<vi[st.view]?' class="ok"':'')+'><span>'+(i+1)+'</span>'+s+'</li>').join('')+'</ol>'}
  const elChip=el=>'<span class="ar-el" style="--c:'+(ELC[el]||'#999')+'">'+esc(el)+'</span>';
  const rxChip=x=>'<span class="ar-el" style="--c:'+(RXC[x]||'#fff')+'">'+esc(x)+'</span>';
@@ -97,7 +98,7 @@ function mount(root,host){if(A&&A.stop)A.stop();const cfg=host.cfg||{},PC=window
    +'<p class="ar-assume"><b>Assumed:</b> '+esc((S.ok?S.assumptions:[c.name+' C'+st.cons].concat(t.members.filter(id=>!isMe(id)).map(id=>((t.team.find(m=>m.id===id)||{}).name||id)+' C'+(st.tc[id]|0)))).join(' · '))+' · '+esc(gearName())+'</p>'
    +(S.ok?'<div class="ar-pickr"><b>'+esc(rot.rotation_name)+'</b> <span class="ar-vb">Verified</span>'+(S.variants?'<div class="ar-seg" role="radiogroup" aria-label="Version">'+['easy','optimized'].map(v=>'<button type="button" role="radio" aria-checked="'+(S.rot===S.variants[v])+'" data-var="'+v+'">'+(v==='easy'?'Easy':'Optimized')+'</button>').join('')+'</div>':S.alts?'<div class="ar-seg ar-alts" role="radiogroup" aria-label="Version of this rotation">'+S.alts.map(x=>'<button type="button" role="radio" aria-checked="'+(x===rot)+'" data-rot="'+esc(x.rotation_id)+'">'+esc(x.rotation_name)+'</button>').join('')+'</div><p class="ar-note">The source gives '+S.alts.length+' verified ways to play this team with your setup. Pick the one you want to learn.</p>':rot.rotation_type==='flexible'?'<span class="ar-ct">Flexible Rotation</span>':'')+'<ul class="ar-why">'+S.why.map(w=>'<li>'+esc(w)+'</li>').join('')+'</ul>'+(rot.rotation_notes?'<p class="ar-note">'+esc(rot.rotation_notes)+'</p>':'')+'</div>'
     :'<div class="ar-uns" role="status"><b>'+esc(S.msg)+'</b>'+(S.reason?'<p>'+esc(S.reason)+'</p>':'')+(S.closest?'<p>Closest: <b>'+esc(S.closest.rotation_name)+'</b></p><ul>'+S.need.map(n=>'<li>'+esc(n)+'</li>').join('')+'</ul><button type="button" class="btn ghost" data-k="closest">Load the closest preset</button>':'')+'</div>')
-   +'<div class="ar-nav"><button type="button" class="btn ghost" data-go="setup">Back</button><button type="button" class="btn" data-go="arena"'+(S.ok?'':' disabled')+'>Show Rotation</button></div>'}
+   +'<div class="ar-nav"><button type="button" class="btn ghost" data-go="setup">Back</button>'+(S.ok&&window.PPBattle&&window.PPStage?'<button type="button" class="btn ghost" data-go="battle" title="A just-for-fun mini-game with this team">Battle Mode</button>':'')+'<button type="button" class="btn" data-go="arena"'+(S.ok?'':' disabled')+'>Show Rotation</button></div>'}
  /* ---- 4 the rotation ---- */
  let SEL=null;
  function vArena(){const c=C(),S=SEL=PC.select(coach,ctx());if(!S.ok){st.view='team';return vTeam()}const rot=S.rot,acts=S.actions;let n=0;
@@ -109,7 +110,7 @@ function mount(root,host){if(A&&A.stop)A.stop();const cfg=host.cfg||{},PC=window
   +'<div class="ar-stage'+(st.practice?' ar-practice':'')+'"><div class="ar-scene"><canvas width="'+W+'" height="'+H+'" aria-hidden="true"></canvas><div class="ar-cap" aria-hidden="true"></div><div class="ar-rx" aria-hidden="true"></div><div class="ar-dl">Training Dummy · Lv. 90</div></div>'
   +'<div class="ar-panel"><div class="ar-prog"><i style="width:0"></i></div><div class="ar-now" aria-live="polite"></div>'
   +'<div class="ar-ctl"><button type="button" class="btn ghost" data-k="prev" aria-label="Previous step">◀</button><button type="button" class="btn" data-k="play">Play rotation</button><button type="button" class="btn ghost" data-k="next" aria-label="Next step">▶</button><button type="button" class="btn ghost" data-k="restart">Restart</button></div>'
-  +'<div class="ar-tools"><button type="button" class="btn ghost sm" data-why disabled>Why this step?</button>'+(st.practice?'':'<button type="button" class="btn ghost sm" data-go="practice">Practice Mode</button>')+'<button type="button" class="btn ghost sm" data-kit>Learn Kit</button><button type="button" class="btn ghost sm" data-go="setup">Constellations</button><button type="button" class="btn ghost sm" data-go="team">Team Setup</button></div>'
+  +'<div class="ar-tools"><button type="button" class="btn ghost sm" data-why disabled>Why this step?</button>'+(st.practice?'':'<button type="button" class="btn ghost sm" data-go="practice">Practice Mode</button>')+'<button type="button" class="btn ghost sm" data-kit>Learn Kit</button><button type="button" class="btn ghost sm" data-go="setup">Constellations</button><button type="button" class="btn ghost sm" data-go="team">Team Setup</button>'+(window.PPStage?PPStage.settingsBtn():'')+'</div>'
   +(rot.rotation_notation?'<p class="ar-nota" title="Rotation notation">'+esc(rot.rotation_notation)+'</p>':'')
   +'<ol class="ar-list">'+tl+'</ol>'
   +'<details class="ar-more"><summary>Gear, Energy and other assumptions'+(A0.length?' ('+A0.length+')':'')+'</summary><p>'+esc(S.assumptions.join(' · '))+' · '+esc(gearName())+'</p>'+(A0.length?'<p class="ar-note"><b>Assumes:</b> '+A0.map(esc).join('; ')+'</p>':'')+(rot.energy_assumptions?'<p class="ar-note"><b>Energy:</b> '+esc(rot.energy_assumptions)+'</p>':'')+(rot.enemy_assumptions?'<p class="ar-note"><b>Enemies:</b> '+esc(rot.enemy_assumptions)+'</p>':'')+loadout(GV(),true)+'</details>'
@@ -125,7 +126,7 @@ function mount(root,host){if(A&&A.stop)A.stop();const cfg=host.cfg||{},PC=window
    +(mist.length?'<dt>Common mistakes</dt><dd>'+mist.map(m=>'<div>• '+esc(m)+'</div>').join('')+'</dd>':'')+'<dt>Source</dt><dd>'+(rot.sources||[]).map(s=>/^https:\/\//.test(s.url||'')?'<a href="'+esc(s.url)+'" target="_blank" rel="noopener nofollow">'+esc(s.name)+' ↗</a>'+(s.section?' <small>'+esc(s.section)+'</small>':''):esc(s.name)).join('<br>')+'<small>Last reviewed '+esc(fmtD(rot.last_verified_at))+'</small></dd><dt>Why this rotation</dt><dd>'+S.why.map(w=>'<div>• '+esc(w)+'</div>').join('')+'</dd>'
    +'<dt>Guide</dt><dd>'+(g?'<a href="'+esc(g)+'" data-link data-guide>'+esc(c.name)+' build guide</a>':esc(c.name)+'’s build guide is coming soon')+'</dd></dl>'
    +'<div class="ar-lesson"><b>Key lesson</b><p>'+esc(keyLesson(rot))+'</p></div>'
-   +'<div class="ar-nav ar-wrap"><button type="button" class="btn" data-go="again">Watch Again</button><button type="button" class="btn ghost" data-go="practice">Practice Mode</button><button type="button" class="btn ghost" data-go="setup">Try Another Constellation</button><button type="button" class="btn ghost" data-kit>Learn My Kit</button><button type="button" class="btn ghost" data-go="team">Choose Another Team</button><button type="button" class="btn ghost" data-k="share">Share This Rotation</button>'+(g?'<a class="btn ghost" href="'+esc(g)+'" data-link data-guide>View Full Build Guide</a>':'')+'</div>'
+   +'<div class="ar-nav ar-wrap"><button type="button" class="btn" data-go="again">Watch Again</button><button type="button" class="btn ghost" data-go="practice">Practice Mode</button>'+(window.PPBattle&&window.PPStage?'<button type="button" class="btn ghost" data-go="battle">Battle Mode</button>':'')+'<button type="button" class="btn ghost" data-go="setup">Try Another Constellation</button><button type="button" class="btn ghost" data-kit>Learn My Kit</button><button type="button" class="btn ghost" data-go="team">Choose Another Team</button><button type="button" class="btn ghost" data-k="share">Share This Rotation</button>'+(g?'<a class="btn ghost" href="'+esc(g)+'" data-link data-guide>View Full Build Guide</a>':'')+'</div>'
    +'<div class="ar-share"><div class="ar-shout" hidden></div></div><p class="ar-note">An educational walkthrough: it doesn’t calculate damage.</p></div>'}
  function keyLesson(rot){if(rot.lesson)return rot.lesson;const id=rot.character_id,acts=rot.ordered_actions||[];const first=acts.findIndex(a=>a.actor_id===id&&(a.action_type==='skill'||a.action_type==='burst'));const sup=[...new Set(acts.slice(0,Math.max(0,first)).map(a=>nm(rot,a.actor_id)))].filter(n=>n!==nm(rot,id));
   return(sup.length?'Set up '+sup.join(', ')+' first, ':'Start ')+'then give '+nm(rot,id)+' the field and stay on them until their window ends.'+((rot.common_mistakes||[])[0]?' Watch out: '+rot.common_mistakes[0]:'')}
@@ -144,8 +145,15 @@ function mount(root,host){if(A&&A.stop)A.stop();const cfg=host.cfg||{},PC=window
  function whyBody(){const rot=SEL&&SEL.rot,a=A&&A.cur;if(!rot||!a)return'';const m=(rot.team||[]).find(x=>x.id===a.actor_id)||{},mk=PC.norm(m.name);if(IX[mk]&&!KC[mk])loadKit(mk).then(()=>{if(DR&&DR.body===whyBody)DR.querySelector('.ar-drc').innerHTML=whyBody()});const ab=PC.abilityFor(coach,rot,a,id=>KC[id]);
   return'<div class="ar-act" style="--c:'+(ELC[a.element]||'#999')+'"><span class="ar-n">'+esc(m.name)+' · <code>'+esc(a.action_notation)+'</code></span><h3>'+esc(PC.stepText(a)||a.action_notation)+'</h3><p>'+ex(a,'_explanation')+'</p>'+(a.next?'<p class="ar-next"><b>Sets up:</b> '+esc(a.next)+'</p>':'')+(a.reaction?'<p class="ar-meta">'+rxChip(a.reaction)+'</p>':'')+'</div>'
    +(ab?card(ab,true,mk):'<p class="ar-note"><b>'+esc(m.name)+'</b> · '+esc(m.role||'')+(m.does?': '+esc(m.does):'')+'</p>')+((a.branch_conditions||[]).length?'<p class="ar-note">'+a.branch_conditions.map(b=>esc(b.text)).join('<br>')+'</p>':'')}
+ /* ---- Battle Mode: a just-for-fun mini-game with the chosen team. Its rules are made up (arena/battle.js) and it never
+    touches the rotation data; the Coach above stays the place to learn the real thing. ---- */
+ function vBattle(){const t=TM();if(!t||!window.PPBattle||!window.PPStage){st.view='team';return vTeam()}return head()+'<div id="ar-battle"><div class="panel empty">Setting up the battle…</div></div>'}
+ function battleUp(){const el=root.querySelector('#ar-battle'),t=TM();if(!el||!t)return;const mem=t.team.map(m=>({id:m.id,name:m.name,el:m.el,role:m.role,featured:isMe(m.id)}));
+  const names=m=>{const k=KC[PC.norm(m.name)],f=s=>((k&&k.abilities||[]).find(a=>a.slot===s)||{}).name;return k?{na:f('na'),e:f('e'),q:f('q')}:null};
+  let live=true;A={stop(){live=false}};Promise.all(mem.map(m=>IX[PC.norm(m.name)]?loadKit(PC.norm(m.name)):null)).then(()=>{if(!live||st.view!=='battle'||!document.body.contains(el))return;
+   const seed=+new URLSearchParams(location.search).get('bseed')||0;const B=window.PPStage.battle(el,{team:mem,iconOf,namesOf:names,seed,ev,onExit:()=>{st.view='team';render()}});A={stop(){B.stop()},battle:B}})}
  /* ---- render ---- */
- function render(){A&&A.stop&&A.stop();closeDr();root.innerHTML='<div class="ar-app">'+({pick:vPick,setup:vSetup,team:vTeam,arena:vArena,done:vDone}[st.view]||vPick)()+'</div>';syncUrl();if(st.view==='arena')stage();if(st.view==='done')bannerUp();const h=root.querySelector('.ar-h,.disp');if(h&&render.moved){h.setAttribute('tabindex','-1');h.focus({preventScroll:false})}render.moved=true}
+ function render(){A&&A.stop&&A.stop();closeDr();root.innerHTML='<div class="ar-app">'+({pick:vPick,setup:vSetup,team:vTeam,arena:vArena,done:vDone,battle:vBattle}[st.view]||vPick)()+'</div>';syncUrl();if(st.view==='arena')stage();if(st.view==='battle')battleUp();if(st.view==='done')bannerUp();const h=root.querySelector('.ar-h,.disp');if(h&&render.moved){h.setAttribute('tabindex','-1');h.focus({preventScroll:false})}render.moved=true}
  /* ---- the stage ---- */
  function stage(){const rot=SEL.rot,acts=SEL.actions.filter(a=>!a.skip),cv=root.querySelector('canvas'),X=window.PPArenaArt;if(!cv||!cv.getContext)return;
   const team=(rot.team||[]).map(m=>({name:m.name,el:m.el,wt:m.wt,id:m.id}));
@@ -153,27 +161,29 @@ function mount(root,host){if(A&&A.stop)A.stop();const cfg=host.cfg||{},PC=window
   const cap=root.querySelector('.ar-cap'),rxEl=root.querySelector('.ar-rx'),now=root.querySelector('.ar-now'),prog=root.querySelector('.ar-prog i'),play=root.querySelector('[data-k="play"]'),why=root.querySelector('[data-why]');
   if(!X){cv.hidden=true;cv.parentNode.insertAdjacentHTML('beforeend','<p class="ar-noart">The training ground picture couldn’t load, but the rotation below works the same.</p>')}
   const g=cv.getContext('2d'),c=C(),imgs={};team.forEach(m=>{imgs[m.name]=pixImg(iconOf(m.name))});loadArt((host.cfg||{}).art);
+  /* the big portraits that stand on the ground (the small code-drawn figure is only used when a portrait is missing) */
+  const PS=window.PPStage,pty=PS&&X?PS.party(root.querySelector('.ar-scene'),team,iconOf):null;if(pty)root.querySelector('.ar-scene').classList.add('has-party');
   const a={raf:0,timer:0,idle:0,k:null,hitAt:0,strong:false,prev:null,cheer:false,visible:true,cur:null,first:true};A=a;
   const wtOf=m=>m.wt||(norm(m.name)===norm(c.name)?c.weapon:'Sword');
   const who=i=>{const s=R[i];return s?(team.find(m=>m.name===s.who)||{name:s.who,el:s.el}):null};
-  const fit=()=>{const box=cv.parentNode.clientWidth||256,k=Math.floor(box/256),lw=k>=2?Math.min(400,Math.floor(box/k)):256;W=lw;cv.width=lw;cv.height=H;cv.style.width=(k>=2?lw*k:box)+'px';cv.style.aspectRatio=lw+'/'+H;g.imageSmoothingEnabled=false;a.me={x:Math.round(lw*.27),y:101};a.du={x:Math.round(lw*.7),y:101};a.bg=X?bgOf():null;draw(performance.now())};
+  const fit=()=>{if(pty)pty.size();const box=cv.parentNode.clientWidth||256,k=Math.floor(box/256),lw=k>=2?Math.min(400,Math.floor(box/k)):256;W=lw;cv.width=lw;cv.height=H;cv.style.width=(k>=2?lw*k:box)+'px';cv.style.aspectRatio=lw+'/'+H;g.imageSmoothingEnabled=false;a.me={x:Math.round(lw*.27),y:101};a.du={x:Math.round(lw*.7),y:101};a.bg=X?bgOf():null;draw(performance.now())};
   const bgOf=()=>{if(ART.background&&ART.background.ok){const cc=document.createElement('canvas');cc.width=W;cc.height=H;const x=cc.getContext('2d'),im=ART.background.im,s=Math.max(W/im.width,H/im.height);x.imageSmoothingEnabled=false;x.drawImage(im,(W-im.width*s)/2,(H-im.height*s)/2,im.width*s,im.height*s);return cc}return X.ground(W,H)};
   function draw(ms){if(!X)return;const tt=ms/1000,still=reduced(),s=R[st.step],k=a.k,bt=a.bg||(a.bg=bgOf());g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,W,H);
-   const since=ms-a.hitAt;if(!still&&a.strong&&since<260){const m=Math.round((1-since/260)*2);g.setTransform(1,0,0,1,(Math.floor(ms/40)%2?m:-m),(Math.floor(ms/55)%2?1:-1)*Math.min(1,m))}
-   g.drawImage(bt,0,0);X.fore(g,W,tt,still);
-   team.forEach((m,i)=>{const im=imgs[m.name];const act=s&&m.name===s.who;g.globalAlpha=act?.35:1;badge(g,im&&im.ok?im.c:null,16+i*13,137,10,m.el);g.globalAlpha=1});
+   const since=ms-a.hitAt;if(!still&&a.strong&&since<260&&(!PS||PS.prefs.shake)){const m=Math.round((1-since/260)*2);g.setTransform(1,0,0,1,(Math.floor(ms/40)%2?m:-m),(Math.floor(ms/55)%2?1:-1)*Math.min(1,m))}
+   g.drawImage(bt,0,0);X.fore(g,W,tt,still);if(PS)PS.ambient(g,W,H,tt,X);const big=!!(pty&&pty.shown());
+   if(!pty)team.forEach((m,i)=>{const im=imgs[m.name];const act=s&&m.name===s.who;g.globalAlpha=act?.35:1;badge(g,im&&im.ok?im.c:null,16+i*13,137,10,m.el);g.globalAlpha=1});
    let ds='idle';if(a.cheer)ds='cheer';else if(a.hitAt&&since<130)ds='hit';else if(a.strong&&since<520)ds='stagger';else if(a.hitAt&&since<760)ds='recover';else if(!still&&Math.floor(tt*10)%42===0)ds='blink';
    const dsrc=ART[ds==='hit'||ds==='stagger'?'dummyHit':'dummy'];if(dsrc&&dsrc.ok)g.drawImage(dsrc.im,Math.round(a.du.x-dsrc.im.width/2),Math.round(a.du.y-dsrc.im.height));else X.dummy(g,a.du.x,a.du.y,ds,still?0:tt,{flash:since<90});
    if(a.cheer&&!still)for(let i=0;i<8;i++){const kk=(tt*.8+i/8)%1;X.px(g,a.du.x-16+i*4,a.du.y-50-kk*20,1,1,i%2?'#ffe08a':'#ffffff')}
    if(s&&s.aura&&(k==null||k>.5)&&!s.react){const cc=X.col(s.aura);X.ell(g,a.du.x,a.du.y-60,2.5,2.5,cc[0]);X.px(g,a.du.x-1,a.du.y-61,1,1,cc[1])}
    const m=s?who(st.step):team.find(x=>isMe(x.id))||team[0];
-   if(a.prev&&k!=null&&k<.18&&!still){const e=k/.18;g.globalAlpha=1-e;X.hero(g,a.me.x-e*24,a.me.y,{el:a.prev.el,weapon:wtOf(a.prev),pose:'idle',t:tt,still});g.globalAlpha=1}
-   if(m){let x=a.me.x,y=a.me.y,pose='idle';const enter=k==null?1:Math.min(1,k/.18);if(k!=null&&a.prev&&!still)x=a.me.x-24+24*(1-(1-enter)*(1-enter));
+   if(!big&&a.prev&&k!=null&&k<.18&&!still){const e=k/.18;g.globalAlpha=1-e;X.hero(g,a.me.x-e*24,a.me.y,{el:a.prev.el,weapon:wtOf(a.prev),pose:'idle',t:tt,still});g.globalAlpha=1}
+   if(m&&!big){let x=a.me.x,y=a.me.y,pose='idle';const enter=k==null?1:Math.min(1,k/.18);if(k!=null&&a.prev&&!still)x=a.me.x-24+24*(1-(1-enter)*(1-enter));
     if(s&&k!=null&&k>.12&&k<.86)pose=POSE(s);if(s&&k==null&&!still)pose='idle';if(s&&still)pose=POSE(s);
     if(s&&s.fx==='plunge'&&k!=null&&!still){if(k<.3){y=a.me.y-(k/.3)*110}else if(k<.48){x=a.du.x;y=-40}else{const d=Math.min(1,(k-.48)/.24);x=a.du.x-6;y=-30+(a.du.y-8+30)*d;pose='attack'}if(k>=.72){x=a.du.x-6;y=a.du.y-8}}
     g.fillStyle='rgba(0,0,0,.35)';g.fillRect(Math.round(a.me.x-7),a.me.y,14,2);const im=imgs[m.name];X.hero(g,x,y,{el:m.el,weapon:wtOf(m),pose,t:tt,still,seed:1,badge:im&&im.ok?im.c:null})}
    if(s&&(k!=null||still)){const r=X.fx(g,s.fx||'orb',s.el||'Physical',still?.8:k,{from:{x:a.me.x,y:a.me.y},to:{x:a.du.x,y:a.du.y-26},still,stacks:s.stacks});
-    if(r.hit&&!still&&k!=null&&!a.hitAt){a.hitAt=ms;a.strong=!!(r.strong||STRONG[s.fx])}
+    if(r.hit&&!still&&k!=null&&!a.hitAt){a.hitAt=ms;a.strong=!!(r.strong||STRONG[s.fx]);sfx(a.strong?'crit':'hit')}
     const ik=ART[String(s.el||'').toLowerCase()+'Impact'];if(r.hit&&ik&&ik.ok&&since<300)g.drawImage(ik.im,Math.round(a.du.x-ik.im.width/2),Math.round(a.du.y-26-ik.im.height/2));
     if(s.react&&(still||(a.hitAt&&since<900))){const cc=RXC[s.react]||'#ffffff';X.reaction(g,a.du.x,a.du.y-26,still?.5:Math.min(1,since/700),cc,'#ffffff')}}
    g.setTransform(1,0,0,1,0,0)}
@@ -209,26 +219,26 @@ function mount(root,host){if(A&&A.stop)A.stop();const cfg=host.cfg||{},PC=window
    quiz('Not yet. '+(later?'That step comes later in this rotation.':'That step already happened.')+' Hint: it’s '+R[i].who+'’s turn.');const f=now.querySelector('.ar-qo:not([disabled])');if(f)f.focus({preventScroll:true})};
   const nextQ=()=>{PR.i++;PR.tries=0;PR.opts=null;PR.answered=false;PR.wrong=new Set();a.paint();const f=now.querySelector('.ar-qo');if(f)f.focus({preventScroll:true})};
   const show=(i,animate)=>{cancelAnimationFrame(a.raf);a.raf=0;clearTimeout(a.timer);const before=R[st.step]?who(st.step):null;st.step=i;const s=R[i];if(s&&!st.started){st.started=true;ev('start');ev('rot:'+SEL.rot.rotation_id)}
-   a.cur=s?s.a:null;why.disabled=!s;a.prev=before&&s&&before.name!==who(i).name?before:null;a.hitAt=0;a.strong=false;a.cheer=false;
+   a.cur=s?s.a:null;why.disabled=!s;if(pty)pty.set(s?who(i):(team.find(x=>isMe(x.id))||team[0]),s&&s.type,!!animate&&!!s);if(s&&animate)sfx(s.type==='burst'?'burst':s.type==='skill'?'skill':'attack',{el:s.el});a.prev=before&&s&&before.name!==who(i).name?before:null;a.hitAt=0;a.strong=false;a.cheer=false;
    root.querySelectorAll('.ar-list button').forEach((b)=>{const j=+b.dataset.s;b.classList.toggle('on',j===i);b.classList.toggle('ok',j<i);if(j===i)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current')});
    prog.style.width=(R.length?((i+1)/R.length*100):0)+'%';rxEl.className='ar-rx';rxEl.textContent='';a.paint();
    if(!s){cap.textContent='';a.k=null;draw(performance.now());idle();return}
    cap.innerHTML='<b>'+esc(s.who)+'</b> · '+esc(s.a.action_notation);
-   const pop=()=>{if(s.react){rxEl.textContent=s.react+'!';rxEl.style.setProperty('--c',RXC[s.react]||'#fff');rxEl.className='ar-rx on'}};
+   const pop=()=>{if(s.react){sfx('reaction');rxEl.textContent=s.react+'!';rxEl.style.setProperty('--c',RXC[s.react]||'#fff');rxEl.className='ar-rx on'}};
    const last=i===R.length-1;
    if(!animate||reduced()){a.k=null;a.cheer=last&&!!animate;draw(performance.now());pop();idle();return}
    const dur=Math.max(1400,+s.ms||1900),t0=performance.now();let popped=false;
    const tick=ms=>{const k=Math.min(1,(ms-t0)/dur);a.k=k;draw(ms);if(!popped&&a.hitAt){pop();popped=true}
     if(k<1){a.raf=requestAnimationFrame(tick);return}
-    a.k=null;if(!popped)pop();if(last){a.cheer=true}const end=performance.now()+700;const tail=m2=>{draw(m2);if(m2<end)a.raf=requestAnimationFrame(tail);else{a.raf=0;idle()}};a.raf=requestAnimationFrame(tail)};
+    a.k=null;if(!popped)pop();if(last){a.cheer=true;if(pty)pty.cheer()}const end=performance.now()+700;const tail=m2=>{draw(m2);if(m2<end)a.raf=requestAnimationFrame(tail);else{a.raf=0;idle()}};a.raf=requestAnimationFrame(tail)};
    clearTimeout(a.idle);a.raf=requestAnimationFrame(tick)};
-  const finish=()=>{st.playing=false;if(!st.done){st.done=true;ev('done')}st.view='done';ev('results');render()};
+  const finish=()=>{st.playing=false;if(!st.done){st.done=true;ev('done')}st.view='done';ev('results');render();sfx('victory')};
   const auto=()=>{if(!st.playing)return;const n=st.step+1;if(n>=R.length){a.timer=setTimeout(finish,1400);return}show(n,true);const s=R[n];a.timer=setTimeout(auto,(reduced()?3800:Math.max(1400,+s.ms||1900)+1700))};
   const setPlay=p=>{st.playing=p;play.textContent=p?'Pause':(st.step>=R.length-1&&st.step>=0?'See results':st.step>=0?'Resume':'Play rotation');play.setAttribute('aria-pressed',String(p))};
   a.pause=()=>{if(st.playing){setPlay(false);clearTimeout(a.timer)}};
-  a.stop=()=>{st.playing=false;cancelAnimationFrame(a.raf);a.raf=0;clearTimeout(a.timer);clearTimeout(a.idle);removeEventListener('resize',fit);document.removeEventListener('visibilitychange',vis);if(io)io.disconnect()};addEventListener('resize',fit);
+  a.stop=()=>{st.playing=false;cancelAnimationFrame(a.raf);a.raf=0;clearTimeout(a.timer);clearTimeout(a.idle);removeEventListener('resize',fit);document.removeEventListener('visibilitychange',vis);if(io)io.disconnect();if(pty)pty.destroy();if(PS)PS.closeSettings()};addEventListener('resize',fit);
   root.querySelector('.ar-panel').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const k=b.dataset.k;
-   if(b.dataset.q!=null){answer(+b.dataset.q);return}if(b.dataset.qn!=null){nextQ();return}if(b.dataset.qr!=null){finish();return}if(st.practice&&(k||b.dataset.s!=null))return;
+   if(k||b.dataset.s!=null)sfx('click');if(b.dataset.q!=null){answer(+b.dataset.q);return}if(b.dataset.qn!=null){nextQ();return}if(b.dataset.qr!=null){finish();return}if(st.practice&&(k||b.dataset.s!=null))return;
    if(k==='play'){if(st.playing){setPlay(false);clearTimeout(a.timer);return}if(st.step>=R.length-1&&st.step>=0){finish();return}setPlay(true);auto()}
    else if(k==='next'){setPlay(false);if(st.step>=R.length-1){finish();return}show(st.step+1,true);setPlay(false)}
    else if(k==='prev'){setPlay(false);show(Math.max(-1,st.step-1),true);setPlay(false)}
@@ -238,7 +248,8 @@ function mount(root,host){if(A&&A.stop)A.stop();const cfg=host.cfg||{},PC=window
   st.started=false;fit();show(st.step>=0&&st.step<R.length?st.step:-1,false);setPlay(false)}
  function bannerUp(){const cv=root.querySelector('.ar-banner canvas'),X=window.PPArenaArt;if(!cv||!X)return;let id=0;const go2=()=>{X.banner(cv,performance.now()/1000,reduced());if(!reduced()&&document.body.contains(cv))id=setTimeout(go2,180)};go2();A={stop:()=>clearTimeout(id)}}
  /* ---- clicks ---- */
- root.onclick=async e=>{const b=e.target.closest('[data-c],[data-go],[data-team],[data-rot],[data-k="share"],[data-k="closest"],[data-guide],[data-kit],[data-why],[data-mode],[data-kg],[data-x],[data-cp],[data-var],[data-back],[data-mkit],[data-share],[data-easy],[data-easynext]');if(!b)return;
+ root.onclick=async e=>{const b=e.target.closest('[data-set],[data-c],[data-go],[data-team],[data-rot],[data-k="share"],[data-k="closest"],[data-guide],[data-kit],[data-why],[data-mode],[data-kg],[data-x],[data-cp],[data-var],[data-back],[data-mkit],[data-share],[data-easy],[data-easynext]');if(!b)return;
+  if(b.dataset.set!=null){if(st.view!=='battle'&&window.PPStage){sfx('click');PPStage.openSettings(b,()=>{const x=root.querySelector('[data-set]');if(x)x.firstChild.textContent=(window.PPSfx&&PPSfx.on()?'🔊':'🔇')+' ';if(A&&A.redraw)A.redraw()})}return}
   if(b.dataset.mkit){openKit(b.dataset.mkit);return}
   if(b.dataset.share){shareX(b.dataset.share);return}
   if(b.dataset.x!=null){closeDr();return}
