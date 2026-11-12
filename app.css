@@ -522,6 +522,12 @@ html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;ov
 .lab-f select,.lab-f input{height:38px;border-radius:10px;border:1px solid var(--line);background:var(--bg2,#11142a);color:#fff;padding:0 10px;font:600 14px var(--body);min-width:0;width:100%}
 .lab-note{font-size:13px;line-height:1.55;color:var(--muted,#9aa3c4);margin:10px 0 0}
 .lab-note p{margin:6px 0}
+.lab-tst{display:block;margin-top:2px;font-style:normal;font-weight:700;color:color-mix(in srgb,var(--e1,#7fa6ff) 60%,#fff)}
+.lab-invw{display:block;margin-top:8px}
+.lab-rec{margin:10px 0 2px;padding:10px 12px;border:1px solid var(--line);border-radius:12px}
+.lab-rec ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:var(--muted,#9aa3c4)}
+.lab-rec li{margin:3px 0}
+.lab-rec .btn{margin-top:8px}
 .lab-fx{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
 .lab-fxr{display:flex;align-items:flex-start;gap:10px;margin-top:10px;cursor:pointer}
 .lab-fxr input[type=checkbox]{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--e1,#7fa6ff)}
