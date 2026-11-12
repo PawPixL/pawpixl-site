@@ -1432,3 +1432,7 @@ button.hot{appearance:none;-webkit-appearance:none;border:0;background:transpare
 @media (max-width:820px){.egt-bar{min-height:48px;padding:0 14px}.egt-r{grid-template-columns:1fr auto;gap:3px 10px;padding:10px 14px}.egt-st{justify-self:end}.egt-cy{grid-column:1/-1}.egt-cd{grid-column:1}.egt-go{grid-column:2;grid-row:3;align-self:center;padding:10px 0}.egt-go.none:empty{display:none}.egt-rg select{min-height:40px}.egt-ft{padding:10px 14px}}
 @media (prefers-reduced-motion:reduce){.egt-w,.egt-ch,.egt-p{transition:none}}
 .egt-cd strong{white-space:nowrap}@media (max-width:820px){.egt-cd small{display:block;margin-top:1px}}
+
+/* Team Lab: Lunar and Stellar reactions stand out from ordinary ones; the main reaction is marked */
+.tl-rxc.sp{border:1px solid color-mix(in srgb,var(--gold) 60%,transparent);background:rgba(246,199,92,.1);color:#fff}.tl-rxc i{font-style:normal;font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.7;margin-left:4px}.tl-hn{margin:6px 0 0;font-size:12.5px;line-height:1.5;color:rgba(232,236,248,.72)}
+.lab-spn{margin-top:14px;padding:14px 16px;border-left:3px solid var(--gold)}.lab-spn b{font-size:14px}.lab-spn p{margin:6px 0 0;font-size:13.5px;line-height:1.55;color:rgba(232,236,248,.85)}
