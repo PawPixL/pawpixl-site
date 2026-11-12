@@ -955,13 +955,14 @@ async function pChar(gid,key,ver){const g=gameMeta(gid);const d=await loadGame(g
  +whyHTML(v.why)+varsHTML(v.seo)+(vs.length>1?'<div class="panel"><div class="eyebrow" style="margin-bottom:12px">Version history</div><ul class="hist">'+vs.map((x,i)=>'<li><a href="/'+gid+'/builds/'+key+(i?'/'+x.id:'')+'" data-link aria-current="'+(x===v)+'"><span>'+(i?'Previous':'Latest')+'</span><span class="muted">'+fmtDate(x.date)+'</span></a></li>').join('')+'</ul></div>':'')+(await charPop(gid,c.title))+appearsHTML(gid,key,c.title)+fbHTML(c.title+' build')+'</div></div></section>'}
 /* ---------- the full "why each pick works" text: the Build Companion card may show it shorter, here it is complete ---------- */
 function whyHTML(w){if(!w||typeof w!=='object')return'';const e=esc,W=w.w||[],A=w.a||[],T=w.t||[],V=String(w.v||'').split('\n').map(x=>x.trim()).filter(Boolean);if(!W.length&&!A.length&&!T.some(t=>t.text)&&!V.length)return'';
- const sec=(t,h)=>h?'<details class="bvar"><summary><b>'+tt(t)+'</b></summary>'+h+'</details>':'';
- return'<div class="panel bvars whyfull"><div class="eyebrow" style="margin-bottom:10px">'+tt('Why each pick works')+'</div>'
-  +sec('Weapons',W.map(x=>'<p><b>'+e(x.name)+'</b>: '+e(x.text)+'</p>').join(''))
-  +sec('Artifacts',A.map(x=>'<p><b>'+e((x.names||[]).join(' + '))+'</b>'+(x.text?': '+e(x.text):'')+(x.stats?' <span class="muted">('+e(x.stats)+')</span>':'')+'</p>').join(''))
-  +sec('Teams',T.filter(t=>t.text).map(x=>'<p><b>'+e(x.name||(x.members||[]).filter(Boolean).join(', '))+'</b>'+(x.name&&x.members?' <span class="muted">('+e(x.members.filter(Boolean).join(', '))+')</span>':'')+': '+e(x.text)+'</p>').join(''))
-  +sec('Build notes',V.map(l=>{const i=l.indexOf(':');return'<p>'+(i>0&&i<40?'<b>'+e(l.slice(0,i))+'</b>'+e(l.slice(i)):e(l))+'</p>'}).join(''))+'</div>'}
-/* ---------- build variations (from the Studio's Bulk Guide Editor): other ways to build this character ---------- */
+ /* every entry is its own small card: a title, an optional quiet second line, then the explanation (shared "rd" reading styles) */
+ const it=(title,sub,text,n)=>'<div class="rd-item">'+(n?'<span class="rd-n" aria-hidden="true">'+n+'</span>':'')+'<div class="rd-b"><div class="rd-t">'+title+'</div>'+(sub?'<div class="rd-s">'+sub+'</div>':'')+(text?'<p>'+text+'</p>':'')+'</div></div>';
+ const sec=(t,a)=>a.length?'<details class="bvar rd-sec"><summary><b>'+tt(t)+'</b><span class="rd-c">'+a.length+'</span></summary><div class="rd-list">'+a.join('')+'</div></details>':'';
+ return'<div class="panel bvars whyfull rd"><div class="eyebrow rd-h" style="margin-bottom:10px">'+tt('Why each pick works')+'</div>'
+  +sec('Weapons',W.map((x,i)=>it(e(x.name),'',e(x.text),i+1)))
+  +sec('Artifacts',A.map(x=>it(e((x.names||[]).join(' + ')),x.stats?e(x.stats):'',x.text?e(x.text):'')))
+  +sec('Teams',T.filter(t=>t.text).map(x=>it(e(x.name||(x.members||[]).filter(Boolean).join(', ')),x.name&&x.members?x.members.filter(Boolean).map(m=>'<span>'+e(m)+'</span>').join(''):'',e(x.text))))
+  +sec('Build notes',V.map(l=>{const i=l.indexOf(':');return i>0&&i<40?it(e(l.slice(0,i)),'',e(l.slice(i+1).trim())):it('','',e(l))}))+'</div>'}
 function varsHTML(seo){const V=(seo&&seo.vars)||[];if(!V.length)return'';const e=esc;
  return'<div class="panel bvars"><div class="eyebrow" style="margin-bottom:10px">'+tt('Build variations')+'</div>'+V.map(v=>'<details class="bvar"><summary><b>'+e(v.title)+'</b>'+(v.role?'<span class="chip ghost">'+e(v.role)+'</span>':'')+(v.pre?'<span class="chip pvc">'+tt('Pre-release')+'</span>':'')+'</summary>'
   +(v.when?'<p>'+e(v.when)+'</p>':'')+'<dl>'+(v.weapons&&v.weapons.length?'<dt>'+tt('Weapons')+'</dt><dd>'+e(v.weapons.join(', '))+'</dd>':'')+(v.arts&&v.arts.length?'<dt>'+tt('Artifacts')+'</dt><dd>'+e(v.arts.map(a=>a.sets.join(' + ')+(a.pcs?' ('+a.pcs+')':'')).join(' / '))+'</dd>':'')

@@ -1369,3 +1369,44 @@ button.hot{appearance:none;-webkit-appearance:none;border:0;background:transpare
 @media (min-width:901px){.tl-slots{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.tl-slot{min-height:0}.tl-slot.empty{min-height:210px}.tl-slotb{padding:18px 10px 10px;gap:6px}.tl-pic.big{width:108px}.tl-slotb b{font-size:18px}.tl-role{font-size:12.5px}.tl-cons{gap:5px;padding:2px 14px 16px}.tl-cons button{max-width:36px;height:32px;font-size:12.5px}}
 /* phones: two by two as well, so names stay on one line and the plus and minus buttons fit */
 @media (max-width:900px){.tl-slots{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.tl-slot{min-height:0}.tl-slot.empty{min-height:150px}.tl-pic.big{width:76px}.tl-slotb b{font-size:15px}.tl-role{font-size:11.5px}.tl-step{gap:10px;padding:2px 6px 12px}.tl-step button{width:40px;height:40px}.tl-step .tl-lv{font-size:15px;min-width:34px}}
+
+/* ---------- shared reading styles ("rd"): one look for every text-heavy block. Dark body, the page's element color only as an accent. ---------- */
+.rd,.gtext,.kitbox,.tl-ins,.tl-cx{--ac:var(--e1,#7fd6ff);--ac2:var(--e2,#bfe9ff)}
+.rd-h{display:flex;align-items:center;gap:9px}
+.rd-list{display:grid;gap:8px;margin-top:10px}
+.rd-item{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.035);border:1px solid var(--line);border-left:3px solid color-mix(in srgb,var(--ac) 70%,transparent)}
+.rd-b{min-width:0;flex:1}
+.rd-t{font:700 14.5px/1.3 var(--body);color:#fff}
+.rd-s{margin-top:3px;font-size:12.5px;line-height:1.45;color:rgba(232,236,248,.68);display:flex;flex-wrap:wrap;gap:4px 6px}
+.rd-s span{padding:1px 8px;border-radius:99px;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+.rd-item p,.bvars .rd-item p{margin:5px 0 0;font-size:14px;line-height:1.55;color:rgba(238,240,247,.9)}
+.rd-n{flex:none;width:22px;height:22px;margin-top:1px;border-radius:50%;display:grid;place-items:center;font:800 11.5px/1 var(--body);color:var(--ac2);border:1.5px solid color-mix(in srgb,var(--ac) 65%,transparent);background:color-mix(in srgb,var(--ac) 12%,transparent)}
+.rd-c{font:700 11px/1 var(--body);padding:3px 7px;border-radius:99px;color:var(--ac2);background:color-mix(in srgb,var(--ac) 14%,transparent);border:1px solid color-mix(in srgb,var(--ac) 35%,transparent)}
+.bvars .rd-sec{padding:12px 0}.bvars .rd-sec summary b{font-size:15px}.bvars .rd-sec summary::before{content:"";width:4px;height:16px;border-radius:2px;background:var(--ac);flex:none}
+/* the written version of a guide (builds and events) */
+.gtext .gtx{gap:0}
+.gtext .gtx>p{margin:0 0 10px;color:rgba(238,240,247,.9)}
+.gtext .gtx h2{display:flex;align-items:center;gap:10px;margin:18px 0 10px;padding-top:16px;border-top:1px solid var(--line);font:800 12.5px/1.3 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--ac2)}
+.gtext .gtx h2::before{content:"";width:4px;height:15px;border-radius:2px;background:var(--ac);flex:none}
+.gtext .gtx h3{margin:14px 0 6px;padding-left:10px;border-left:3px solid color-mix(in srgb,var(--ac) 70%,transparent);font:700 15px/1.35 var(--body);color:#fff}
+.gtext .gtx h4{margin:10px 0 4px;font:700 13.5px/1.3 var(--body);color:rgba(232,236,248,.8)}
+.gtext .gtx h3+p,.gtext .gtx h4+p{margin:4px 0;font-size:13px;color:rgba(232,236,248,.68)}
+.gtext .gtx ul,.gtext .gtx ol{list-style:none;margin:0 0 4px;padding:0;display:grid;gap:6px}
+.gtext .gtx li{position:relative;padding:8px 12px 8px 30px;border-radius:10px;background:rgba(255,255,255,.035);border:1px solid var(--line);line-height:1.5}
+.gtext .gtx ul>li::before{content:"";position:absolute;left:13px;top:16px;width:6px;height:6px;border-radius:50%;background:var(--ac)}
+.gtext .gtx ol{counter-reset:rd}.gtext .gtx ol>li{counter-increment:rd;padding-left:42px}
+.gtext .gtx ol>li::before{content:counter(rd);position:absolute;left:10px;top:8px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:800 11.5px/1 var(--body);color:var(--ac2);border:1.5px solid color-mix(in srgb,var(--ac) 65%,transparent);background:color-mix(in srgb,var(--ac) 12%,transparent)}
+.gtext .gtx li b:first-child{color:#fff}.gtext .gtx .evwhy{display:block;margin-top:2px;font-size:13px;color:rgba(232,236,248,.7);opacity:1}
+.gtext .gtx .evnav{padding:8px 12px;border-radius:10px;border:1px dashed var(--line);font-size:13.5px}
+@media (min-width:700px){.gtext .gtx ul.rd-2,.gtext .gtx h2+ul:not(:has(li:nth-child(9))):has(li:nth-child(3)){grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* character details box and Team Lab sections use the same header mark and separators */
+.kitbox h2{display:flex;align-items:center;gap:9px;color:var(--ac2)}.kitbox h2::before{content:"";width:4px;height:14px;border-radius:2px;background:var(--ac)}
+.tl-mod h3{display:flex;align-items:center;gap:9px}.tl-mod h3::before{content:"";width:4px;height:14px;border-radius:2px;background:currentColor;opacity:.9;flex:none}
+.tl-mod:not(.ok):not(.think) h3{color:var(--ac2);opacity:1}
+.tl-mod ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}.tl-mod ul li{position:relative;padding:8px 12px 8px 28px;border-radius:10px;background:rgba(255,255,255,.035);border:1px solid var(--line);font-size:14px;line-height:1.5}
+.tl-mod ul li::before{content:"";position:absolute;left:12px;top:15px;width:6px;height:6px;border-radius:50%;background:var(--ac)}.tl-mod.ok ul li::before{background:#5fd98f}.tl-mod.think ul li::before{background:var(--gold)}
+.tl-how.rd-item{margin:0 0 8px;display:flex}.tl-how .rd-t{font-size:14px}
+.tl-flow{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:5px;counter-reset:fl}.tl-flow li{display:flex;gap:8px;align-items:baseline;font-size:13.5px;line-height:1.45}
+.tl-fe{flex:none;min-width:58px;text-align:center;padding:1px 8px;border-radius:99px;font:700 11px/1.6 var(--body);letter-spacing:.04em;text-transform:uppercase;color:var(--el);border:1px solid color-mix(in srgb,var(--el) 55%,transparent);background:color-mix(in srgb,var(--el) 10%,transparent)}
+.tl-flow i{font-style:normal;color:rgba(232,236,248,.68)}
+.gtext .gtx ul+p,.gtext .gtx ol+p{margin:8px 0 4px;font-size:13px;color:rgba(232,236,248,.68)}.gtext .gtx>h2:first-child{border-top:0;padding-top:0;margin-top:4px}
