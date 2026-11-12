@@ -205,5 +205,9 @@
   "n": 129,
   "at": "2026-11-12T01:09:35.971Z",
   "src": "genshin-db 5.2.15"
+ },
+ "teamlab": {
+  "on": true,
+  "arena": false
  }
 }
