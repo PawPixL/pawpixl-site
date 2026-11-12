@@ -522,6 +522,14 @@ html:lang(ja) .disp,html:lang(zh) .disp{line-break:strict;word-break:keep-all;ov
 .lab-f select,.lab-f input{height:38px;border-radius:10px;border:1px solid var(--line);background:var(--bg2,#11142a);color:#fff;padding:0 10px;font:600 14px var(--body);min-width:0;width:100%}
 .lab-note{font-size:13px;line-height:1.55;color:var(--muted,#9aa3c4);margin:10px 0 0}
 .lab-note p{margin:6px 0}
+.lab-fx{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.lab-fxr{display:flex;align-items:flex-start;gap:10px;margin-top:10px;cursor:pointer}
+.lab-fxr input[type=checkbox]{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--e1,#7fa6ff)}
+.lab-fxr input[type=number]{width:64px;height:34px;flex:none;border-radius:10px;border:1px solid var(--line);background:var(--bg2,#11142a);color:#fff;padding:0 8px;font:600 14px var(--body)}
+.lab-fxr span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.lab-fxr b{font:700 13.5px var(--body);color:#fff}
+.lab-fxr small{font-size:12px;line-height:1.45;color:var(--muted,#9aa3c4)}
+.lab-tb tr.aid td[colspan]{text-align:right;font-weight:700}
 .lab-note .chip{font-size:9.5px;padding:3px 7px;vertical-align:1px;position:static}
 .lab-st{width:100%;border-collapse:collapse;margin-top:8px}
 .lab-st td{border-bottom:1px solid rgba(255,255,255,.07);font-size:14px}

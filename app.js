@@ -1593,7 +1593,8 @@ const ELK2=['pyro','hydro','anemo','electro','cryo','geo','dendro'];
    15 ≈ 100 crit value (casual), 23 ≈ 150 (well built), 30 ≈ 200 (well-farmed endgame). */
 const PRESET={typical:{crit:15,s:6,er:4,flat:3,em:2},good:{crit:23,s:7,er:5,flat:2,em:1},great:{crit:30,s:7,er:5,flat:1,em:0}};
 let LAB=null;
-function scaleOf(cd){/* the stat most of the skill and burst scale with, read from the talent labels */const n={atk:0,hp:0,def:0,em:0};(cd.t||[]).filter(t=>t.k!=='na').forEach(t=>t.lab.forEach(l=>{const f=l.split('|')[1]||'';if(!/P\}/.test(f)||!/DMG/i.test(l.split('|')[0]))return;if(/Max HP/.test(f))n.hp++;else if(/DEF/.test(f))n.def++;else if(/Elemental Mastery|EM\b/.test(f))n.em++;else n.atk++}));return Object.entries(n).sort((a,b)=>b[1]-a[1])[0][0]}
+const SCALEFIX={noelle:'def',albedo:'def',nahida:'em'};
+function scaleOf(cd){/* the stat most of the skill and burst scale with, read from the talent labels; SCALEFIX covers kits whose labels hide it (Noelle's burst turns DEF into ATK, Albedo's blossoms and Nahida's Tri-Karma carry their damage) */if(SCALEFIX[cd.id])return SCALEFIX[cd.id];const n={atk:0,hp:0,def:0,em:0};(cd.t||[]).filter(t=>t.k!=='na').forEach(t=>t.lab.forEach(l=>{const f=l.split('|')[1]||'';if(!/P\}/.test(f)||!/DMG/i.test(l.split('|')[0]))return;if(/Max HP/.test(f))n.hp++;else if(/DEF/.test(f))n.def++;else if(/Elemental Mastery|EM\b/.test(f))n.em++;else n.atk++}));return Object.entries(n).sort((a,b)=>b[1]-a[1])[0][0]}
 function planOf(kind,scale,base){const p=PRESET[kind]||PRESET.typical,v={};SUBK.forEach(k=>v[k]=0);const add=(k,n)=>{v[k]+=n};add(scale==='em'?'em':scale+'_',p.s);add('er',p.er);add('atk',p.flat);add('hp',p.flat);add('def',p.flat);if(scale!=='em')add('em',p.em);else add('atk_',p.em);
  let cr=(base&&base.cr)||.05;const rr=SUBMAX.cr*.85;let nR=Math.ceil(p.crit/2),nD=p.crit-nR;while(nR>0&&cr+nR*rr>1.0001){nR--;nD++}v.cr+=nR;v.cd+=nD;return v}
 /* spread a roll plan over the 5 pieces like real artifacts: 4 different substats each (never the piece's own main stat),
@@ -1620,7 +1621,7 @@ function hitsOf(f,P,lvl){/* turns "{param1:F1P} ATK + {param2:F1P} EM" style tex
   if(!T.length)return;const grp=al.match(/\)\s*[×x\*]\s*(\d+)\s*$/);const mixed=new Set(T.map(t=>t.st)).size>1;
   if(mixed)out.push({terms:T,n:grp?+grp[1]:1,a:ai,rel:T.some(t=>t.rel)});else T.forEach(t=>out.push({terms:[t],n:t.n,a:ai,el:t.el,rel:t.rel}))});return out}
 /* does this character's own skill, burst or attack text say their normal attacks turn into their element? (weapon users only) */
-function labInfuse(cd){if(!cd||cd.wt==='Catalyst')return'';const E=cd.el;const R=[new RegExp('(?:Normal|Charged)[^.]*Attacks?[^.]*(?:converted|convert|infused|become|transformed)[^.]*\\b'+E+' DMG','i'),new RegExp('convert\\w*[^.]*(?:Normal|attack DMG)[^.]*\\b'+E+' DMG','i'),new RegExp('(?:Normal|Charged)[^.]*Attacks?[^.]*deal (?:Nightsoul-aligned )?'+E+' DMG that cannot be overridden','i'),new RegExp('(?:blade|weapons?)[^.]*infused with '+E+'\\b','i'),new RegExp('(?:obtain|gain)s? an? '+E+' Infusion','i')];
+function labInfuse(cd){if(!cd||cd.wt==='Catalyst'||cd.id==='raiden-shogun')return'';const E=cd.el;const R=[new RegExp('(?:Normal|Charged)[^.]*Attacks?[^.]*(?:converted|convert|infused|become|transformed)[^.]*\\b'+E+' DMG','i'),new RegExp('convert\\w*[^.]*(?:Normal|attack DMG)[^.]*\\b'+E+' DMG','i'),new RegExp('(?:Normal|Charged)[^.]*Attacks?[^.]*deal (?:Nightsoul-aligned )?'+E+' DMG that cannot be overridden','i'),new RegExp('(?:blade|weapons?)[^.]*infused with '+E+'\\b','i'),new RegExp('(?:obtain|gain)s? an? '+E+' Infusion','i')];
  for(const t of (cd.t||[]).concat(cd.pa||[])){for(const x of String(t.d||'').replace(/\n/g,' ').split(/(?<=\.)\s+/)){if(R.some(r=>r.test(x)))return x.replace(/^[·\s]+/,'').trim()}}return''}
 function labStats(L){const cd=L.cd,lv=cd.lv[L.li],w=L.w,wl=w?w.lv[Math.min(L.wli,w.lv.length-1)]:null;const B={hp:lv[2],atk:lv[3]+(wl?wl[2]:0),def:lv[4]};const s={hp_:0,atk_:0,def_:0,hp:0,atk:0,def:0,cr:.05,cd:.5,er:1,em:0,heal:0,phys:0,skill:0,burst:0,na:0,ca:0,plunge:0};ELK2.forEach(e=>s[e]=0);
  const add=(k,v)=>{if(k==='el')k=cd.el.toLowerCase();s[k]=(s[k]||0)+v};
@@ -1649,11 +1650,66 @@ function labKind(cd,t,label,inf){const nm=label.toLowerCase(),own=cd.el.toLowerC
  const plain=/^\d+-hit|^aimed shot$/.test(nm.trim()),plunge=/plung/.test(nm);const cat=plunge?'plunge':/charged|aimed|kesagiri|saichimonji/.test(nm)||(cd.wt==='Bow'&&!plain)?'ca':'na';
  return{cat,el:cd.wt==='Catalyst'?own:cd.wt==='Bow'&&!plain&&!plunge?own:inf?own:'phys'}}
 function labDmg(L,R,t,label,hit){const cd=L.cd;const K=labKind(cd,t,label,L.inf),cat=K.cat;
- const own=cd.el.toLowerCase();const el=hit.el||K.el;
- const stat={atk:R.ATK,hp:R.HP,def:R.DEF,em:R.s.em};let base=hit.terms.reduce((a,x)=>a+x.v*stat[x.st],0);(R.s._flat||[]).forEach(f=>{if(f.cat.includes(cat))base+=f.v*stat[f.st]});
- const bonus=1+(R.s[el]||0)+(R.s[cat]||0)+(R.s.dmg||0);
- const Lc=L.cd.lv[L.li][0],Le=+L.elv||90,defM=(Lc+100)/((Lc+100)+(Le+100)),res=(+L.res||0)/100,resM=res<0?1-res/2:res<.75?1-res:1/(4*res+1);
- const amp=labAmp(L.rx,el,R.s.em,R.s._amp);const nc=base*bonus*defM*resM*amp,cr=Math.min(1,Math.max(0,R.s.cr));return{nc,c:nc*(1+R.s.cd),avg:nc*(1+cr*R.s.cd),el,amp:amp!==1}}
+ const M=labFxRow(L,R,t,label,K);const el=hit.el||M.el||K.el;
+ const stat={atk:R.ATK+M.atk,hp:R.HP,def:R.DEF,em:R.s.em};
+ /* (talent % x stat, times a base multiplier) + flat additions, as in the published damage formula */
+ let base=hit.terms.reduce((a,x)=>a+(x.v+(x.st==='atk'?M.tv:0))*stat[x.st],0)*M.mult+M.add;(R.s._flat||[]).forEach(f=>{if(f.cat.includes(cat))base+=f.v*stat[f.st]});
+ const bonus=1+(R.s[el]||0)+(R.s[cat]||0)+(R.s.dmg||0)+M.bonus+(M.elb[el]||0);
+ const Lc=L.cd.lv[L.li][0],Le=+L.elv||90,defM=(Lc+100)/((Lc+100)+(Le+100)*(1-M.ign)),res=(+L.res||0)/100,resM=res<0?1-res/2:res<.75?1-res:1/(4*res+1);
+ const amp=labAmp(L.rx,el,R.s.em,R.s._amp);const nc=base*bonus*defM*resM*amp,cr=Math.min(1,Math.max(0,R.s.cr+M.cr)),cdm=R.s.cd+M.cd;return{nc,c:nc*(1+cdm),avg:nc*(1+cr*cdm),el,amp:amp!==1}}
+/* ---- Character effects (Combat Intelligence, Milestone B) ----
+   Only effects whose wording is in the game data and whose place in the damage formula is published are counted.
+   t:'on' is a switch, t:'n' a number. def(c) is the starting value at constellation c: an effect starts switched on only when
+   the character can meet its condition alone. Numbers come from the talent rows, never typed in here, except the fixed
+   percentages quoted from passives and constellations. */
+const LABFX={
+ noelle:[{k:'sweep',t:'on',n:'Sweeping Time (Burst) is active',d:'Her attacks gain ATK from DEF. The Burst’s own two hits always count it.',def:()=>1}],
+ 'raiden-shogun':[{k:'eye',t:'on',n:'Eye of Stormy Judgment (own Skill) is up',d:'Burst DMG Bonus for each point of her Burst’s Energy cost.',def:()=>1},{k:'resolve',t:'n',n:'Resolve stacks (0 to 60)',d:'Added to the Burst slash and to each attack during the Burst.',max:()=>60,def:()=>60}],
+ neuvillette:[{k:'pdg',t:'n',n:'Past Draconic Glories stacks (0 to 3)',d:'Equitable Judgment deals 110%, 125% or 160% of its damage. Stacks need team reactions; Constellation 1 gives one.',max:()=>3,def:c=>c>=1?1:0},{k:'hpb',t:'on',n:'HP is at 80% or more',d:'30% Hydro DMG Bonus from his passive.',def:()=>1}],
+ furina:[{k:'fan',t:'n',n:'Fanfare points',d:'DMG Bonus while her Burst is up. Up to 300, or 400 from Constellation 1.',max:c=>c>=1?400:300,def:c=>c>=1?150:0},{k:'mem',t:'n',n:'Party members above 50% HP (0 to 4)',d:'Salon Members deal 110% to 140% of their damage.',max:()=>4,def:()=>0}],
+ nahida:[{k:'pyro',t:'n',n:'Pyro characters while Shrine of Maya is up (0 to 2)',d:'Tri-Karma Purification DMG Bonus from her Burst.',max:()=>2,def:()=>0}],
+ bennett:[{k:'fv',t:'on',n:'Standing in Fantastic Voyage (own Burst)',d:'ATK from his Base ATK. Constellation 1 adds 20%, Constellation 6 adds Pyro attacks and 15% Pyro DMG.',def:()=>0}],
+ 'yun-jin':[{k:'flag',t:'on',n:'Flying Cloud Flag Formation (own Burst) is up',d:'Adds damage from her DEF to each Normal Attack hit.',def:()=>0},{k:'types',t:'n',n:'Different elements in the party (1 to 4)',d:'Raises the DEF share by 2.5%, 5%, 7.5% or 11.5%.',min:1,max:()=>4,def:()=>1}],
+ wanderer:[{k:'wind',t:'on',n:'Windfavored (after his Skill)',d:'Normal and Charged Attacks are multiplied by the Skill’s Kuugo values.',def:()=>1},{k:'wpyro',t:'on',n:'Skill touched Pyro',d:'ATK +30% while Windfavored.',def:()=>0},{k:'wcryo',t:'on',n:'Skill touched Cryo',d:'CRIT Rate +20% while Windfavored.',def:()=>0}],
+ albedo:[{k:'low',t:'on',n:'Enemy is below 50% HP',d:'Transient Blossoms deal 25% more damage.',def:()=>0}]
+};
+/* passives and constellations that are always counted, shown under the switches so nothing is hidden */
+const LABFXNOTE={
+ noelle:'Always counted: Constellation 2 (Charged Attack DMG +15%) and Constellation 6 (Burst ATK from an extra 50% of DEF) when you have them. Breastplate’s shield and healing are worked out from DEF.',
+ 'raiden-shogun':'Always counted: Enlightened One (0.4% Electro DMG for each 1% Energy Recharge above 100%) and Constellation 2 (Burst attacks ignore 60% of enemy DEF) when you have it.',
+ neuvillette:'Always counted: Constellation 2 (14% CRIT DMG per stack on Equitable Judgment) when you have it.',
+ furina:'Always counted: Unheard Confession (Salon Members deal 0.7% more per 1,000 Max HP, up to 28%). The Singer’s healing is worked out from Max HP.',
+ nahida:'Always counted: Awakening Elucidated (Elemental Mastery above 200 gives Tri-Karma Purification up to 80% DMG and 24% CRIT Rate).',
+ bennett:'His Burst healing is worked out from Max HP.',
+ 'yun-jin':'Always counted when the formation is up: Constellation 2 (Normal Attack DMG +15%). Her shield is worked out from Max HP.',
+ wanderer:'',albedo:''};
+const labFxVal=(L,k)=>{const d=(LABFX[L.cd.id]||[]).find(x=>x.k===k);if(!d)return 0;const c=+L.cons||0,u=(L.fx||{})[k];const v=u==null?d.def(c):+u;if(d.t==='on')return v?1:0;return Math.max(d.min||0,Math.min(d.max(c),Math.round(v)||0))};
+/* a number from a talent row: row found by name (j-th match), i-th value in it, at talent level lvl */
+function labPv(cd,k,re,i,lvl,j){const t=(cd.t||[]).find(t=>t.k===k);if(!t)return 0;const l=t.lab.filter(l=>re.test(l.split('|')[0]))[j||0];if(!l)return 0;const m=[...(l.split('|')[1]||'').matchAll(/\{(param\d+):/g)][i||0];const a=m&&t.p[m[1]];return a?a[Math.min(a.length,lvl)-1]:0}
+/* what the character's own effects do to one talent row:
+   atk = extra ATK, tv = added to each ATK talent %, mult = base damage multiplier, add = flat base damage,
+   bonus = DMG Bonus, elb = DMG Bonus for one element, cr / cd = CRIT for this row, ign = share of enemy DEF ignored, el = element override */
+function labFxRow(L,R,t,nm,K){const cd=L.cd,id=cd.id,c=+L.cons||0,s=R.s,lv=k=>L.eff?L.eff(k):10,V=k=>labFxVal(L,k),cat=K.cat,own=t.k==='na';
+ const M={atk:0,tv:0,mult:1,add:0,bonus:0,elb:{},cr:0,cd:0,ign:0,el:''};if(!LABFX[id]||L.nofx)return M;
+ if(id==='noelle'){if(t.k==='q'||(own&&V('sweep')))M.atk+=R.DEF*(labPv(cd,'q',/^ATK Bonus/,0,lv('q'))+(c>=6?.5:0));if(c>=2&&cat==='ca')M.bonus+=.15}
+ else if(id==='raiden-shogun'){M.elb.electro=.4*Math.max(0,s.er-1);if(t.k==='q'){if(V('eye'))M.bonus+=labPv(cd,'e',/Elemental Burst DMG Bonus/,0,lv('e'))*labPv(cd,'q',/^Energy Cost/,0,1);M.tv+=V('resolve')*labPv(cd,'q',/^Resolve Bonus/,/Hitotachi/.test(nm)?0:1,lv('q'));if(c>=2)M.ign=.6}}
+ else if(id==='neuvillette'){if(V('hpb'))M.elb.hydro=.3;if(/Equitable Judgment/.test(nm)){const n=V('pdg');M.mult*=[1,1.1,1.25,1.6][n];if(c>=2)M.cd+=.14*n}}
+ else if(id==='furina'){M.bonus+=V('fan')*labPv(cd,'q',/Fanfare to DMG/,0,lv('q'));if(t.k==='e'&&/Usher|Chevalmarin|Crabaletta/.test(nm)){M.bonus+=Math.min(.28,.007*R.HP/1000);M.mult*=1+.1*V('mem')}}
+ else if(id==='nahida'){if(/Tri-Karma/.test(nm)){const x=Math.max(0,s.em-200);M.bonus+=Math.min(.8,x*.001);M.cr+=Math.min(.24,x*.0003);const p=V('pyro');if(p)M.bonus+=labPv(cd,'q',/^Pyro: DMG Bonus/,0,lv('q'),p-1)}}
+ else if(id==='bennett'){if(V('fv')){M.atk+=R.B.atk*(labPv(cd,'q',/^ATK Bonus Ratio/,0,lv('q'))+(c>=1?.2:0));if(c>=6){if(own&&K.el==='phys')M.el='pyro';M.elb.pyro=.15}}}
+ else if(id==='yun-jin'){if(V('flag')&&cat==='na'){M.add+=R.DEF*(labPv(cd,'q',/^DMG Increase/,0,lv('q'))+[0,.025,.05,.075,.115][V('types')]);if(c>=2)M.bonus+=.15}}
+ else if(id==='wanderer'){if(V('wind')){if(own&&cat==='na')M.mult*=labPv(cd,'e',/Fushoudan/,0,lv('e'));if(own&&cat==='ca')M.mult*=labPv(cd,'e',/Toufukai/,0,lv('e'));if(V('wpyro'))M.atk+=R.B.atk*.3;if(V('wcryo'))M.cr+=.2}}
+ else if(id==='albedo'){if(/Transient Blossom/.test(nm)&&V('low'))M.bonus+=.25}
+ return M}
+const labFxOut=o=>Object.entries(o||{}).filter(([k,v])=>/^[a-z]+$/.test(k)&&v!=null&&v!=='').map(([k,v])=>k+(+v||0)).join('-');
+const labFxIn=str=>{const o={};String(str||'').split('-').forEach(x=>{const m=x.match(/^([a-z]{2,8})(\d{1,3})$/);if(m)o[m[1]]=+m[2]});return o};
+/* healing and shields: rows like "10.8% Max HP+1270". Healing counts the character's own Healing Bonus; a shield is the
+   plain amount it absorbs (Shield Strength and element match are not counted) */
+const labIsAid=nm=>/Healing|Regenerat|HP Restored|Absorption/i.test(nm)&&!/Chance|Bonus|Interval|Duration|Consumption|\bRatio|Effectiveness/i.test(nm);
+function labAid(L,R,eff){const out=[];const stat={atk:R.ATK,hp:R.HP,def:R.DEF,em:R.s.em};(L.cd.t||[]).forEach((t,ti)=>{const lv=eff?eff(t.k):10;let carry=0;t.lab.forEach((l,li)=>{const[nm,f]=l.split('|');if(!f||!labIsAid(nm))return;
+  const val=p=>{const a=t.p[p];return a?a[Math.min(a.length,lv)-1]:0};let v=0,scaled=false,bad=false;const re=/\{(param\d+):(F?\d?P|I)\}\s*(Max HP|HP|ATK|DEF|Elemental Mastery)?/g;let m;
+  while((m=re.exec(f))){if(m[2]==='I')v+=val(m[1]);else if(m[3]){v+=val(m[1])*stat[/HP/.test(m[3])?'hp':m[3]==='DEF'?'def':/Elem/.test(m[3])?'em':'atk'];scaled=true}else bad=true}
+  if(bad)return;if(!scaled){carry=v;return}v+=carry;carry=0;const heal=!/Absorption/i.test(nm);out.push({k:t.k,ti,li,nm,kind:heal?'heal':'shield',v:heal?v*(1+(R.s.heal||0)):v})})});return out}
 /* a build's hand-typed substats and switched-on effects, packed small enough to travel in a link */
 const labPcs=P=>(P||[]).map(p=>p.subs.map(([k,v])=>k+Math.round(v*(PCT(k)?1000:10))).join('-')).join('.');
 function labPcsIn(str,mains){const G=String(str||'').split('.');if(G.length!==5)return null;const out=[];for(let i=0;i<5;i++){const subs=[];for(const x of G[i].split('-')){const m=x.match(/^([a-z]+_?)(\d{1,6})$/);if(!m||!SUBK.includes(m[1])||m[1]===mains[i]||subs.some(y=>y[0]===m[1]))return null;subs.push([m[1],Math.min(6*SUBMAX[m[1]],+m[2]/(PCT(m[1])?1000:10))])}if(subs.length!==4)return null;out.push({main:mains[i],subs})}return out}
@@ -1663,8 +1719,8 @@ const labBfIn=str=>{const o={};String(str||'').split('-').forEach(x=>{const m=x.
 const labOn=o=>Object.entries(o||{}).filter(([,n])=>n>0).map(([i,n])=>i+'x'+n).join('-');
 const labOnIn=str=>{const o={};String(str||'').split('-').forEach(x=>{const m=x.match(/^(\d{1,2})x(\d{1,2})$/);if(m)o[m[1]]=+m[2]});return o};
 /* which talent rows are damage, and the numbers for each: used by the damage tables and by the build comparison */
-const labIsDmg=nm=>(/DMG/i.test(nm)||/^(Aimed Shot|Fully-Charged Aimed Shot|Aimed Shot Charge Level \d+|Level \d+ Aimed Shot|Charged Attack|DoT)$/i.test(nm.trim()))&&!/Bonus|Reduction|Increase|Stamina|RES\b|Absorption|Shield|Healing|Regenerat|Interval/i.test(nm);
-function labRows(L,R,eff){const out=[];(L.cd.t||[]).forEach((t,ti)=>{const lv=eff?eff(t.k):10;t.lab.forEach((l,li)=>{const[nm,f]=l.split('|');if(!f||!labIsDmg(nm))return;const H=hitsOf(f,t.p,lv).filter(h=>!h.rel);if(!H.length)return;
+const labIsDmg=nm=>(/DMG/i.test(nm)||/^(Charged Attack: Equitable Judgment|Aimed Shot|Fully-Charged Aimed Shot|Aimed Shot Charge Level \d+|Level \d+ Aimed Shot|Charged Attack|DoT)$/i.test(nm.trim()))&&!/Bonus|Reduction|Increase|Stamina|RES\b|Absorption|Shield|Healing|Regenerat|Interval/i.test(nm);
+function labRows(L,R,eff){const out=[];if(eff)L.eff=eff;(L.cd.t||[]).forEach((t,ti)=>{const lv=eff?eff(t.k):10;t.lab.forEach((l,li)=>{const[nm,f]=l.split('|');if(!f||!labIsDmg(nm))return;const H=hitsOf(f,t.p,lv).filter(h=>!h.rel);if(!H.length)return;
   /* one number per row for comparing: the first "/" choice, every hit of it added up */
   const a0=H[0].a,D=H.filter(h=>h.a===a0).map(h=>({h,d:labDmg(L,R,t,nm,h)}));const sum=fn=>D.reduce((a,x)=>a+fn(x.d)*x.h.n,0);out.push({k:t.k,ti,li,nm,avg:sum(d=>d.avg),nc:sum(d=>d.nc),c:sum(d=>d.c)})})});return out}
 async function pLab(gid){if(!dbOn())return pDbSoon(gid,'Build Lab');nav(gid,'lab');meta('Build Lab · try any Genshin build','Pick a character, weapon and artifacts to see their stats and sample damage numbers.');
@@ -1683,7 +1739,7 @@ function labPick(o){const old=document.querySelector('.lpk');if(old)old.remove()
 const opt=(v,t,sel)=>'<option value="'+esc(v)+'"'+(sel?' selected':'')+'>'+esc(t)+'</option>';
 async function afterLab(gid){const box=$('#lab');if(!box)return;let C,W,A;try{[C,W,A]=await Promise.all([dbGet(gid,'chars'),dbGet(gid,'weapons'),dbGet(gid,'artifacts')])}catch(e){return}const CBX=await cbGet(gid);
  const q=new URLSearchParams(location.search);const R0=(S.games[gid]||{}).roster||[];
- const st=LAB&&LAB.gid===gid?LAB:{gid,c:'',li:-1,cons:0,tl:{na:9,e:9,q:9},w:'',wli:99,ri:0,art:true,mode:'4',s1:'',s2:'',sands:'atk_',goblet:'el',circlet:'cr',preset:'typical',subs:null,elv:90,res:10,cw:null,c4:null,inf:null,rx:'',bf:{},pin:null};LAB=st;
+ const st=LAB&&LAB.gid===gid?LAB:{gid,c:'',li:-1,cons:0,tl:{na:9,e:9,q:9},w:'',wli:99,ri:0,art:true,mode:'4',s1:'',s2:'',sands:'atk_',goblet:'el',circlet:'cr',preset:'typical',subs:null,elv:90,res:10,cw:null,c4:null,inf:null,rx:'',bf:{},fx:{},pin:null};LAB=st;
  if(q.get('c'))st.c=q.get('c');else if(q.get('cname')){/* arriving from Team Lab: the character by name, no database id needed */const x=C.list.find(c=>norm(c.n)===norm(q.get('cname')));if(x)st.c=x.id}if(q.get('w'))st.w=q.get('w');if(q.get('a'))st.s1=q.get('a');
  const wq=q.get('w')&&W.list.find(w=>w.id===q.get('w'));
  /* no character chosen yet: start on a picker instead of guessing one */
@@ -1696,9 +1752,9 @@ async function afterLab(gid){const box=$('#lab');if(!box)return;let C,W,A;try{[C
  const loadChar=async id=>{let c=null;try{c=await getJSON('/content/'+gid+'/db/c/'+encodeURIComponent(id)+'.json')}catch(e){return null}if(S.lang!=='en'){try{c._t=await getJSON('/content/'+gid+'/db/c/'+encodeURIComponent(id)+'.'+S.lang+'.json')}catch(e){}}return c};
  let cd=await loadChar(st.c);if(!cd){st.c=C.list[0].id;cd=await loadChar(st.c)}if(!cd){box.innerHTML='<div class="panel empty"><b>Couldn’t load the character data</b>Please try again later.</div>';return}
  const setChar=async(id,keep)=>{const x=await loadChar(id);if(!x)return;cd=x;st.c=id;if(!keep||st.li<0||st.li>=cd.lv.length)st.li=cd.lv.findIndex(b=>b[0]===90&&b[1]===6);if(st.li<0)st.li=cd.lv.length-1;const okW=W.list.find(w=>w.id===st.w&&w.t===cd.wt);if(!okW){const sig=W.list.find(w=>(w.sig||[]).includes(cd.id));st.w=(sig||W.list.find(w=>w.t===cd.wt&&w.r===5)||W.list.find(w=>w.t===cd.wt)||{}).id||''}
-  if(!keep||!st.subs||st.c!==st._filled){const sc=scaleOf(cd);st.scale=sc;st.sands=sc==='em'?'em':sc+'_';st.goblet='el';st.circlet='cr';st.subs=presetSubs(st.preset,sc);st.auto=true;st.circAuto=true;st.inf=!!labInfuse(cd);st.rx='';st.bf={};applySrc(myCard()?'mine':cbOf().length?'cb:0':'blank')}if(st._url){fromUrl();st._url=false}draw()};
+  if(!keep||!st.subs||st.c!==st._filled){const sc=scaleOf(cd);st.scale=sc;st.sands=sc==='em'?'em':sc+'_';st.goblet='el';st.circlet='cr';st.subs=presetSubs(st.preset,sc);st.auto=true;st.circAuto=true;st.fx={};st.inf=!!labInfuse(cd);st.rx='';st.bf={};applySrc(myCard()?'mine':cbOf().length?'cb:0':'blank')}if(st._url){fromUrl();st._url=false}draw()};
  /* a shared link: put the build back exactly */
- const fromUrl=()=>{const g=k=>q.get(k);if(g('a2')&&st.s1){st.s2=g('a2');st.mode='22'}const cn=+g('cn');if(cn>=0&&cn<=6)st.cons=cn;const tl=(g('tl')||'').split('-').map(Number);if(tl.length===3&&tl.every(x=>x>=1&&x<=10))st.tl={na:tl[0],e:tl[1],q:tl[2]};
+ const fromUrl=()=>{const g=k=>q.get(k);if(g('a2')&&st.s1){st.s2=g('a2');st.mode='22'}const cn=+g('cn');if(cn>=0&&cn<=6)st.cons=cn;if(g('fx'))st.fx=labFxIn(g('fx'));const tl=(g('tl')||'').split('-').map(Number);if(tl.length===3&&tl.every(x=>x>=1&&x<=10))st.tl={na:tl[0],e:tl[1],q:tl[2]};
   const r=+g('r');if(r>=1&&r<=5)st.ri=r-1;const m=(g('m')||'').split('.');if(m.length===3){if(SANDS.includes(m[0]))st.sands=m[0];if(['el','hp_','atk_','def_','em','phys'].includes(m[1]))st.goblet=m[1];if(CIRC.includes(m[2])){st.circlet=m[2];st.circAuto=false}}
   if(['typical','good','great'].includes(g('p')))st.preset=g('p');if(g('na'))st.art=false;
    const lv=+g('lv'),wl=+g('wl');if(g('lv')&&lv>=0&&lv<cd.lv.length)st.li=lv;if(g('wl')&&wl>=0&&wl<99)st.wli=wl;
@@ -1734,13 +1790,13 @@ async function afterLab(gid){const box=$('#lab');if(!box)return;let C,W,A;try{[C
   const snap=()=>{const b={};BF.forEach(k=>b[k]=st[k]==null?st[k]:JSON.parse(JSON.stringify(st[k])));return b};
   const pinOK=()=>!!(st.pin&&st.pin.c===st.c&&st.pin.b);
   const solve=S=>{const w=W.list.find(x=>x.id===S.w)||null;const mainsFor=c=>['hp','atk',S.sands,S.goblet,c];
-   const X={cd,w,sets:A.list,cw:S.cw&&S.cw.id===S.w?S.cw.on:null,c4:S.c4&&S.c4.id===S.s1?S.c4.on:null,elv:st.elv,res:st.res,rx:st.rx,bf:st.bf||{},inf:st.inf==null?(st.inf=!!labInfuse(cd)):st.inf};
+   const X={cd,w,sets:A.list,cw:S.cw&&S.cw.id===S.w?S.cw.on:null,c4:S.c4&&S.c4.id===S.s1?S.c4.on:null,elv:st.elv,res:st.res,rx:st.rx,bf:st.bf||{},fx:st.fx||{},inf:st.inf==null?(st.inf=!!labInfuse(cd)):st.inf};
    if(S.auto===false&&S.pieces){S.pieces.forEach((p,i)=>{if(i>1)p.main=mainsFor(S.circlet)[i];p.subs.forEach(x=>{if(x[0]===p.main){const u=SUBK.find(k=>k!==p.main&&!p.subs.some(y=>y[0]===k));if(u)x[0]=u}})});S.subs=subsOf(S.pieces)}
    if(S.auto!==false||S.circAuto!==false){const z={};SUBK.forEach(k=>z[k]=0);const fit=c=>{const o=Object.assign({},S,X,{subs:z,circlet:c});const R0=labStats(o);const pc=S.auto!==false?piecesFrom(planOf(S.preset,S.scale||scaleOf(cd),R0.s),mainsFor(c)):S.pieces;const sb=S.auto!==false?subsOf(pc):S.subs;const R1=labStats(Object.assign({},o,{subs:sb}));return{c,sb,pc,v:1+Math.min(1,R1.s.cr)*R1.s.cd}};
     /* a player picks the crit circlet that gives the better average hit (until a circlet is chosen by hand) */
     let best=fit(S.circlet);if(S.circAuto!==false&&(S.circlet==='cr'||S.circlet==='cd')){const o2=fit(S.circlet==='cr'?'cd':'cr');if(o2.v>best.v+1e-9)best=o2;S.circlet=best.c}if(S.auto!==false){S.subs=best.sb;S.pieces=best.pc}}
-   const L=Object.assign({},S,X);const R=labStats(L);const eff=k=>Math.min(15,(S.tl[k]||1)+(S.cons>=3&&cd.c3===k?3:0)+(S.cons>=5&&cd.c5===k?3:0));return{L,R,eff,w}};
-  const draw=()=>{const{L,R,eff,w}=solve(st);const PIN=pinOK()?solve(st.pin.b):null;const rowsNow=labRows(L,R,eff),rowsPin=PIN?labRows(PIN.L,PIN.R,PIN.eff):null;
+   const L=Object.assign({},S,X);const R=labStats(L);const eff=k=>Math.min(15,(S.tl[k]||1)+(S.cons>=3&&cd.c3===k?3:0)+(S.cons>=5&&cd.c5===k?3:0));L.eff=eff;return{L,R,eff,w}};
+  const draw=()=>{const{L,R,eff,w}=solve(st);const PIN=pinOK()?solve(st.pin.b):null;const rowsNow=labRows(L,R,eff),rowsPin=PIN?labRows(PIN.L,PIN.R,PIN.eff):null,aidNow=labAid(L,R,eff);
    const wText=x=>{if(!x||!x.tpl)return'';let t=x.tpl;(x.ref[Math.min(L.ri||0,x.ref.length-1)]||[]).forEach((v,i)=>{t=t.split('{'+i+'}').join(v)});return t};
   const rr=roster(cd.n);const E=EL[cd.el]||['#556','#778','#99a'];
   const popW=()=>{const seen=new Map();cbOf().forEach(b=>(b.w||[]).forEach((id,r)=>{if(!seen.has(id)||seen.get(id)>r)seen.set(id,r)}));const L=[...seen.entries()].sort((a,b)=>a[1]-b[1]).map(([id])=>W.list.find(x=>x.id===id&&x.t===cd.wt)).filter(Boolean).slice(0,8);if(!L.length)return'';
@@ -1775,6 +1831,7 @@ async function afterLab(gid){const box=$('#lab');if(!box)return;let C,W,A;try{[C
     /* hits of one attack are added with "+"; "/" separates choices such as Low/High plunge */
    const cell=fn=>{if(!H.length)return'';const by={};H.forEach(h=>{(by[h.a]||(by[h.a]=[])).push(Math.round(fn(labDmg(L,R,t,nm,h))).toLocaleString()+(h.n>1?' ×'+h.n:''))});return Object.values(by).map(x=>x.join(' + ')).join(' / ')};
    const rp=rowsPin&&rowsPin.find(r=>r.ti===ti&&r.li===li),rn=rowsNow.find(r=>r.ti===ti&&r.li===li);const dl=rp&&rn&&rp.avg>0?rn.avg/rp.avg-1:null;
+   const ar=aidNow.find(r=>r.ti===ti&&r.li===li);if(ar)return'<tr class="dmg aid"><td data-nt>'+esc(nmT||nm)+'</td><td data-nt>'+esc(txt)+'</td><td colspan="3">'+(ar.kind==='heal'?'Heals ':'Absorbs ')+Math.round(ar.v).toLocaleString()+'</td></tr>';
    return'<tr'+(H.length?' class="dmg"':'')+'><td data-nt>'+esc(nmT||nm)+'</td><td data-nt>'+esc(txt)+'</td><td>'+cell(d=>d.nc)+'</td><td>'+cell(d=>d.c)+'</td><td>'+cell(d=>d.avg)+(dl!=null?'<small class="lab-d '+cls(dl)+'">'+(cls(dl)==='eq'?'same':pct(dl))+'</small>':'')+'</td></tr>'}).join('')+'</tbody></table></div>'}).join('');
   const cons=(cd.c||[]).map((c,i)=>{const x=(CT.c||[])[i]||c;return'<li class="'+(i<st.cons?'on':'')+'" data-nt><b>C'+(i+1)+' · '+esc(x.n||c.n)+'</b><span>'+esc(x.d||c.d)+'</span></li>'}).join('');
   const sets=[st.s1,st.mode==='22'?st.s2:''].filter(Boolean).map(id=>A.list.find(a=>a.id===id)).filter(Boolean);
@@ -1815,7 +1872,7 @@ async function afterLab(gid){const box=$('#lab');if(!box)return;let C,W,A;try{[C
   const sumHTML=()=>'<div class="panel lab-sum" style="--e0:'+E[0]+';--e1:'+E[1]+'"><div class="row"><div class="eyebrow">Your build at a glance</div><span class="lab-cov" id="lab-cov" title="Worked out from game data for the enemy and assumptions shown under “Enemy, reaction and combat buffs”. Not yet checked against reference tests.">Conditional calculation</span><span class="sp"></span><button class="btn ghost lab-sm" type="button" id="lundo"'+(st.hist&&st.hist.length?'':' disabled')+'>Undo</button><button class="btn ghost lab-sm" type="button" id="lreset">Reset</button><button class="btn lab-sm" type="button" id="lshare">Copy link</button></div>'
    +'<div class="lab-core">'+coreNames.map(n=>{const r=rowBy(n);return r?'<div><small>'+esc(n)+'</small><b>'+r[1]+'</b></div>':''}).join('')+'</div>'
    +(top.length?'<div class="lab-key"><small>Biggest hits with this setup (average, with your CRIT stats)</small>'+top.map(r=>'<div><span data-nt>'+esc(talName(r))+' · '+esc(r.nm)+'</span><b>'+Math.round(r.avg).toLocaleString()+'</b></div>').join('')+'</div>':'<p class="lab-note">Build Lab has no damage hits to show for this character’s talents.</p>')
-   +(healer||supp?'<p class="lab-note">Healing, shield and buff amounts aren’t summarized here. They are in the talent tables under Advanced calculations.</p>':'')
+   +(aidNow.length?'<div class="lab-key lab-aid"><small>Healing and shields with this setup</small>'+aidNow.slice(0,3).map(r=>'<div><span data-nt>'+esc(talName(r))+' · '+esc(r.nm)+'</span><b>'+Math.round(r.v).toLocaleString()+'</b></div>').join('')+'</div>':healer||supp?'<p class="lab-note">Build Lab can’t work out this character’s healing, shield or buff amounts yet.</p>':'')
    +whyHTML2()
    +'<a class="btn lab-team" id="lteam" href="/'+gid+'/teamlab?t='+encodeURIComponent(norm(cd.n))+'&c='+st.cons+'&from=lab" data-link>Find a team for this build <span aria-hidden="true">→</span></a></div><div class="panel lab-spn" id="lab-sp" hidden></div>';
   box.innerHTML='<div class="lab-in"><div class="panel lab-who" style="--c0:'+E[0]+';--c1:'+E[1]+'"><button type="button" class="pic lab-whob" id="lwho" title="Pick another character" aria-label="Pick another character"'+(rr&&rr.icon?' style="background-image:url(\'/'+esc(rr.icon)+'\')"':'')+'>'+(rr&&rr.icon?'':'<span>'+esc(cd.n.trim()[0])+'</span>')+'<i>Change</i></button><div><b data-nt>'+esc(CT.n||cd.n)+'</b><small>'+stars(cd.r)+' <span>'+esc(cd.el)+'</span> · <span>'+esc(cd.wt)+'</span></small>'+(st.src==='mine'&&st.mine?'<small class="lab-mine">Starting from PawPixl’s build card</small>':/^cb:/.test(st.src||'')?'<small class="lab-mine">Starting from a community build</small>':'')+'</div>'+(rr?'<a class="btn" href="/'+gid+'/builds/'+esc(rr.id)+'" data-link>Guide</a>':'')+heroChips()+'</div>'+stepsHTML()+invHTML()+tilesHTML()
@@ -1831,7 +1888,8 @@ async function afterLab(gid){const box=$('#lab');if(!box)return;let C,W,A;try{[C
     +'<div class="panel lab-sec lab-ed"'+edA(['fight'])+' style="--e0:#b33a4a;--e1:#ff7a8a">'+edX+'<div class="eyebrow">The fight</div><div class="lab-f"><label>Enemy level<select id="lel">'+[90,95,100,103].map(v=>opt(v,tt('Lv')+' '+v,+st.elv===v)).join('')+'</select></label><label>Enemy RES %<input type="number" id="lres" step="5" value="'+st.res+'"></label></div>'
     +(cd.wt!=='Catalyst'?'<div class="lab-f"><label>Normal, charged and plunging attacks deal<select id="linf">'+opt('0','Physical damage',!st.inf)+opt('1',cd.el+' damage',!!st.inf)+'</select></label></div>'+(infTxt?'<p class="lab-note" data-nt>'+esc(infTxt)+'</p>':''):'')
     +(AMP.vape[elKey]||AMP.melt[elKey]?'<div class="lab-f"><label>Reaction<select id="lrx">'+opt('','None',!st.rx)+(AMP.vape[elKey]?opt('vape','Vaporize (×'+AMP.vape[elKey]+')',st.rx==='vape'):'')+(AMP.melt[elKey]?opt('melt','Melt (×'+AMP.melt[elKey]+')',st.rx==='melt'):'')+'</select></label></div>'+(st.rx&&AMP[st.rx][elKey]?'<p class="lab-note">Shown as if every '+esc(cd.el)+' hit triggers it. In a real fight only some hits do.</p>':''):'')
-    +'<details class="lab-pcs lab-bf"'+(st.bfOpen||labBf(st.bf)?' open':'')+'><summary>Buffs from your skill, passives and team</summary><p class="lab-note">The Lab doesn’t know what your character’s own skill or your teammates add. Type in what you have while it is active (for example the ATK a skill gives, or a teammate’s burst). When you compare, both builds get the same buffs.</p><div class="lab-f three">'+LABBF.map(k=>'<label>'+LABBFN[k]+'<input type="number" min="0" step="'+(PCT(k)?'1':'10')+'" data-bf="'+k+'" value="'+((+(st.bf||{})[k]||0)?(PCT(k)?Math.round(st.bf[k]*1000)/10:Math.round(st.bf[k])):'')+'" placeholder="0"></label>').join('')+'</div></details>'
+    +(LABFX[cd.id]?'<div class="lab-fx" id="lab-fx"><div class="eyebrow">'+esc(CT.n||cd.n)+'’s own effects</div>'+LABFX[cd.id].map(d=>{const v=labFxVal({cd,cons:st.cons,fx:st.fx},d.k);return'<label class="lab-fxr">'+(d.t==='on'?'<input type="checkbox" data-fx="'+d.k+'"'+(v?' checked':'')+'>':'<input type="number" inputmode="numeric" min="'+(d.min||0)+'" max="'+d.max(st.cons)+'" step="1" data-fx="'+d.k+'" value="'+v+'">')+'<span><b>'+esc(d.n)+'</b><small>'+esc(d.d)+'</small></span></label>'}).join('')+(LABFXNOTE[cd.id]?'<p class="lab-note">'+esc(LABFXNOTE[cd.id])+'</p>':'')+'</div>':'')
+    +'<details class="lab-pcs lab-bf"'+(st.bfOpen||labBf(st.bf)?' open':'')+'><summary>Buffs from your skill, passives and team</summary><p class="lab-note">The Lab doesn’t know what your character’s own skill or your teammates add. Type in what you have while it is active (for example a teammate’s burst). Effects listed above are already counted, so don’t type those in again. When you compare, both builds get the same buffs.</p><div class="lab-f three">'+LABBF.map(k=>'<label>'+LABBFN[k]+'<input type="number" min="0" step="'+(PCT(k)?'1':'10')+'" data-bf="'+k+'" value="'+((+(st.bf||{})[k]||0)?(PCT(k)?Math.round(st.bf[k]*1000)/10:Math.round(st.bf[k])):'')+'" placeholder="0"></label>').join('')+'</div></details>'
     +'</div></div>'
 
    +'<div class="lab-out">'+sumHTML()+cmpHTML()+'<details class="lab-adv" id="ladv"'+(st.adv?' open':'')+'><summary><b>Advanced calculations</b><small>Every stat, talent multiplier, hit and CRIT breakdown, constellations and passives</small></summary><div class="lab-advb"><div class="panel lab-sec lab-stats" style="--e0:'+E[0]+';--e1:'+E[1]+'"><div class="row"><div class="eyebrow">Stats</div></div><table class="lab-st">'+rows.map(r=>'<tr><td>'+esc(r[0])+'</td><td><b>'+r[1]+'</b>'+(r[2]?'<small>'+r[2]+'</small>':'')+'</td></tr>').join('')+'</table></div>'+tal
@@ -1846,7 +1904,7 @@ async function afterLab(gid){const box=$('#lab');if(!box)return;let C,W,A;try{[C
   p.set('m',[st.sands,st.goblet,st.circlet].join('.'));if(st.preset!=='typical')p.set('p',st.preset);if(!st.art)p.set('na','1');
    const dli=cd.lv.findIndex(b=>b[0]===90&&b[1]===6);if(st.li!==(dli<0?cd.lv.length-1:dli))p.set('lv',st.li);if(st.wli<99)p.set('wl',st.wli);
    if(st.art&&st.auto===false&&st.pieces)p.set('sb',labPcs(st.pieces));const cw=st.cw&&st.cw.id===st.w?labOn(st.cw.on):'',c4=st.c4&&st.c4.id===st.s1?labOn(st.c4.on):'';if(cw)p.set('cw',cw);if(c4)p.set('c4',c4);
-   if(st.inf!==!!labInfuse(cd))p.set('inf',st.inf?'1':'0');if(st.rx)p.set('rx',st.rx);{const bf=labBf(st.bf);if(bf)p.set('bf',bf)}if(+st.elv!==90)p.set('el',st.elv);if(+st.res!==10)p.set('rs',st.res);if(pinOK())p.set('vs',encB(st.pin.b));history.replaceState(null,'',location.pathname+'?'+p.toString())};
+   if(st.inf!==!!labInfuse(cd))p.set('inf',st.inf?'1':'0');if(st.rx)p.set('rx',st.rx);{const bf=labBf(st.bf);if(bf)p.set('bf',bf)}{const fx=labFxOut(st.fx);if(fx&&LABFX[cd.id])p.set('fx',fx)}if(+st.elv!==90)p.set('el',st.elv);if(+st.res!==10)p.set('rs',st.res);if(pinOK())p.set('vs',encB(st.pin.b));history.replaceState(null,'',location.pathname+'?'+p.toString())};
  const wire=()=>{upd();const on=(sel,ev,fn)=>{const e=$(sel);if(e)e[ev]=fn};
   const charPick=()=>labPick({title:'Pick a character',tabs:['Pyro','Hydro','Anemo','Electro','Dendro','Cryo','Geo'],cur:cd.id,items:C.list.map(c=>({id:c.id,n:N(c),en:c.n,tab:c.el,sub:tt(c.el)+' · '+tt(c.wt),ic:faceHTML(c.n,c.el)})),onPick:id=>setChar(id,true)});on('#lc','onclick',charPick);on('#lwho','onclick',charPick);on('#ll','onchange',e=>{st.li=+e.target.value;draw()});
   document.querySelectorAll('[data-cn]').forEach(b=>b.onclick=()=>{st.cons=+b.dataset.cn;draw()});document.querySelectorAll('[data-tk]').forEach(s=>s.onchange=()=>{st.tl[s.dataset.tk]=+s.value;draw()});
@@ -1879,7 +1937,7 @@ async function afterLab(gid){const box=$('#lab');if(!box)return;let C,W,A;try{[C
   document.querySelectorAll('[data-qa]').forEach(b=>b.onclick=()=>{const op=b.dataset.qa.split('+');st.s1=op[0];st.s2=op[1]||'';st.mode=op.length>1?'22':'4';draw()});
    const sw=(kind,idOf)=>document.querySelectorAll('[data-'+kind+']').forEach(e=>e.onchange=()=>{const id=idOf();if(!st[kind]||st[kind].id!==id)st[kind]={id,on:{}};st[kind].on[e.dataset[kind]]=e.type==='checkbox'?(e.checked?1:0):+e.value;draw()});sw('cw',()=>st.w);sw('c4',()=>st.s1);
    on('#linf','onchange',e=>{st.inf=e.target.value==='1';draw()});{const d=document.querySelector('.lab-bf');if(d)d.ontoggle=()=>{st.bfOpen=d.open}}
-   document.querySelectorAll('[data-bf]').forEach(e=>e.onchange=()=>{const k=e.dataset.bf;let v=Math.max(0,+e.value||0);v=PCT(k)?Math.min(10,v/100):Math.min(99999,v);st.bf=st.bf||{};st.bf[k]=v;st.bfOpen=true;draw()});on('#lrx','onchange',e=>{st.rx=e.target.value;draw()});
+   document.querySelectorAll('[data-fx]').forEach(e=>e.onchange=()=>{st.fx=st.fx||{};st.fx[e.dataset.fx]=e.type==='checkbox'?(e.checked?1:0):Math.max(+e.min||0,Math.min(+e.max||0,Math.round(+e.value)||0));draw()});document.querySelectorAll('[data-bf]').forEach(e=>e.onchange=()=>{const k=e.dataset.bf;let v=Math.max(0,+e.value||0);v=PCT(k)?Math.min(10,v/100):Math.min(99999,v);st.bf=st.bf||{};st.bf[k]=v;st.bfOpen=true;draw()});on('#lrx','onchange',e=>{st.rx=e.target.value;draw()});
    on('#lpin','onclick',()=>{st.pin={c:st.c,b:snap()};draw()});on('#lrepin','onclick',()=>{st.pin={c:st.c,b:snap()};draw()});on('#lunpin','onclick',()=>{st.pin=null;draw()});
    on('#lswap','onclick',()=>{const cur=snap();Object.assign(st,JSON.parse(JSON.stringify(st.pin.b)));st.pin={c:st.c,b:cur};draw()});
    /* compare with PawPixl's card or a community build: build it off to the side, pin it, and leave the build on screen alone */
