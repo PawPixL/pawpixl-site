@@ -12,7 +12,10 @@ const key=(n,el)=>{const k=norm(n);if(!/traveler|traveller|aether|lumine/.test(k
 const TRUST={reviewed:['Reviewed team','This exact team is in a PawPixl guide.'],supported:['Supported substitution','Same element, same kind of role in PawPixl\u2019s guides, and the talent text shows the same function.'],experimental:['Experimental suggestion','Could work on paper. PawPixl has not reviewed this exact team.'],insufficient:['Not enough data','PawPixl does not have enough information to say.']};
 const FN={heal:'team healing',shield:'a shield',buff:'a team buff',shred:'lowers enemy RES or DEF',battery:'restores Energy for teammates',ir:'resistance to interruption'};
 /* does a guide's role wording mean "stays on the field to deal damage"? */
-const isOn=r=>{r=String(r||'');if(/off-?field|sub[- ]?dps/i.test(r)&&!/main dps/i.test(r))return false;return /main dps|on-?field|driver|hypercarry|\bcarry\b|\bdps\b/i.test(r)};
+const ONW=/main dps|on-?field|driver|hypercarry|\bcarry\b/i,OFFW=/off-?field|sub[- ]?dps/i;
+/* a role that names both ("On-field or Off-field DPS", "Main DPS & Sub DPS") is flexible: the character can do either */
+const isFlex=r=>{r=String(r||'');return(ONW.test(r)&&OFFW.test(r))||/\bon\s*(&|and|or|\/|,)\s*off[- ]?field/i.test(r)||/\boff\s*(&|and|or|\/|,)\s*on[- ]?field/i.test(r)||/\bflex/i.test(r)};
+const isOn=r=>{r=String(r||'');if(isFlex(r))return false;if(OFFW.test(r))return false;return ONW.test(r)||/\bdps\b/i.test(r)};
 const JOBW=['shield','heal','buff','shred','support','sub dps','sub-dps','battery','enabler','off-field','driver','dps'];const jobWords=r=>JOBW.filter(w=>String(r||'').toLowerCase().includes(w));
 const PAIRS=[['Vaporize','Pyro','Hydro'],['Melt','Pyro','Cryo'],['Overloaded','Pyro','Electro'],['Burning','Pyro','Dendro'],['Frozen','Hydro','Cryo'],['Electro-Charged','Hydro','Electro'],['Bloom','Hydro','Dendro'],['Superconduct','Electro','Cryo'],['Quicken','Electro','Dendro']];
 const list=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1];
@@ -35,14 +38,17 @@ function make(D){const tags=(D.tags&&D.tags.chars)||{},roster=D.roster||[],RX=D.
  const ab=(c,slots)=>slots.map(s=>c.names[s]||s).join(', ');
  const who=(C,t)=>C.filter(c=>c.f&&c.f[t]);
  /* ---- Team Doctor ---- */
- function doctor(keys){keys=keys.filter(Boolean);const C=keys.map(info).filter(Boolean);const full=keys.length===4&&C.length===4;const out={full,keys,trust:'experimental',reviewed:null,objective:null,roles:[],onfield:[],reactions:[],resonance:[],defense:{heal:[],shield:[],ir:[]},working:[],consider:[],improve:[],missing:[]};
+ function doctor(keys){keys=keys.filter(Boolean);const C=keys.map(info).filter(Boolean);const full=keys.length===4&&C.length===4;const out={full,keys,trust:'experimental',reviewed:null,objective:null,roles:[],onfield:[],flex:[],reactions:[],resonance:[],defense:{heal:[],shield:[],ir:[]},working:[],consider:[],improve:[],missing:[]};
   out.roles=C.map(c=>{const r=roleIn(c.key,keys);return{key:c.key,name:c.name,el:c.el,role:r.role,src:r.src}});
   C.forEach(c=>{if(!c.hasTags)out.missing.push('PawPixl has no talent data for '+c.name+', so their healing, shields and buffs cannot be checked.');});
   out.roles.forEach(r=>{if(!r.role)out.missing.push('No reviewed role on file for '+r.name+', so the field-time check may be incomplete.')});
   if(!full)return out;
   const els=C.map(c=>c.el).filter(Boolean);out.reactions=reactions(els);out.resonance=resonance(els);
   const rv=reviewed(keys)[0]||null;if(rv){out.trust='reviewed';out.reviewed=rv;out.objective={text:(rv.name?rv.name+'. ':'')+(rv.text||''),src:'From PawPixl’s '+rv.owner+' guide.'};out.working.push('This exact team is in PawPixl’s '+rv.owner+' guide'+(rv.name?' as “'+rv.name+'”':'')+'.')}
-  out.onfield=out.roles.filter(r=>isOn(r.role)).map(r=>r.name);
+  out.onfield=out.roles.filter(r=>isOn(r.role)).map(r=>r.name);out.flex=out.roles.filter(r=>isFlex(r.role)).map(r=>r.name);
+  /* nobody is fixed on the field, but someone can take it: they are the likely on-field character here */
+  if(!out.onfield.length&&out.flex.length){out.onfield=[out.flex[0]];out.working.push(list(out.flex)+' can play on or off the field according to PawPixl\u2019s guides. In this team '+out.flex[0]+' is the one most likely to take the field.')}
+  else if(out.flex.length)out.working.push(list(out.flex)+' can play on or off the field, so '+(out.flex.length>1?'they':'they')+' can stay off it here.');
   if(!rv){const main=out.onfield[0],rx=out.reactions.filter(x=>!/Swirl|Crystallize/.test(x.name)).map(x=>x.name);out.objective={text:(main?'Built around '+main+(out.onfield.length>1?' (or '+list(out.onfield.slice(1))+')':'')+'. ':'')+(rx.length?'Its elements can make '+list(rx)+'.':'Its elements make no damage reaction with each other, so it relies on raw damage and buffs.'),src:main?'Worked out from guide roles and elements. Not a reviewed team.':'Worked out from elements only. PawPixl has no on-field role on file for these four.'}}
   /* defense */
   who(C,'heal').forEach(c=>out.defense.heal.push({name:c.name,from:ab(c,c.f.heal)}));who(C,'shield').forEach(c=>out.defense.shield.push({name:c.name,from:ab(c,c.f.shield)}));who(C,'ir').forEach(c=>out.defense.ir.push({name:c.name,from:ab(c,c.f.ir)}));
