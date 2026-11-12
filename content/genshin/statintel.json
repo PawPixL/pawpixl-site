@@ -1,0 +1,19 @@
+{
+ "schema": "pawpixl-statintel-overrides/1",
+ "items": {
+  "valeriy|main": {
+   "featured": [
+    "atk",
+    "er",
+    "cr"
+   ],
+   "note": "HP is not a necessary stat for Valeriy.",
+   "status": "approved",
+   "at": "2026-11-12T19:40:45.072Z",
+   "name": "Valeriy",
+   "build": "main",
+   "history": []
+  }
+ },
+ "updated": "2026-11-12T19:40:46.015Z"
+}
