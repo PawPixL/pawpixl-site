@@ -151,13 +151,54 @@ function make(D){const tags=(D.tags&&D.tags.chars)||{},roster=D.roster||[],RX=D.
   if(!L.length)notes.unshift(out.length?'No alternative matches these filters.':'No swap for '+m.name+' here that PawPixl can stand behind yet.');
   return{job:{name:m.name,role:J.role,unique:J.unique.map(t=>FN[t]),rxNeed:J.rxNeed},list:L.slice(0,12),total:L.length,notes}}
  /* ---- Build around my favorite ---- */
+ /* ---------- Setup A against Setup B ----------
+    Both setups go through the same doctor() as everything else, so nothing here is a second set of rules.
+    The comparison only reports differences the engine can stand behind: who is in the team, which reactions are
+    possible and who enables or triggers them, and which kinds of support each teammate's kit brings at the chosen
+    constellations. Team Lab does not calculate damage, so no damage number, team DPS or reaction count is produced. */
+ function compare(kA,cA,kB,cB){cA=cA||{};cB=cB||{};const A=doctor(kA,cA),B=doctor(kB,cB),out={ok:A.full&&B.full,a:A,b:B,changed:[],same:[],sections:{reactions:[],buffs:[],healing:[],shielding:[],energy:[],comfort:[],damage:[]},explain:[],unsupported:[]};if(!out.ok)return out;
+  const nm=k=>(info(k)||{name:k}).name,inA=kA.filter(k=>!kB.includes(k)),inB=kB.filter(k=>!kA.includes(k));
+  inA.forEach((k,i)=>out.changed.push({type:'swap',from:k,to:inB[i],slotA:kA.indexOf(k),slotB:kB.indexOf(inB[i]),text:nm(inB[i])+' replaces '+nm(k)+'.'}));
+  kA.filter(k=>kB.includes(k)).forEach(k=>{const a=cA[k]||0,b=cB[k]||0;if(a!==b)out.changed.push({type:'cons',key:k,from:a,to:b,slotA:kA.indexOf(k),slotB:kB.indexOf(k),text:nm(k)+' goes from C'+a+' to C'+b+'.'});else out.same.push(k)});
+  /* reactions: gained, lost, special ones going back to ordinary, and who triggers the ones that are owned by their trigger */
+  const rA=A.reactions.map(x=>x.name),rB=B.reactions.map(x=>x.name),R=out.sections.reactions;
+  A.reactions.filter(x=>x.special&&!rB.includes(x.name)).forEach(x=>R.push({k:'lost',text:rB.includes(x.base)?x.name+' goes back to ordinary '+x.base+' in Setup B, because nobody there turns '+x.baseName+' into it.':x.name+' is not available in Setup B.'}));
+  B.reactions.filter(x=>x.special&&!rA.includes(x.name)).forEach(x=>R.push({k:'gained',text:'Setup B has '+x.name+': '+list(x.by)+(x.by.length>1?' turn ':' turns ')+x.baseName+' into it.'}));
+  A.reactions.filter(x=>x.special&&rB.includes(x.name)).forEach(x=>{const y=B.reactions.find(z=>z.name===x.name);if(x.by.join()!==y.by.join())R.push({k:'same',text:x.name+' stays, now enabled by '+list(y.by)+' instead of '+list(x.by)+'.'})});
+  const spBase=new Set(A.reactions.concat(B.reactions).filter(x=>x.special).map(x=>x.base));
+  rA.filter(n=>!rB.includes(n)&&!MECH[n]&&!spBase.has(n)).forEach(n=>R.push({k:'lost',text:n+' is no longer possible in Setup B.'}));rB.filter(n=>!rA.includes(n)&&!MECH[n]&&!spBase.has(n)).forEach(n=>R.push({k:'gained',text:n+' becomes possible in Setup B.'}));
+  ['Hyperbloom','Burgeon'].forEach(n=>{const ha=(A.how||[]).find(h=>h.reaction===n),hb=(B.how||[]).find(h=>h.reaction===n);if(!ha||!hb)return;const wa=ha.steps[ha.steps.length-1].who,wb=hb.steps[hb.steps.length-1].who;if(wa.join()!==wb.join())R.push({k:'owner',text:n+' is triggered by '+list(wb)+' in Setup B instead of '+list(wa)+'. '+n+' damage belongs to whoever triggers it and scales with that character’s level and Elemental Mastery, so the trigger’s build is what matters.'})});
+  if(A.primary!==B.primary&&A.primary&&B.primary&&!R.some(x=>x.text.includes(A.primary)&&x.text.includes(B.primary)))R.push({k:'main',text:'The main reaction changes from '+A.primary+' to '+B.primary+'.'});
+  /* what each kit brings, at the chosen constellations */
+  const fnWho=(D,t)=>t==='heal'?D.defense.heal.map(x=>x.name):t==='shield'?D.defense.shield.map(x=>x.name):t==='ir'?D.defense.ir.map(x=>x.name):D.keys.map(k=>atCons(info(k),(D===A?cA:cB)[k])).filter(c=>c&&c.f&&c.f[t]).map(c=>c.name);
+  const diffFn=(t,sec,gainT,lossT)=>{const a=fnWho(A,t),b=fnWho(B,t),g=b.filter(n=>!a.includes(n)),l=a.filter(n=>!b.includes(n));if(g.length)out.sections[sec].push({k:'gained',text:gainT(list(g),b)});if(l.length)out.sections[sec].push({k:'lost',text:lossT(list(l),b)})};
+  diffFn('buff','buffs',(g)=>'Setup B adds a team buff from '+g+'.',(l,b)=>'Setup B loses '+l+'’s team buff'+(b.length?'. '+list(b)+' still '+(b.length>1?'buff':'buffs')+' the team.':', and nobody else there buffs teammates.'));
+  diffFn('shred','buffs',(g)=>'Setup B adds an enemy RES or DEF reduction from '+g+'.',(l,b)=>'Setup B loses '+l+'’s enemy RES or DEF reduction'+(b.length?'.':', and nobody else there lowers enemy RES or DEF.'));
+  diffFn('heal','healing',(g)=>'Setup B adds team healing from '+g+'.',(l,b)=>'Setup B loses '+l+'’s team healing'+(b.length?'. '+list(b)+' still '+(b.length>1?'heal':'heals')+'.':', and nobody else there heals the team.'));
+  diffFn('shield','shielding',(g)=>'Setup B adds a shield from '+g+'.',(l,b)=>'Setup B loses '+l+'’s shield'+(b.length?'. '+list(b)+' still '+(b.length>1?'shield':'shields')+'.':', and nobody else there shields the team.'));
+  diffFn('battery','energy',(g)=>'Setup B adds Energy for teammates from '+g+'.',(l,b)=>'Setup B loses the Energy '+l+' gave teammates'+(b.length?'.':', and nobody else there restores Energy for teammates.'));
+  diffFn('ir','comfort',(g)=>'Setup B adds interruption resistance from '+g+'.',(l,b)=>'Setup B loses '+l+'’s interruption resistance'+(b.length?'.':'.'));
+  {const big=D=>D.keys.map(info).filter(c=>c&&c.cost>=80).map(c=>c.name+' ('+c.cost+')').join(', ');if(big(A)!==big(B))out.sections.energy.push({k:'note',text:'Bursts that cost 80 Energy or more: '+(big(A)||'none')+' in Setup A, '+(big(B)||'none')+' in Setup B.'})}
+  /* constellation steps that changed: team effect, talent levels, or a personal gain */
+  out.changed.filter(x=>x.type==='cons').forEach(x=>{const lo=Math.min(x.from,x.to),hi=Math.max(x.from,x.to),up=x.to>x.from,team=[],own=[];for(let lv=lo+1;lv<=hi;lv++){const S=consStep(x.key,lv);if(S.team.length)team.push('C'+lv+' ('+S.team.join(' and ')+')');else own.push('C'+lv)}
+   x.team=team;x.own=own;x.detail=(team.length?(up?'Adds for the team: ':'Removes from the team: ')+team.join(', ')+'. ':'')+(own.length?own.join(', ')+(own.length>1?' change ':' changes ')+nm(x.key)+'’s own performance (damage, talent levels or comfort), not what teammates get.':'')});
+  /* damage: stated plainly as not calculated */
+  out.sections.damage.push({k:'limit',text:'Team Lab doesn’t calculate damage yet, so neither setup has a damage number, a team DPS or a reaction count. What is compared here is what each setup can do, not how hard it hits.'});
+  out.unsupported=['Damage numbers and team DPS','How often a reaction happens','Buff uptime and how large each buff is','Energy needs for a rotation','Weapons, refinements, artifacts and talent levels (Team Lab does not hold builds yet; Build Lab compares these for one character)'];
+  /* a short plain-language read, made only from the differences found above */
+  const E=out.explain,swaps=out.changed.filter(x=>x.type==='swap'),cons=out.changed.filter(x=>x.type==='cons');if(!out.changed.length)E.push('The two setups are the same.');
+  if(swaps.length)E.push((swaps.length===1?'One teammate changes: ':swaps.length+' teammates change: ')+swaps.map(x=>nm(x.to)+' for '+nm(x.from)).join(', ')+'.');
+  const gl=Object.values(out.sections).flat().filter(x=>x.k==='lost').length,gg=Object.values(out.sections).flat().filter(x=>x.k==='gained').length;
+  if(swaps.length)E.push(gg&&gl?'It is a trade: Setup B gains some things and gives up others, listed below.':gg?'Setup B adds to what the team can do without giving up anything Team Lab tracks.':gl?'Setup B gives up some of what Setup A had, and Team Lab found nothing new in return.':'The swap changes nothing Team Lab tracks: the same reactions and the same kinds of support are there.');
+  cons.forEach(x=>E.push(nm(x.key)+' C'+x.from+' to C'+x.to+': '+(x.detail||'no change found.')));
+  return out}
  function favorite(k){const c=info(k);if(!c)return null;const T=teamsWith(k),seen=new Set(),teams=[];T.forEach(t=>{if(seen.has(t.sig))return;seen.add(t.sig);
    /* alternatives: reviewed teams that differ from this one by a single teammate */
    const alts=[];TEAMS.forEach(u=>{if(u.sig===t.sig||!u.m.includes(k))return;const miss=u.m.filter(x=>!t.m.includes(x)),ext=t.m.filter(x=>!u.m.includes(x));if(miss.length===1){const a=info(ext[0]),b=info(miss[0]);if(a&&b&&!alts.some(z=>z.out===a.name&&z.in===b.name))alts.push({out:a.name,in:b.name,inKey:b.key,owner:u.owner})}});
    teams.push({name:t.name,owner:t.owner,ownerId:t.ownerId,keys:t.m,members:t.m.map((x,i)=>{const ci=info(x)||{name:t.names[i],el:'',key:x};return{key:x,name:ci.name,el:ci.el,icon:ci.icon||'',guide:ci.guide||'',role:t.roles[i]||''}}),text:t.text,alts})});
   teams.sort((a,b)=>(a.owner===c.name?0:1)-(b.owner===c.name?0:1));const fn=c.f?Object.keys(c.f).filter(t=>FN[t]).map(t=>({what:FN[t],from:ab(c,c.f[t])})):[];
   return{c,roles:c.roles,cons:c.cons,fn,selfheal:!!(c.f&&c.f.selfheal),teams,missing:[].concat(c.hasTags?[]:['PawPixl doesn\u2019t have '+c.name+'\u2019s kit on file yet.'],c.roles.length?[]:['There\u2019s no PawPixl build guide for '+c.name+' yet, so no guide role to show.'],teams.length?[]:[c.name+' isn\u2019t in a PawPixl guide team yet.'])}}
- return{info,all,doctor,subs,favorite,reviewed,roleIn,reactions,key,consStep,atCons}}
+ return{info,all,doctor,subs,compare,favorite,reviewed,roleIn,reactions,key,consStep,atCons}}
 /* PawPixl's reviewed guide data, as the website already has it in content/<game>/index.json */
 function guidesFrom(idx){const out=[],B=((idx||{}).posts||{}).builds||{},R=(idx||{}).roster||[];Object.keys(B).forEach(id=>{const v=(B[id].versions||[])[0];if(!v||!v.seo)return;const r=R.find(x=>x.id===id),name=r?r.name:(B[id].title||id),why=(v.why&&v.why.t)||[];
   const teams=(v.seo.teams||[]).map(t=>{const sig=(t.members||[]).map(norm).sort().join('|'),y=why.find(x=>x&&(x.members||[]).map(norm).sort().join('|')===sig)||{};return{name:t.name||'',members:t.members||[],roles:(t.members||[]).map(n=>{const i=(y.members||[]).findIndex(m=>norm(m)===norm(n));return i>=0&&y.roles?(y.roles[i]||''):''}),text:y.text||''}});
