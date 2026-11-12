@@ -209,5 +209,8 @@
  "teamlab": {
   "on": true,
   "arena": false
+ },
+ "endgame": {
+  "on": true
  }
 }
