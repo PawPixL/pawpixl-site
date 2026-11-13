@@ -6,7 +6,7 @@
    - The greeting is PawPixl's own short line. It is never presented as something the character said.
    - No sound, no flashing, nothing full-screen. Reduced-motion visitors get a still sticker. */
 (function(){
- const CSS='.bd-host{position:relative}.bd-host>.qotd{position:relative;z-index:1}'
+ const CSS='.bd-host{position:relative}.bd-host>.qotd,.bd-front{position:relative;z-index:1}.bd-peek.bd-at{right:auto}'
  +'.bd-peek{position:absolute;right:20px;top:0;z-index:0;display:flex;gap:2px;transform:translateY(4px);transition:transform .9s cubic-bezier(.2,.9,.3,1.15);pointer-events:none}'
  +'.bd-peek.in{transform:translateY(-58%);pointer-events:auto}'
  +'.bd-st{all:unset;display:block;width:64px;height:64px;cursor:pointer;border-radius:14px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))}.bd-st img{width:100%;height:100%;object-fit:contain;display:block}'
@@ -33,24 +33,26 @@
  const greeting=L=>'Happy Birthday, '+names(L.map(c=>c.n))+'! 🎂';
  const reduced=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
  const SS={get:k=>{try{return sessionStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{sessionStorage.setItem(k,v)}catch(e){}}};
- /* mount on the element that holds the quote box. opt: {now, load(id)->Promise<{img}>, guide(id)->href|null, force, stay, every, max} */
+ /* mount on the element that holds the Browse all builds button (opt.anchor) or, without an anchor, the quote box. opt: {now, load(id)->Promise<{img}>, guide(id)->href|null, force, stay, every, max} */
  async function mount(box,file,opt){opt=opt||{};if(!box||!file||file.on===false)return null;const who=today(file.list,opt.now).filter(c=>c.s);unmount(box);if(!who.length)return null;
   const got=[];for(const c of who.slice(0,3)){try{const a=await opt.load(c.id);if(a&&/^data:image\/(png|webp|gif);base64,/.test(a.img||''))got.push(Object.assign({},c,{img:a.img}))}catch(e){}}
   if(!got.length||!box.isConnected)return null;css();box.classList.add('bd-host');
   const peek=document.createElement('div');peek.className='bd-peek';peek.setAttribute('data-bd-count',got.length);
   peek.innerHTML='<span class="bd-say" aria-hidden="true">'+esc(greeting(got))+'</span>'+got.map((c,i)=>'<button type="button" class="bd-st" data-i="'+i+'" aria-label="'+esc('It’s '+c.n+'’s birthday today. Open the birthday card.')+'"><img alt="" src="'+c.img+'"></button>').join('');
   box.insertBefore(peek,box.firstChild);
+  /* opt.anchor: an element inside box (the Browse all builds button). The sticker then hides behind that element and rises from its top edge, lined up with its right side */
+  const anc=opt.anchor&&box.contains(opt.anchor)?opt.anchor:null;const place=()=>{if(!anc||!anc.isConnected)return;const a=anc.getBoundingClientRect(),h=box.getBoundingClientRect();/* on a phone the search field sits right on top of the button: rise from the top of the row there, so the field never covers the sticker */const up=a.top-h.top>8?0:a.top-h.top;peek.style.top=Math.round(up)+'px';peek.style.left=Math.max(0,Math.round(a.right-h.left-peek.offsetWidth-Math.min(14,a.width*.08)))+'px'};if(anc){anc.classList.add('bd-front');peek.classList.add('bd-at');place();addEventListener('resize',place)}
   /* a picture that fails to draw is taken away; if none is left, so is the whole thing */
   peek.querySelectorAll('img').forEach(im=>{im.onerror=()=>{const b=im.closest('.bd-st');if(b)b.remove();if(!peek.querySelector('.bd-st'))unmount(box)}});
-  const st={box,peek,timers:[],shown:0,last:0,card:null,busy:0,key:'pp-bd-'+got.map(c=>c.id).join('+')+'-'+(opt.now||new Date()).toDateString()};box._bd=st;
+  const st={box,peek,anc,place,timers:[],shown:0,last:0,card:null,busy:0,key:'pp-bd-'+got.map(c=>c.id).join('+')+'-'+(opt.now||new Date()).toDateString()};box._bd=st;
   const T=(fn,ms)=>{const t=setTimeout(fn,ms);st.timers.push(t);return t};const stay=opt.stay||7000,calm=reduced();
   const hide=()=>{peek.classList.remove('in','hop','say')};
-  const show=()=>{if(st.card||document.hidden)return;st.shown++;st.last=Date.now();SS.set(st.key,String(st.shown));peek.classList.add('in');if(calm){peek.classList.add('say');return}T(()=>peek.classList.add('hop'),950);T(()=>peek.classList.add('say'),1500);T(()=>{if(!st.card&&!peek.matches(':hover')&&!peek.contains(document.activeElement))hide()},1500+stay)};
+  const show=()=>{if(st.card||document.hidden)return;place();st.shown++;st.last=Date.now();SS.set(st.key,String(st.shown));peek.classList.add('in');if(calm){peek.classList.add('say');return}T(()=>peek.classList.add('hop'),950);T(()=>peek.classList.add('say'),1500);T(()=>{if(!st.card&&!peek.matches(':hover')&&!peek.contains(document.activeElement))hide()},1500+stay)};
   st.show=show;st.hide=hide;
   /* the visitor is busy while typing, scrolling or pressing: never start an appearance then */
   const busy=()=>{st.busy=Date.now()};['scroll','keydown','pointerdown','wheel','touchstart'].forEach(e=>addEventListener(e,busy,{passive:true}));
   const vis=()=>{if(document.hidden&&!calm&&!st.card)hide()};document.addEventListener('visibilitychange',vis);
-  st.off=()=>{st.timers.forEach(clearTimeout);if(st.iv)clearInterval(st.iv);['scroll','keydown','pointerdown','wheel','touchstart'].forEach(e=>removeEventListener(e,busy));document.removeEventListener('visibilitychange',vis);document.removeEventListener('keydown',st.esc);document.removeEventListener('pointerdown',st.out)};
+  st.off=()=>{removeEventListener('resize',place);if(anc)anc.classList.remove('bd-front');st.timers.forEach(clearTimeout);if(st.iv)clearInterval(st.iv);['scroll','keydown','pointerdown','wheel','touchstart'].forEach(e=>removeEventListener(e,busy));document.removeEventListener('visibilitychange',vis);document.removeEventListener('keydown',st.esc);document.removeEventListener('pointerdown',st.out)};
   /* once per session for this birthday, then at most a few quiet reappearances on a long visit */
   const seen=+(SS.get(st.key)||0),max=opt.max||3,every=opt.every||240000;st.shown=opt.force?0:seen;
   if(opt.force||!seen)T(show,opt.force?150:1400);else if(calm)show();
@@ -60,7 +62,7 @@
   peek.addEventListener('click',e=>{const b=e.target.closest('.bd-st');if(!b)return;const c=got[+b.dataset.i];if(st.card){close();return}st.from=b;const href=opt.guide?opt.guide(c.id):null;
    const card=document.createElement('div');card.className='bd-card';card.setAttribute('role','dialog');card.setAttribute('aria-label',c.n+'’s birthday');card.style.setProperty('--bdc',EC[c.el]||'rgba(255,255,255,.2)');
    card.innerHTML='<button type="button" class="bd-x" aria-label="Close the birthday card">×</button><img alt="'+esc(c.n+' sticker')+'" src="'+c.img+'"><b>'+esc(c.n)+'</b><p>'+esc(greeting([c]))+'</p>'+(href?'<a href="'+esc(href)+'">'+esc('See '+c.n+'’s guide')+'</a>':'');
-   box.appendChild(card);st.card=card;peek.classList.add('in','say');card.querySelector('.bd-x').onclick=close;card.querySelector('.bd-x').focus();const im=card.querySelector('img');im.onerror=()=>im.remove()});
+   box.appendChild(card);if(anc){card.style.top=(parseInt(peek.style.top)||0)+anc.offsetHeight+8+'px'}st.card=card;peek.classList.add('in','say');card.querySelector('.bd-x').onclick=close;card.querySelector('.bd-x').focus();const im=card.querySelector('img');im.onerror=()=>im.remove()});
   return st}
  function unmount(box){if(!box)return;const st=box._bd;if(st){st.off();if(st.card)st.card.remove();if(st.peek)st.peek.remove();box._bd=null}box.querySelectorAll&&box.querySelectorAll('.bd-peek,.bd-card').forEach(x=>x.remove())}
  /* the small cake beside a name on that character's own guide page, today only */
