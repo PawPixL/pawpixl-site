@@ -9,11 +9,22 @@
    ],
    "note": "HP is not a necessary stat for Valeriy.",
    "status": "approved",
-   "at": "2026-11-12T19:40:45.072Z",
+   "at": "2026-11-13T00:36:13.637Z",
    "name": "Valeriy",
    "build": "main",
-   "history": []
+   "history": [
+    {
+     "featured": [
+      "atk",
+      "er",
+      "cr"
+     ],
+     "note": "HP is not a necessary stat for Valeriy.",
+     "status": "approved",
+     "at": "2026-11-12T19:40:45.072Z"
+    }
+   ]
   }
  },
- "updated": "2026-11-12T19:40:46.015Z"
+ "updated": "2026-11-13T00:36:14.403Z"
 }
