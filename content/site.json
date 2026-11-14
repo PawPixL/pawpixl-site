@@ -212,5 +212,11 @@
  },
  "endgame": {
   "on": true
+ },
+ "seoOver": {
+  "/genshin/builds/sangonomiyakokomi": {
+   "title": "Kokomi Build Guide: Find your best build! (7.2) — PawPixl",
+   "desc": "Sangonomiya Kokomi build guide for Genshin Impact 7.2: best weapons (Everlasting Moonglow, A Thousand Floating Dreams)."
+  }
  }
 }
