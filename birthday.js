@@ -17,6 +17,7 @@
  +'.bd-peek.in .bd-row{transform:translateY(var(--bd-top,22px));visibility:visible;transition:transform .9s cubic-bezier(.2,.9,.3,1.15),visibility 0s 0s}'
  +'.bd-st{all:unset;display:block;flex:none;position:relative;cursor:pointer;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4))}.bd-st img{width:100%;height:100%;display:block}'
  +'.bd-peek.in .bd-st{pointer-events:auto}'
+ +'.bd-peek.bd-tight .bd-row,.bd-peek.bd-tight.in .bd-row{transition-timing-function:cubic-bezier(.2,.8,.3,1),linear}'
  +'.bd-st:focus-visible{outline:2px solid #5fd8ff;outline-offset:-2px}'
  +'.bd-peek.hop .bd-st{animation:bdhop .9s ease-in-out 1}.bd-peek.hop .bd-st:nth-child(2){animation-delay:.12s}.bd-peek.hop .bd-st:nth-child(3){animation-delay:.24s}'
  +'@keyframes bdhop{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-8px) rotate(-4deg)}50%{transform:translateY(0) rotate(0)}75%{transform:translateY(-5px) rotate(3deg)}}'
@@ -32,9 +33,9 @@
  /* placement, set by the owner in the Studio and published with the birthday list. anchor: which part of the button the
     sticker lines up with; x: sideways nudge in pixels; peek: how much of the sticker shows above the button (percent of its
     height); scale: size (percent). A sticker may carry its own {x, peek, scale} in "adj". */
- const PLACE={anchor:'right',x:0,peek:62,scale:100},BASE=96,ROOM=22,OVER=0;
+ const PLACE={anchor:'right',x:0,peek:62,scale:100},PLACE_M={anchor:'right',x:0,peek:55,scale:80},BASE=96,ROOM=22,OVER=0;
  const num=(v,d,lo,hi)=>{v=+v;return isFinite(v)?Math.min(hi,Math.max(lo,v)):d};
- const placeOf=(a,b)=>{const p=Object.assign({},PLACE,a||{},b||{});return{anchor:/^(left|center|right)$/.test(p.anchor)?p.anchor:'right',x:num(p.x,0,-200,200),peek:num(p.peek,62,20,100),scale:num(p.scale,100,40,200)}};
+ const placeOf=(a,b,base)=>{const p=Object.assign({},base||PLACE,a||{},b||{});return{anchor:/^(left|center|right)$/.test(p.anchor)?p.anchor:'right',x:num(p.x,0,-200,200),peek:num(p.peek,62,20,100),scale:num(p.scale,100,40,200)}};
  /* cut the transparent margin away so every sticker is measured by its artwork, not by the outer size of its file.
     Returns {src,w,h} or null when the file is not a picture or is completely empty. */
  function trim(src){return new Promise(res=>{const im=new Image();im.onerror=()=>res(null);im.onload=()=>{try{const W=im.naturalWidth,H=im.naturalHeight;if(!W||!H)return res(null);const k=Math.min(1,256/Math.max(W,H)),w=Math.max(1,Math.round(W*k)),h=Math.max(1,Math.round(H*k)),cv=document.createElement('canvas');cv.width=w;cv.height=h;const x=cv.getContext('2d');x.drawImage(im,0,0,w,h);const d=x.getImageData(0,0,w,h).data;let x0=w,y0=h,x1=-1,y1=-1;for(let Y=0;Y<h;Y++)for(let X=0;X<w;X++)if(d[(Y*w+X)*4+3]>10){if(X<x0)x0=X;if(X>x1)x1=X;if(Y<y0)y0=Y;if(Y>y1)y1=Y}
@@ -54,25 +55,37 @@
     place, now, load(id)->Promise<{img}>, guide(id)->href|null, force, stay, every, max}. Returns the state, with
     hold('hidden'|'peek'|'play') for the Studio's preview. */
  async function mount(box,file,opt){opt=opt||{};if(!box||!file||file.on===false)return null;const who=today(file.list,opt.now).filter(c=>c.s);unmount(box);if(!who.length)return null;
-  const got=[];for(const c of who.slice(0,3)){try{const a=await opt.load(c.id);if(a&&/^data:image\/(png|webp|gif);base64,/.test(a.img||'')){const t=await trim(a.img);if(t)got.push(Object.assign({},c,{img:t.src,iw:t.w,ih:t.h,adj:Object.assign({},c.adj||{},(opt.adj||{})[c.id]||{})}))}}catch(e){}}
+  const got=[];for(const c of who.slice(0,3)){try{const a=await opt.load(c.id);if(a&&/^data:image\/(png|webp|gif);base64,/.test(a.img||'')){const t=await trim(a.img);if(t)got.push(Object.assign({},c,{img:t.src,iw:t.w,ih:t.h,adj:Object.assign({},c.adj||{},(opt.adj||{})[c.id]||{}),adjM:c.adjM?Object.assign({},c.adjM):null}))}}catch(e){}}
   if(!got.length||!box.isConnected)return null;css();box.classList.add('bd-host');
   const anc=(opt.anchor&&box.contains(opt.anchor)?opt.anchor:null)||box.querySelector('.qotd')||box.firstElementChild||box;
   const peek=document.createElement('div');peek.className='bd-peek';peek.setAttribute('data-bd-count',got.length);
   peek.innerHTML='<div class="bd-clip"><div class="bd-row">'+got.map((c,i)=>'<button type="button" class="bd-st" data-i="'+i+'" aria-label="'+esc('It’s '+c.n+'’s birthday today. Open the birthday card.')+'"><img alt="" src="'+c.img+'"></button>').join('')+'</div></div><span class="bd-say" aria-hidden="true">'+esc(greeting(got))+'</span>';
   box.insertBefore(peek,box.firstChild);const row=peek.querySelector('.bd-row'),say=peek.querySelector('.bd-say'),btns=[...peek.querySelectorAll('.bd-st')];
-  const st={box,peek,anc,timers:[],shown:0,last:0,card:null,busy:0,place:placeOf(file.place,opt.place),key:'pp-bd-'+got.map(c=>c.id).join('+')+'-'+(opt.now||new Date()).toDateString()};box._bd=st;
+  const st={box,peek,anc,timers:[],shown:0,last:0,card:null,busy:0,place:placeOf(file.place,opt.place),placeM:placeOf(file.placeMobile,opt.placeMobile,PLACE_M),key:'pp-bd-'+got.map(c=>c.id).join('+')+'-'+(opt.now||new Date()).toDateString()};box._bd=st;
   /* sizes and position, from the anchor's real place on screen. Run again whenever the window changes. */
   let front=null;
-  function place(){if(!anc.isConnected)return;const P=st.place,a=anc.getBoundingClientRect(),h=box.getBoundingClientRect(),small=innerWidth<=520?.8:1;
-   /* stacked layout (phone): something else sits right on top of the anchor, so rise from the top of the row instead */
-   const stacked=anc!==box&&a.top-h.top>8,topY=stacked?0:a.top-h.top,fr=stacked?[].find.call(box.children,x=>x!==peek&&!x.classList.contains('bd-card')):anc;/* the window ends exactly at that element's top edge, so the sticker never overlaps it and the page's own stacking is left exactly as it is */
-   let vis=0,rowW=0;const geo=got.map((c,i)=>{const A=placeOf(P,c.adj),sc=A.scale/100*small;let hh=BASE*sc,ww=hh*c.iw/c.ih;const cap=BASE*1.6*sc;if(ww>cap){ww=cap;hh=ww*c.ih/c.iw}const v=hh*A.peek/100;vis=Math.max(vis,v);rowW+=ww+(i?2:0);return{ww,hh,v,dx:(c.adj&&isFinite(+c.adj.x))?num(c.adj.x,0,-200,200):0}});
-   geo.forEach((g,i)=>{const b=btns[i];b.style.width=Math.round(g.ww)+'px';b.style.height=Math.round(g.hh)+'px';b.style.marginTop=Math.round(vis-g.v)+'px';b.style.left=g.dx+'px'});
-   const W=Math.ceil(rowW)+28,H=Math.ceil(ROOM+vis+OVER);/* keep clear of the anchor's rounded corners, so the straight bottom edge of the window always meets a straight piece of the anchor */const rad=Math.min(a.width/4,parseFloat(getComputedStyle(fr||anc).borderTopRightRadius)||0);let L=P.anchor==='left'?a.left-h.left-14+rad+P.x:P.anchor==='center'?a.left-h.left+a.width/2-W/2+P.x:a.right-h.left-W+14-rad+P.x;L=Math.max(4-h.left,Math.min(L,innerWidth-4-h.left-W));
-   peek.style.left=Math.round(L)+'px';peek.style.top=(topY+OVER-H)+'px';peek.style.width=W+'px';peek.style.height=H+'px';peek.style.setProperty('--bd-h',(H+40)+'px');peek.style.setProperty('--bd-top',ROOM+'px');
-   /* greeting: beside the sticker when there is room on its left, otherwise above it */
-   const free=h.left+L-8;if(free>=150){say.style.cssText='right:calc(100% + 4px);bottom:'+(OVER+10)+'px;max-width:'+Math.min(260,Math.floor(free))+'px'}else{say.style.cssText='right:0;bottom:calc(100% + 2px);max-width:'+Math.max(120,Math.floor(Math.min(innerWidth-12,h.left+L+W-8)))+'px'}
+  function place(){if(!anc.isConnected)return;const a=anc.getBoundingClientRect(),h=box.getBoundingClientRect();
+   /* stacked layout (phone): another element (the character search bar) sits on top of the anchor. The sticker then hides behind THAT element and rises from its top edge, lined up with it, using the phone placement. */
+   const stacked=anc!==box&&a.top-h.top>8,fr=stacked?([].find.call(box.children,x=>x!==peek&&!x.classList.contains('bd-card'))||anc):anc,f=fr.getBoundingClientRect(),P=stacked?st.placeM:st.place,topY=f.top-h.top,room=stacked?0:ROOM;st.stacked=stacked;peek.classList.toggle('bd-tight',stacked);
+   let vis=0,rowW=0;const geo=got.map((c,i)=>{const own=stacked?(c.adjM||null):(c.adj||null),A=placeOf(P,own),sc=A.scale/100;let hh=BASE*sc,ww=hh*c.iw/c.ih;const cap=BASE*1.6*sc;if(ww>cap){ww=cap;hh=ww*c.ih/c.iw}const v=hh*A.peek/100;vis=Math.max(vis,v);rowW+=ww+(i?2:0);return{ww,hh,v,dx:(own&&isFinite(+own.x))?num(own.x,0,-200,200):0}});
+   const want=vis;/* keep clear of the rounded corners of the element it hides behind, so the straight bottom edge of the window always meets a straight piece of it */const rad=Math.min(f.width/4,parseFloat(getComputedStyle(fr).borderTopRightRadius)||0);
+   /* On a phone the name and tagline sit only a few pixels above the search bar, so there is nowhere to peek into. While a birthday sticker is mounted (and only then) the row is moved down by just enough to open a clear band between the tagline and the bar: about 40 px with the standard placement, never more than 84. The band stays for the whole visit, so the page moves once, not every time the sticker comes and goes. On days without a sticker nothing is mounted and the spacing is the page's own. */
+   if(!stacked&&st.extra){box.style.marginTop=st.mtInline;st.extra=0;return place()}
+   const pv=stacked?box.previousElementSibling:null;let avail=Infinity;
+   if(pv){/* several stickers must fit side by side on the straight part of the bar: make them smaller together if needed, never drop one */const maxW=Math.max(40,f.width-2*rad-8);if(rowW>maxW){const k=maxW/rowW;geo.forEach(g=>{g.ww*=k;g.hh*=k;g.v*=k});rowW*=k;vis*=k}
+    const cur=st.extra||0,gap0=f.top-pv.getBoundingClientRect().bottom-cur,need=Math.max(0,Math.min(84,Math.ceil(vis+8-gap0)));
+    if(need!==cur){box.style.marginTop=(st.mt0+need)+'px';st.extra=need;return place()}
+    avail=Math.floor(gap0+need-4)}
+   const W=Math.ceil(rowW)+28;let L=P.anchor==='left'?f.left-h.left-14+rad+P.x:P.anchor==='center'?f.left-h.left+f.width/2-W/2+P.x:f.right-h.left-W+14-rad+P.x;L=Math.max(4-h.left,Math.min(L,innerWidth-4-h.left-W));
+   if(vis>avail)vis=Math.max(0,avail);st.tight=stacked&&vis<16;peek.style.display=st.tight?'none':'';
+   geo.forEach((g,i)=>{const b=btns[i];b.style.width=Math.round(g.ww)+'px';b.style.height=Math.round(g.hh)+'px';b.style.marginTop=Math.round(Math.max(0,vis-g.v))+'px';b.style.left=g.dx+'px'});
+   const H=Math.ceil(room+vis+OVER);
+   peek.style.left=Math.round(L)+'px';peek.style.top=(topY+OVER-H)+'px';peek.style.width=W+'px';peek.style.height=H+'px';peek.style.setProperty('--bd-h',(H+40)+'px');peek.style.setProperty('--bd-top',room+'px');
+   /* greeting. Desktop: beside the sticker when there is room on its left, otherwise above it. Phone: not shown as floating text; it is in the birthday card that opens on tap. */
+   const free=h.left+L-8;if(stacked){/* on a phone the greeting sits beside the sticker inside the same clear band when there is room for a line of text; otherwise it is in the card that opens on tap */if(vis>=32&&free>=110)say.style.cssText='right:calc(100% + 2px);bottom:8px;max-width:'+Math.min(230,Math.floor(free))+'px';else say.style.cssText='display:none'}else if(free>=150){say.style.cssText='right:calc(100% + 4px);bottom:'+(OVER+10)+'px;max-width:'+Math.min(260,Math.floor(free))+'px'}else{say.style.cssText='right:0;bottom:calc(100% + 2px);max-width:'+Math.max(120,Math.floor(Math.min(innerWidth-12,h.left+L+W-8)))+'px'}
+   st.want=want;st.fit={extra:st.extra||0,avail,vis,rowW,tight:st.tight,sizes:geo.map(g=>[Math.round(g.ww),Math.round(g.hh)]),bar:[Math.round(f.left),Math.round(f.right)]};
    st.geo={W,H,vis,top:topY}}
+  st.mtInline=box.style.marginTop;st.mt0=parseFloat(getComputedStyle(box).marginTop)||0;st.extra=0;
   st.place_=place;place();addEventListener('resize',place);
   const T=(fn,ms)=>{const t=setTimeout(fn,ms);st.timers.push(t);return t};const stay=opt.stay||7000,calm=reduced();
   const hide=()=>{peek.classList.remove('in','hop','say')};
@@ -80,11 +93,11 @@
   st.show=show;st.hide=hide;
   /* for the Studio's preview: hold a state still, or play the whole thing again */
   st.hold=k=>{st.timers.forEach(clearTimeout);st.timers=[];if(st.iv){clearInterval(st.iv);st.iv=0}place();if(k==='hidden'){hide();return}if(k==='peek'){peek.classList.remove('hop');peek.classList.add('in','say');return}hide();T(show,350)};
-  st.setPlace=(p,adj)=>{st.place=placeOf(p);if(adj)got.forEach(c=>{if(adj[c.id]!==undefined)c.adj=adj[c.id]||{}});place()};
+  st.setPlace=(p,adj,pm,adjM)=>{st.place=placeOf(p);if(pm!==undefined)st.placeM=placeOf(pm,null,PLACE_M);if(adj)got.forEach(c=>{if(adj[c.id]!==undefined)c.adj=adj[c.id]||{}});if(adjM)got.forEach(c=>{if(adjM[c.id]!==undefined)c.adjM=adjM[c.id]||null});place()};
   /* the visitor is busy while typing, scrolling or pressing: never start an appearance then */
   const busy=()=>{st.busy=Date.now()};['scroll','keydown','pointerdown','wheel','touchstart'].forEach(e=>addEventListener(e,busy,{passive:true}));
   const vis=()=>{if(document.hidden&&!calm&&!st.card)hide()};document.addEventListener('visibilitychange',vis);
-  st.off=()=>{removeEventListener('resize',place);st.timers.forEach(clearTimeout);if(st.iv)clearInterval(st.iv);['scroll','keydown','pointerdown','wheel','touchstart'].forEach(e=>removeEventListener(e,busy));document.removeEventListener('visibilitychange',vis);document.removeEventListener('keydown',st.esc);document.removeEventListener('pointerdown',st.out)};
+  st.off=()=>{removeEventListener('resize',place);if(st.extra){box.style.marginTop=st.mtInline;st.extra=0}st.timers.forEach(clearTimeout);if(st.iv)clearInterval(st.iv);['scroll','keydown','pointerdown','wheel','touchstart'].forEach(e=>removeEventListener(e,busy));document.removeEventListener('visibilitychange',vis);document.removeEventListener('keydown',st.esc);document.removeEventListener('pointerdown',st.out)};
   /* once per session for this birthday, then at most a few quiet reappearances on a long visit */
   const seen=+(SS.get(st.key)||0),max=opt.max||3,every=opt.every||240000;st.shown=opt.force?0:seen;
   if(opt.force||!seen)T(show,opt.force?150:1400);else if(calm)show();
@@ -101,5 +114,5 @@
  function cake(el,file,id,now){if(!el||!file||file.on===false)return false;const c=(file.list||[]).find(x=>x.id===id);const on=!!(c&&!c.off&&c.m&&isDay(+c.m,+c.d,now));if(on){css();el.className='bd-cake';el.hidden=false;el.textContent='🎂';el.setAttribute('role','img');el.setAttribute('aria-label','It’s '+c.n+'’s birthday today');el.title='It’s '+c.n+'’s birthday today'}else{el.hidden=true;el.textContent=''}return on}
  /* ?bday=MM-DD on the address previews another day without changing anything (used by the Studio's Test Birthday) */
  function dateFromQuery(q){const m=/(?:^|[?&])bday=(\d{1,2})-(\d{1,2})(?:&|$)/.exec(String(q||''));if(!m)return null;const d=new Date();d.setDate(1);d.setMonth(+m[1]-1);d.setDate(+m[2]);return d}
- window.PPBday={isDay,today,greeting,mount,unmount,cake,dateFromQuery,trim,placeOf,PLACE};
+ window.PPBday={isDay,today,greeting,mount,unmount,cake,dateFromQuery,trim,placeOf,PLACE,PLACE_M};
 })();

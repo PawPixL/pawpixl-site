@@ -1531,3 +1531,12 @@ button.hot{appearance:none;-webkit-appearance:none;border:0;background:transpare
 @media (max-width:900px){.tl-cmab{grid-template-columns:1fr}.tl-cm b{font-size:11.5px}.tl-cmb .btn{min-height:44px}}
 /* Setup A over Setup B, slot under slot, so a change lines up by position and names stay on one line in the narrow column */
 .tl-cmab{grid-template-columns:1fr;gap:8px}.tl-cm b{font-size:11.5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal}
+
+/* ---- phone polish (13 Nov 2026): desktop is untouched by everything below ---- */
+/* build variations: title on the first line, role under it, always, with the +/- kept at the right of the title line */
+@media (max-width:560px){.bvars details.bvar:not(.rd-sec)>summary{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;row-gap:5px;align-items:start}.bvars details.bvar:not(.rd-sec)>summary>b{grid-column:1;grid-row:1;min-width:0}.bvars details.bvar:not(.rd-sec)>summary>.chip{grid-column:1;justify-self:start;font-size:10.5px;opacity:.82;padding:3px 8px;white-space:normal;max-width:100%;line-height:1.25;text-align:left}.bvars details.bvar:not(.rd-sec)>summary::after{grid-column:2;grid-row:1;margin-left:0;min-width:24px;text-align:center;line-height:1.3}}
+/* talents and constellations: plain headings on desktop, two independent accordions on a phone */
+.kitbox h2 .kb-t{all:unset;display:flex;align-items:center;gap:9px;width:100%;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;cursor:default}.kitbox h2 .kb-t .kb-ch{display:none}
+@media (max-width:560px){.kitbox h2 .kb-t{cursor:pointer;min-height:44px;-webkit-tap-highlight-color:transparent}.kitbox h2 .kb-t:focus-visible{outline:2px solid var(--ac,#7fd6ff);outline-offset:3px;border-radius:8px}.kitbox h2 .kb-t .kb-ch{display:block;margin-left:auto;width:10px;height:10px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .18s ease;opacity:.8;flex:none;margin-right:4px}.kitbox h2 .kb-t[aria-expanded="true"] .kb-ch{transform:rotate(-135deg)}.kitbox h2{margin:2px 0}.kitbox ul.kb-l{animation:kbin .18s ease}.kitbox ul.kb-l[hidden]{display:none}.kitbox ul.kb-l:not([hidden]){margin-top:8px}}
+@keyframes kbin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.kitbox ul.kb-l{animation:none}.kitbox h2 .kb-t .kb-ch{transition:none}}
