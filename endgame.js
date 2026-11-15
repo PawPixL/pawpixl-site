@@ -83,6 +83,31 @@ function check(st,now,at){const need=[],rows=[];KEYS.forEach(k=>{const per=Objec
  KEYS.forEach(k=>{const it=st.file.items[k];it.windows=(it.windows||[]).filter(w=>toUTC(w.end,-12)>now-60*864e5)});st.lastCheck=at;note(st,'Checked the schedule. '+(need.length?need.length+' thing'+(need.length>1?'s need':' needs')+' you.':'Everything is current.'),at);return{need,rows}}
 /* what goes on the website: dates only, no source links, no review queue */
 function publicFile(st,at){const f=blank();KEYS.forEach(k=>{const it=st.file.items[k];f.items[k]=it.mode==='rule'?{mode:'rule',day:it.day,hour:it.hour,windows:[]}:{mode:'dates',windows:[]};f.items[k].windows=(it.windows||[]).filter(w=>!validWindow(w).length).map(w=>({start:w.start,end:w.end,name:w.name||'',ver:w.ver||'',conf:w.conf==='estimate'?'estimate':'confirmed'}))});f.updated=at;return f}
-const api={FORMAT,REG,KEYS,NAME,toUTC,toLocal,blank,okFile,ruleWindow,validWindow,status,left,guessRegion,parse,blankStore,classify,propose,approve,reject,setOwner,removeWindow,check,publicFile};
+/* ---------- character banners (wishes): the same dated-window idea, for the homepage banner strip ----------
+   A banner phase is a start, an end and the characters on it, entered by the owner from the official announcement.
+   - Times are server-local wall time, like everything above. A phase that opens with a version update starts at the same
+     moment on every server: it is marked "sync" and its start is the Asia server's time. Every other start, and every end,
+     is each server's own time.
+   - Whether a phase is upcoming, current or over is worked out from the clock, per server. Nothing has to be switched by hand,
+     and a phase that is over is simply no longer shown.
+   - Only phases the owner marked as officially confirmed ever leave the Studio. Public file format: pawpixl-banners/1. */
+const BFORMAT='pawpixl-banners/1';
+function bBlank(){return{format:BFORMAT,v:1,updated:'',phases:[]}}
+function bOk(f){return!!(f&&f.format===BFORMAT&&Array.isArray(f.phases))}
+function bSpan(p,off){const s=toUTC(p.start,p.sync?REG.asia.off:off),e=toUTC(p.end,off);return{start:s,end:e+(/:59$/.test(String(p.end))?6e4:0)}}
+function bState(p,off,now){const x=bSpan(p||{},off);if(isNaN(x.start)||isNaN(x.end))return'bad';return now<x.start?'upcoming':now<x.end?'current':'ended'}
+function bChars(p){return((p&&p.chars)||[]).filter(c=>c&&String(c.name||'').trim())}
+function bValid(p){const P=[];if(!p||!isLocal(p.start)||isNaN(toUTC(p.start,0)))P.push('The start is not a real date and time.');if(!p||!isLocal(p.end)||isNaN(toUTC(p.end,0)))P.push('The end is not a real date and time.');
+ if(!P.length){const d=toUTC(p.end,0)-toUTC(p.start,0);if(d<=0)P.push('The end is not after the start.');else if(d>60*24*H)P.push('That is longer than 60 days, which no banner has been.')}
+ if(!bChars(p).length)P.push('Add at least one character.');return P}
+/* "Varesa, Xilonen (rerun)" -> [{name:'Varesa',rerun:false},{name:'Xilonen',rerun:true}] */
+function bParse(text){const seen=new Set();return String(text||'').split(/[,\n;]+/).map(t=>t.trim()).filter(Boolean).map(t=>{const rerun=/\(\s*re-?run\s*\)|\bre-?run\b/i.test(t);const name=t.replace(/\(\s*re-?run\s*\)|\bre-?run\b|\(\s*new\s*\)/ig,'').replace(/\s+/g,' ').trim();return{name,rerun}}).filter(c=>{const k=c.name.toLowerCase();if(!c.name||seen.has(k))return false;seen.add(k);return true})}
+const bText=chars=>bChars({chars}).map(c=>c.name+(c.rerun?' (rerun)':'')).join(', ');
+/* what goes to the website: confirmed, valid, and not yet over on the last server to finish (America) */
+function bPublic(store,at,now){const f=bBlank();f.updated=at;f.phases=((store&&store.phases)||[]).filter(p=>p&&p.confirmed&&!bValid(p).length&&bState(p,REG.america.off,now)!=='ended').map(p=>({id:String(p.id||''),label:String(p.label||'').trim().slice(0,60),start:p.start,end:p.end,sync:!!p.sync,chars:bChars(p).slice(0,8).map(c=>({id:String(c.id||''),name:String(c.name).trim().slice(0,40),rerun:!!c.rerun}))})).sort((a,b)=>a.start<b.start?-1:a.start>b.start?1:0);return f}
+/* for one visitor: what is running now and what is still to come, on their server, soonest first */
+function bView(file,off,now){const out={current:[],upcoming:[]};if(!bOk(file))return out;file.phases.forEach(p=>{if(!p||bValid(p).length)return;const st=bState(p,off,now);if(st==='current'||st==='upcoming')out[st].push(Object.assign({},p,bSpan(p,off)))});out.current.sort((a,b)=>a.end-b.end);out.upcoming.sort((a,b)=>a.start-b.start);return out}
+const banners={FORMAT:BFORMAT,blank:bBlank,okFile:bOk,span:bSpan,state:bState,valid:bValid,parse:bParse,text:bText,publicFile:bPublic,view:bView};
+const api={FORMAT,REG,KEYS,NAME,toUTC,toLocal,blank,okFile,ruleWindow,validWindow,status,left,guessRegion,parse,blankStore,classify,propose,approve,reject,setOwner,removeWindow,check,publicFile,banners};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;root.PPEndgame=api;
 })(typeof window!=='undefined'?window:globalThis);
