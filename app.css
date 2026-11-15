@@ -1410,7 +1410,7 @@ button.hot{appearance:none;-webkit-appearance:none;border:0;background:transpare
 @media (max-width:900px){.tl-slots{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.tl-slot{min-height:0}.tl-slot.empty{min-height:150px}.tl-pic.big{width:76px}.tl-slotb b{font-size:15px}.tl-role{font-size:11.5px}.tl-step{gap:10px;padding:2px 6px 12px}.tl-step button{width:40px;height:40px}.tl-step .tl-lv{font-size:15px;min-width:34px}}
 
 /* ---------- shared reading styles ("rd"): one look for every text-heavy block. Dark body, the page's element color only as an accent. ---------- */
-.rd,.gtext,.kitbox,.tl-ins,.tl-cx{--ac:var(--e1,#7fd6ff);--ac2:var(--e2,#bfe9ff)}
+.rd,.gtext,.kitbox,.voxbox,.tl-ins,.tl-cx{--ac:var(--e1,#7fd6ff);--ac2:var(--e2,#bfe9ff)}
 .rd-h{display:flex;align-items:center;gap:9px}
 .rd-list{display:grid;gap:8px;margin-top:10px}
 .rd-item{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.035);border:1px solid var(--line);border-left:3px solid color-mix(in srgb,var(--ac) 70%,transparent)}
@@ -1585,3 +1585,28 @@ button.bnr-sel[aria-expanded="true"]{background-image:url("data:image/svg+xml,%3
  .hero .hid.hasbnr{column-gap:0}
  .hero .hid.hasbnr>.bnr{margin-inline:auto}
 }
+/* What Others Say (character guide pages): collapsed by default, under the talents and constellations */
+.voxbox{margin-top:14px;padding:4px 18px}
+.voxbox>summary{list-style:none;display:flex;align-items:center;gap:9px;min-height:44px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.voxbox>summary::-webkit-details-marker{display:none}
+.voxbox>summary:focus-visible{outline:2px solid var(--ac);outline-offset:3px;border-radius:8px}
+.voxbox h2{display:flex;align-items:center;gap:9px;font:800 12px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;margin:0;color:var(--ac2)}
+.voxbox h2::before{content:"";width:4px;height:14px;border-radius:2px;background:var(--ac)}
+.voxbox h2 small{font-weight:700;letter-spacing:0;opacity:.7}
+.voxbox .kb-ch{display:block;margin-left:auto;width:10px;height:10px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .18s ease;opacity:.8;flex:none;margin-right:4px}
+.voxbox[open] .kb-ch{transform:rotate(-135deg)}
+.voxbox>p.muted{margin:2px 0 10px;font-size:13px}
+.vx-l{list-style:none;margin:0 0 8px;padding:0;display:grid;gap:8px}
+.vx-it{display:grid;grid-template-columns:128px 1fr;gap:12px;align-items:start;padding:10px 0;border-top:1px solid rgba(255,255,255,.07)}
+.vx-who{display:flex;align-items:center;gap:8px;color:inherit;text-decoration:none;min-width:0}
+.vx-who b{font-size:14px;overflow:hidden;text-overflow:ellipsis}
+a.vx-who:hover b,a.vx-who:focus-visible b{color:var(--ac2);text-decoration:underline}
+.vx-pic{width:40px;height:40px;flex:0 0 40px;border-radius:50%;background:#1a2036 center/cover no-repeat;display:grid;place-items:center;font-weight:800;border:1px solid rgba(255,255,255,.12)}
+.vx-sum{margin:0 0 4px;line-height:1.55}
+.vx-ref{margin:0;font-size:12px;opacity:.65}
+.vx-sp{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;padding:9px 12px;border-radius:10px;border:1px dashed rgba(255,255,255,.22);font-size:13px;min-height:44px}
+.vx-sp span{display:block;font-size:12px;opacity:.7;margin-top:2px}
+.vx-sp:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.vx-src{font-size:11px;opacity:.55;margin:4px 0 10px}
+@media (max-width:560px){.voxbox{padding:4px 14px}.vx-it{grid-template-columns:1fr;gap:6px}}
+@media (prefers-reduced-motion:reduce){.voxbox .kb-ch{transition:none}}
