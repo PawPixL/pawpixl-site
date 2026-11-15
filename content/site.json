@@ -220,6 +220,6 @@
   }
  },
  "banners": {
-  "on": false
+  "on": true
  }
 }
