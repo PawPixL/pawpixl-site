@@ -997,9 +997,28 @@ function bnrDraw(){const box=$('#bnr');if(!box||!BNR)return;const E=PPEndgame,V=
  const when=BNRV==='current'?tt('Until')+' '+day(p.end-6e4):tt('From')+' '+day(p.start);
  const one=c=>{const r=R.find(x=>x.id===c.id)||R.find(x=>norm(x.name)===norm(c.name)),id=r?r.id:c.id,g=id&&Bd[id],col=EL[(r&&r.el)||(g&&g.el)]||['#3a4468','#8fa2d8','#dfe6ff'],inner='<span class="bnr-p" style="--c1:'+col[1]+(r&&r.icon?';background-image:url(\'/'+esc(r.icon)+'\')':'')+'">'+(r&&r.icon?'':esc((c.name||'?').trim()[0]))+'</span><b>'+esc(c.name)+'</b>'+(g&&g.pv?'<i class="bnr-t pv">'+tt('Preview')+'</i>':c.rerun?'<i class="bnr-t">'+tt('Rerun')+'</i>':'');
   return g?'<a class="bnr-c" href="/'+BNR.gid+'/builds/'+esc(id)+'" data-link title="'+esc(c.name)+'">'+inner+'</a>':'<span class="bnr-c" title="'+esc(c.name)+'">'+inner+'</span>'};
- const head=has.current&&has.upcoming?'<select class="bnr-sel" id="bnr-sel" aria-label="'+tt('Banners')+'"><option value="current"'+(BNRV==='current'?' selected':'')+'>'+tt('Current banners')+'</option><option value="upcoming"'+(BNRV==='upcoming'?' selected':'')+'>'+tt('Upcoming banners')+'</option></select>':'<span class="bnr-sel one">'+tt(BNRV==='current'?'Current banners':'Upcoming banners')+'</span>';
+ const om=document.getElementById('bnr-menu');if(om)om.remove();
+ const head=has.current&&has.upcoming?'<button type="button" class="bnr-sel" id="bnr-sel" data-v="'+BNRV+'" aria-haspopup="listbox" aria-expanded="false" aria-label="'+tt('Banners')+': '+tt(BNRV==='current'?'Current banners':'Upcoming banners')+'">'+tt(BNRV==='current'?'Current banners':'Upcoming banners')+'</button>':'<span class="bnr-sel one">'+tt(BNRV==='current'?'Current banners':'Upcoming banners')+'</span>';
  box.innerHTML='<div class="bnr-h">'+head+'</div><div class="bnr-row">'+p.chars.map(one).join('')+'</div><div class="bnr-when">'+(p.label?'<span>'+esc(p.label)+'</span> · ':'')+when+'</div>';box.hidden=false;if(hid)hid.classList.add('hasbnr');
- const sel=$('#bnr-sel');if(sel)sel.onchange=()=>{BNRV=sel.value;bnrDraw();const n=$('#bnr-sel');if(n)n.focus()}}
+ const sel=$('#bnr-sel');if(sel)bnrMenu(sel)}
+/* the Current / Upcoming picker: a small menu styled like the search suggestions (the browser's own drop-down list can't be styled).
+   It opens in a layer on top of the page so the box's rounded edge can't cut it off; arrows, Home/End, Enter/Space and Escape work. */
+function bnrMenu(sel){const V2=['current','upcoming'];let out,onScr;
+ const close=back=>{const m=document.getElementById('bnr-menu');if(m)m.remove();sel.setAttribute('aria-expanded','false');document.removeEventListener('pointerdown',out,true);removeEventListener('scroll',onScr,true);removeEventListener('resize',onScr);if(back&&document.body.contains(sel))sel.focus()};
+ const pick=v=>{close();if(v!==BNRV){BNRV=v;bnrDraw()}const n=$('#bnr-sel');if(n)n.focus()};
+ out=e=>{const m=document.getElementById('bnr-menu');if(m&&!m.contains(e.target)&&!sel.contains(e.target))close()};
+ onScr=e=>{const m=document.getElementById('bnr-menu');if(m&&e&&e.target&&e.target.nodeType===1&&m.contains(e.target))return;close()};
+ const open=()=>{if(document.getElementById('bnr-menu'))return;const m=document.createElement('div');m.id='bnr-menu';m.className='bnr-menu';m.setAttribute('role','listbox');m.setAttribute('aria-label',tt('Banners'));m.tabIndex=-1;
+  m.innerHTML=V2.map(v=>'<div role="option" class="bnr-o" id="bnr-o-'+v+'" data-v="'+v+'" aria-selected="'+(v===BNRV)+'"><span>'+tt(v==='current'?'Current banners':'Upcoming banners')+'</span>'+(v===BNRV?'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':'')+'</div>').join('');
+  document.body.appendChild(m);const r=sel.getBoundingClientRect(),W=Math.max(210,Math.round(r.width)+40),L=Math.max(8,Math.min(Math.round(r.left+r.width/2-W/2),innerWidth-W-8));m.style.left=L+'px';m.style.top=Math.round(r.bottom+8)+'px';m.style.width=W+'px';
+  sel.setAttribute('aria-expanded','true');sel.setAttribute('aria-controls','bnr-menu');const opts=[...m.querySelectorAll('.bnr-o')];let i=Math.max(0,V2.indexOf(BNRV));
+  const hi=k=>{i=(k+opts.length)%opts.length;opts.forEach((o,j)=>o.classList.toggle('on',j===i));m.setAttribute('aria-activedescendant',opts[i].id)};hi(i);m.focus({preventScroll:true});
+  m.onclick=e=>{const o=e.target.closest('.bnr-o');if(o)pick(o.dataset.v)};
+  m.onmousemove=e=>{const o=e.target.closest('.bnr-o');if(o)hi(opts.indexOf(o))};
+  m.onkeydown=e=>{const k=e.key;if(k==='ArrowDown'){e.preventDefault();hi(i+1)}else if(k==='ArrowUp'){e.preventDefault();hi(i-1)}else if(k==='Home'){e.preventDefault();hi(0)}else if(k==='End'){e.preventDefault();hi(opts.length-1)}else if(k==='Enter'||k===' '){e.preventDefault();pick(opts[i].dataset.v)}else if(k==='Escape'){e.preventDefault();close(true)}else if(k==='Tab'){close()}};
+  setTimeout(()=>{document.addEventListener('pointerdown',out,true);addEventListener('scroll',onScr,true);addEventListener('resize',onScr)},0)};
+ sel.onclick=()=>sel.getAttribute('aria-expanded')==='true'?close():open();
+ sel.onkeydown=e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();open()}}}
 /* ---------- homepage endgame tracker: Spiral Abyss, Imaginarium Theater, Stygian Onslaught ----------
    Reads one small cached file (content/<game>/endgame.json, written by the Studio's Endgame Schedule Manager).
    No outside website is contacted. Monthly resets are worked out from the game's rule, so they stay right on their own. */
