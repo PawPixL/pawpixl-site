@@ -66,12 +66,18 @@
   let front=null;
   function place(){if(!anc.isConnected)return;const a=anc.getBoundingClientRect(),h=box.getBoundingClientRect();
    /* stacked layout (phone): another element (the character search bar) sits on top of the anchor. The sticker then hides behind THAT element and rises from its top edge, lined up with it, using the phone placement. */
-   const stacked=anc!==box&&a.top-h.top>8,fr=stacked?([].find.call(box.children,x=>x!==peek&&!x.classList.contains('bd-card'))||anc):anc,f=fr.getBoundingClientRect(),P=stacked?st.placeM:st.place,topY=f.top-h.top,room=stacked?0:ROOM;st.stacked=stacked;peek.classList.toggle('bd-tight',stacked);
+   const stacked=anc!==box&&a.top-h.top>8;
+   /* phone, with the home page's banner box showing just above: the sticker hides behind THE BANNER BOX and rises over the
+      name and tagline, so the page needs no extra space (owner's choice, 15 Nov 2026). Otherwise: behind the search bar. */
+   const bn=stacked&&opt.over?(typeof opt.over==='function'?opt.over():opt.over):null,bnr=bn&&bn.isConnected&&!bn.hidden&&bn.offsetParent&&bn.getBoundingClientRect().height>0?bn:null;st.over=!!bnr;
+   const fr=bnr||(stacked?([].find.call(box.children,x=>x!==peek&&!x.classList.contains('bd-card'))||anc):anc),f=fr.getBoundingClientRect(),P=stacked?st.placeM:st.place,topY=f.top-h.top,room=stacked?0:ROOM;st.stacked=stacked;peek.classList.toggle('bd-tight',stacked);
    let vis=0,rowW=0;const geo=got.map((c,i)=>{const own=stacked?(c.adjM||null):(c.adj||null),A=placeOf(P,own),sc=A.scale/100;let hh=BASE*sc,ww=hh*c.iw/c.ih;const cap=BASE*1.6*sc;if(ww>cap){ww=cap;hh=ww*c.ih/c.iw}const v=hh*A.peek/100;vis=Math.max(vis,v);rowW+=ww+(i?2:0);return{ww,hh,v,dx:(own&&isFinite(+own.x))?num(own.x,0,-200,200):0}});
    const want=vis;/* keep clear of the rounded corners of the element it hides behind, so the straight bottom edge of the window always meets a straight piece of it */const rad=Math.min(f.width/4,parseFloat(getComputedStyle(fr).borderTopRightRadius)||0);
    /* On a phone the name and tagline sit only a few pixels above the search bar, so there is nowhere to peek into. While a birthday sticker is mounted (and only then) the row is moved down by just enough to open a clear band between the tagline and the bar: about 40 px with the standard placement, never more than 84. The band stays for the whole visit, so the page moves once, not every time the sticker comes and goes. On days without a sticker nothing is mounted and the spacing is the page's own. */
    if(!stacked&&st.extra){box.style.marginTop=st.mtInline;st.extra=0;return place()}
-   const pv=stacked?box.previousElementSibling:null;let avail=Infinity;
+   if(bnr&&st.extra){box.style.marginTop=st.mtInline;st.extra=0;return place()}
+   const pv=stacked&&!bnr?box.previousElementSibling:null;let avail=Infinity;
+   if(bnr){const maxW=Math.max(40,f.width-2*rad-8);if(rowW>maxW){const k=maxW/rowW;geo.forEach(g=>{g.ww*=k;g.hh*=k;g.v*=k});rowW*=k;vis*=k}}
    if(pv){/* several stickers must fit side by side on the straight part of the bar: make them smaller together if needed, never drop one */const maxW=Math.max(40,f.width-2*rad-8);if(rowW>maxW){const k=maxW/rowW;geo.forEach(g=>{g.ww*=k;g.hh*=k;g.v*=k});rowW*=k;vis*=k}
     const cur=st.extra||0,gap0=f.top-pv.getBoundingClientRect().bottom-cur,need=Math.max(0,Math.min(84,Math.ceil(vis+8-gap0)));
     if(need!==cur){box.style.marginTop=(st.mt0+need)+'px';st.extra=need;return place()}

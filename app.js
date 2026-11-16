@@ -44,7 +44,7 @@ const TR_ROWS=[
 ['See the current one →','Voir l’actuel →','Ver el actual →','開催中のものを見る →','查看当前 →'],
 ['Fresh off the stream','Tout juste sorti du live','Recién salido del directo','配信から出来たて','直播新鲜出炉'],
 ['Recently updated','Mis à jour récemment','Actualizado recientemente','最近の更新','最近更新'],
-['New builds','Nouveaux builds','Nuevos builds','新しい育成','新配装'], ['Current banners','Bannières en cours','Banners actuales','開催中の祈願','当前祈愿'], ['Upcoming banners','Bannières à venir','Próximos banners','今後の祈願','即将开放的祈愿'], ['Banners','Bannières','Banners','祈願','祈愿'], ['Until','Jusqu’au','Hasta el','終了日','截至'], ['From','À partir du','Desde el','開始日','开始于'], ['Rerun','Retour','Reedición','復刻','复刻'],
+['New builds','Nouveaux builds','Nuevos builds','新しい育成','新配装'], ['Current banners','Bannières en cours','Banners actuales','開催中の祈願','当前祈愿'], ['See upcoming banners','Voir les bannières à venir','Ver próximos banners','今後の祈願を見る','查看即将开启的祈愿'], ['See current banners','Voir les bannières en cours','Ver banners actuales','開催中の祈願を見る','查看当前祈愿'], ['Upcoming banners','Bannières à venir','Próximos banners','今後の祈願','即将开放的祈愿'], ['Banners','Bannières','Banners','祈願','祈愿'], ['Until','Jusqu’au','Hasta el','終了日','截至'], ['From','À partir du','Desde el','開始日','开始于'], ['Rerun','Retour','Reedición','復刻','复刻'],
 ['Endgame guides','Guides de fin de jeu','Guías de endgame','エンドコンテンツ攻略','终局攻略'],
 ['Choose your game','Choisis ton jeu','Elige tu juego','ゲームを選択','选择游戏'],
 ['Guides & builds','Guides et builds','Guías y builds','攻略と育成','攻略与配装'],
@@ -431,6 +431,7 @@ const TR_ROWS=[
 ["Story spoiler", "Spoiler de l'histoire", "Spoiler de la historia", "ストーリーのネタバレ", "剧情剧透"],
 ["Tap to reveal", "Touchez pour afficher", "Toca para mostrar", "タップして表示", "点按显示"],
 ["Summaries are in English.", "Résumés en anglais.", "Resúmenes en inglés.", "要約は英語です。", "摘要为英文。"],
+["Some summaries are in English.", "Certains résumés sont en anglais.", "Algunos resúmenes están en inglés.", "一部の要約は英語です。", "部分摘要为英文。"],
 ["Character profile lines are from the game, © HoYoverse. Summaries are PawPixl's own.", "Les lignes de profil viennent du jeu, © HoYoverse. Les résumés sont de PawPixl.", "Las líneas de perfil son del juego, © HoYoverse. Los resúmenes son de PawPixl.", "プロフィールのセリフはゲームより、© HoYoverse。要約はPawPixl独自のものです。", "角色资料台词来自游戏，© HoYoverse。摘要为PawPixl原创。"],
 ["Skill", "Compétence", "Habilidad", "スキル", "战技"],
 ["Burst", "Déchaînement", "Definitiva", "爆発", "爆发"],
@@ -554,6 +555,7 @@ const TR_ROWS=[
 ["See it on Amazon", "Voir sur Amazon", "Ver en Amazon", "Amazonで見る", "在Amazon上查看"],
 ["Some links on PawPixl Picks are affiliate links (for example Amazon). If you buy through them, I may earn a small commission at no extra cost to you. Those shops have their own privacy policies.", "Certains liens de PawPixl Picks sont des liens d'affiliation (par exemple Amazon). Si vous achetez via ces liens, je peux toucher une petite commission sans frais supplémentaires pour vous. Ces boutiques ont leurs propres politiques de confidentialité.", "Algunos enlaces de PawPixl Picks son de afiliado (por ejemplo, Amazon). Si compras a través de ellos, puedo ganar una pequeña comisión sin costo extra para ti. Esas tiendas tienen sus propias políticas de privacidad.", "PawPixl Picksの一部のリンクはアフィリエイトリンク（例：Amazon）です。リンクから購入すると、追加料金なしで私に少額の報酬が入ることがあります。各ショップには独自のプライバシーポリシーがあります。", "PawPixl Picks中的部分链接为联盟链接（例如Amazon）。通过这些链接购买时，我可能会获得少量佣金，不会让你多花钱。这些商店有各自的隐私政策。"],
 ];
+const bdN=(x,l)=>x.replace(/,? and /,{fr:' et ',es:' y ',ja:'と',zh:'和'}[l]).replace(/, /g,{fr:', ',es:', ',ja:'、',zh:'、'}[l]);
 const TR={fr:{},es:{},ja:{},zh:{}};TR_ROWS.forEach(r=>['fr','es','ja','zh'].forEach((l,i)=>{if(r[i+1])TR[l][r[0]]=r[i+1]}));
 const LOC={en:'en-US',fr:'fr-FR',es:'es-ES',ja:'ja-JP',zh:'zh-CN'};
 const T=s=>{const L=S.lang;if(!L||L==='en'||s==null)return s;const d=TR[L];return d&&d[s]!=null?d[s]:s};
@@ -562,6 +564,12 @@ const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Sept:8,Oct:9,No
 function locDates(s){if(S.lang==='en')return s;return s.replace(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept?|Oct|Nov|Dec)[a-z]*\.? (\d{1,2})(?:, (\d{4}))?/g,(m,mo,d,y)=>{const dt=new Date(Date.UTC(+(y||2026),MON[mo.slice(0,3)]??MON[mo],+d,12));return dt.toLocaleDateString(LOC[S.lang],Object.assign({month:'short',day:'numeric',timeZone:'UTC'},y?{year:'numeric'}:{}))})
  .replace(/\bSeason (\d+)/g,(m,n)=>({fr:'Saison '+n,es:'Temporada '+n,ja:'シーズン'+n,zh:'第'+n+'期'})[S.lang]||m)}
 const TRX=[
+ /* birthday sticker (birthday.js): names stay as they are on the rest of the site; only the joining words change */
+ [/^Happy Birthday, (.+)! 🎂$/,{fr:(m,x)=>'Joyeux anniversaire, '+bdN(x,'fr')+' ! 🎂',es:(m,x)=>'¡Feliz cumpleaños, '+bdN(x,'es')+'! 🎂',ja:(m,x)=>bdN(x,'ja')+'、お誕生日おめでとう！🎂',zh:(m,x)=>bdN(x,'zh')+'，生日快乐！🎂'}],
+ [/^It’s (.+)’s birthday today\. Open the birthday card\.$/,{fr:'C’est l’anniversaire de $1 aujourd’hui. Ouvrir la carte d’anniversaire.',es:'Hoy es el cumpleaños de $1. Abrir la tarjeta de cumpleaños.',ja:'今日は$1の誕生日です。バースデーカードを開く。',zh:'今天是$1的生日。打开生日卡片。'}],
+ [/^It’s (.+)’s birthday today$/,{fr:'C’est l’anniversaire de $1 aujourd’hui',es:'Hoy es el cumpleaños de $1',ja:'今日は$1の誕生日です',zh:'今天是$1的生日'}],
+ [/^See (.+)’s guide$/,{fr:'Voir le guide de $1',es:'Ver la guía de $1',ja:'$1のガイドを見る',zh:'查看$1的攻略'}],
+ [/^Close the birthday card$/,{fr:'Fermer la carte d’anniversaire',es:'Cerrar la tarjeta de cumpleaños',ja:'バースデーカードを閉じる',zh:'关闭生日卡片'}],
  [/^Previous (.+)$/,{fr:(m,x)=>'Éditions précédentes · '+T(x),es:(m,x)=>'Ediciones anteriores · '+T(x),ja:(m,x)=>'過去の'+T(x),zh:(m,x)=>'往期'+T(x)}],
  [/^(Imaginarium Theater|Spiral Abyss|Stygian Onslaught)\b(.*)$/,{fr:(m,a,b)=>T(a)+b,es:(m,a,b)=>T(a)+b,ja:(m,a,b)=>T(a)+b,zh:(m,a,b)=>T(a)+b}],
  [/^(\d+) published$/,{fr:'$1 publiés',es:'$1 publicados',ja:'$1件公開',zh:'已发布 $1 篇'}],
@@ -874,11 +882,11 @@ function voxHTML(gid,d){const G=S.games[gid]||{},R=G.roster||[],B=(G.posts&&G.po
  const L=(d.items||[]).filter(it=>it&&it.sum&&it.sn);if(!L.length)return'';
  const row=(it,i)=>{const r=who(it),on=!!B[r.id],nm=esc(r.name||it.sn),pic='<span class="vx-pic"'+(r.icon?' style="background-image:url(\'/'+esc(r.icon)+'\')"':'')+'>'+(r.icon?'':esc(String(r.name||it.sn).trim()[0]||'?'))+'</span>';
   const ref=esc(tt("{s}'s profile › Voice-Overs").replace('{s}',r.name||it.sn))+' › '+(it.ref||[]).map(x=>'“'+esc(x.t)+'”'+(lv(x.u)?' ('+esc(lv(x.u))+')':'')).join(' · ');
-  const body='<p class="vx-sum">'+esc(it.sum)+'</p><p class="vx-ref">'+ref+'</p>';
+  const own=S.lang!=='en'&&it.l&&it.l[S.lang],body='<p class="vx-sum"'+(S.lang!=='en'&&!own?' lang="en"':'')+'>'+esc(own||it.sum)+'</p><p class="vx-ref">'+ref+'</p>';
   return'<li class="vx-it">'+(on?'<a class="vx-who" href="/'+gid+'/builds/'+esc(r.id)+'" data-link>'+pic+'<b>'+nm+'</b></a>':'<span class="vx-who">'+pic+'<b>'+nm+'</b></span>')
    +'<div class="vx-txt">'+(it.sp?'<button type="button" class="vx-sp" aria-expanded="false" aria-controls="vx-'+i+'"><b>'+esc(tt('Spoiler'))+':</b> '+esc(it.sp==='Story spoiler'?tt('Story spoiler'):it.sp)+' <span>'+esc(tt('Tap to reveal'))+'</span></button><div id="vx-'+i+'" hidden>'+body+'</div>':body)+'</div></li>'};
  const n=L.length,lead=(n===1?tt('1 character talks about {c} in their in-game profile. Summary in our own words.'):tt('{n} characters talk about {c} in their in-game profiles. Summaries in our own words.').replace('{n}',n)).replace('{c}',d.name);
- return'<details class="panel voxbox"><summary><h2>'+esc(tt('What Others Say'))+' <small>'+n+'</small></h2><span class="kb-ch" aria-hidden="true"></span></summary><p class="muted">'+esc(lead)+(S.lang!=='en'&&d.lang==='en'?' '+esc(tt('Summaries are in English.')):'')+'</p><ul class="vx-l">'+L.map(row).join('')+'</ul><p class="vx-src">'+esc(tt("Character profile lines are from the game, © HoYoverse. Summaries are PawPixl's own."))+'</p></details>'}
+ return'<details class="panel voxbox"><summary><h2>'+esc(tt('What Others Say'))+' <small>'+n+'</small></h2><span class="kb-ch" aria-hidden="true"></span></summary><p class="muted">'+esc(lead)+(S.lang!=='en'&&L.some(it=>!(it.l&&it.l[S.lang]))?' '+esc(tt(L.every(it=>!(it.l&&it.l[S.lang]))?'Summaries are in English.':'Some summaries are in English.')):'')+'</p><ul class="vx-l">'+L.map(row).join('')+'</ul><p class="vx-src">'+esc(tt("Character profile lines are from the game, © HoYoverse. Summaries are PawPixl's own."))+'</p></details>'}
 async function voxBox(gid,name){const box=$('#voxbox');if(!box||!voxOn())return;const id=((await voxIndex(gid)).ids||{})[kitKey(name)];if(!id)return;const d=await voxLoad(gid,id);const b=$('#voxbox');if(!d||!b||b.dataset.name!==name)return;const h=voxHTML(gid,d);if(!h)return;b.innerHTML=h;b.hidden=false}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.vx-sp');if(!b)return;const p=document.getElementById(b.getAttribute('aria-controls'));if(!p)return;p.hidden=false;b.setAttribute('aria-expanded','true');b.remove()});
 async function kitBox(gid,name){const box=$('#kitbox');if(!box||!kitsOn())return;const id=((await kitIndex(gid)).ids||{})[kitKey(name)];if(!id)return;const d=await kitLoad(gid,id);if(!d||!$('#kitbox'))return;const row=a=>'<li><button type="button" class="kit-li" data-kit="'+esc(id)+'" data-game="'+esc(gid)+'" data-slot="'+esc(a.s)+'"><span>'+esc(kitShort(a.s))+'</span><b>'+esc(kitName(d,a))+'</b></button></li>';
@@ -1013,7 +1021,7 @@ let LSP=null;async function labSp(name){const el=$('#lab-sp');if(!el)return;el.h
    Which banners are current or upcoming is worked out from the clock on the visitor's own server; one that is over is no
    longer shown. With nothing to show, the box is not there at all. No outside website is contacted. */
 const bnrOn=()=>!!((S.site&&S.site.banners&&S.site.banners.on)||new URLSearchParams(location.search).get('preview')==='banners');
-let BNR=null,BNRV='';
+let BNR=null,BNRV='',BNROPEN=false;/* phones: the box is one tap-to-open row; it remembers being open while you stay on the page */
 async function bnrMount(){const box=$('#bnr');if(!box||!bnrOn()||!window.PPEndgame||!PPEndgame.banners)return;const g0=liveGames().find(g=>g.status==='live');if(!g0)return;
  if(!BNR||BNR.gid!==g0.id){let f=null;try{f=await getJSON('/content/'+g0.id+'/banners.json')}catch(e){}BNR={gid:g0.id,file:f}}bnrDraw()}
 function bnrDraw(){const box=$('#bnr');if(!box||!BNR)return;const E=PPEndgame,V=E.banners.view(BNR.file,E.REG[egtRegion()].off,(window.__bnrNow||Date.now())),has={current:V.current.length>0,upcoming:V.upcoming.length>0},hid=box.closest('.hid');
@@ -1025,7 +1033,15 @@ function bnrDraw(){const box=$('#bnr');if(!box||!BNR)return;const E=PPEndgame,V=
   return g?'<a class="bnr-c" href="/'+BNR.gid+'/builds/'+esc(id)+'" data-link title="'+esc(c.name)+'">'+inner+'</a>':'<span class="bnr-c" title="'+esc(c.name)+'">'+inner+'</span>'};
  const om=document.getElementById('bnr-menu');if(om)om.remove();
  const head=has.current&&has.upcoming?'<button type="button" class="bnr-sel" id="bnr-sel" data-v="'+BNRV+'" aria-haspopup="listbox" aria-expanded="false" aria-label="'+tt('Banners')+': '+tt(BNRV==='current'?'Current banners':'Upcoming banners')+'">'+tt(BNRV==='current'?'Current banners':'Upcoming banners')+'</button>':'<span class="bnr-sel one">'+tt(BNRV==='current'?'Current banners':'Upcoming banners')+'</span>';
- box.innerHTML='<div class="bnr-h">'+head+'</div><div class="bnr-row">'+p.chars.map(one).join('')+'</div><div class="bnr-when">'+(p.label?'<span>'+esc(p.label)+'</span> · ':'')+when+'</div>';box.hidden=false;if(hid)hid.classList.add('hasbnr');
+ const mini=c=>{const r=R.find(x=>x.id===c.id)||R.find(x=>norm(x.name)===norm(c.name)),col=EL[r&&r.el]||['#3a4468','#8fa2d8'];return'<span class="bnr-mp" style="--c1:'+col[1]+(r&&r.icon?';background-image:url(\'/'+esc(r.icon)+'\')':'')+'">'+(r&&r.icon?'':esc((c.name||'?').trim()[0]))+'</span>'};
+ const lab=tt(BNRV==='current'?'Current banners':'Upcoming banners'),names=p.chars.map(c=>c.name).join(' · ');
+ /* the phone row (hidden on wider screens by the style sheet): small portraits, the label and the names; a tap shows the full box */
+ const tog='<button type="button" class="bnr-tog" aria-expanded="'+BNROPEN+'" aria-controls="bnr-body"><span class="bnr-ms" aria-hidden="true">'+p.chars.slice(0,4).map(mini).join('')+'</span><span class="bnr-tt"><b>'+lab+'</b><small>'+esc(names)+'</small></span><span class="bnr-ch" aria-hidden="true"></span></button>';
+ box.classList.toggle('open',BNROPEN);
+ box.innerHTML=tog+'<div class="bnr-body" id="bnr-body"><div class="bnr-h'+(has.current&&has.upcoming?'':' solo')+'">'+head+'</div><div class="bnr-row">'+p.chars.map(one).join('')+'</div><div class="bnr-when">'+(p.label?'<span>'+esc(p.label)+'</span> · ':'')+when+'</div>'+(has.current&&has.upcoming?'<button type="button" class="bnr-sw">'+tt(BNRV==='current'?'See upcoming banners':'See current banners')+'</button>':'')+'</div>';box.hidden=false;if(hid)hid.classList.add('hasbnr');
+ {const sw=box.querySelector('.bnr-sw');if(sw)sw.onclick=()=>{BNRV=BNRV==='current'?'upcoming':'current';bnrDraw();const t=document.querySelector('#bnr .bnr-sw');if(t)t.focus()}}
+ {const bh=document.querySelector('.bd-host');if(bh&&bh._bd&&bh._bd.place_)bh._bd.place_()}
+ box.querySelector('.bnr-tog').onclick=e=>{BNROPEN=!BNROPEN;box.classList.toggle('open',BNROPEN);e.currentTarget.setAttribute('aria-expanded',String(BNROPEN))};
  const sel=$('#bnr-sel');if(sel)bnrMenu(sel)}
 /* the Current / Upcoming picker: a small menu styled like the search suggestions (the browser's own drop-down list can't be styled).
    It opens in a layer on top of the page so the box's rounded edge can't cut it off; arrows, Home/End, Enter/Space and Escape work. */
@@ -1266,7 +1282,7 @@ async function bdayLib(){if(window.PPBday)return true;try{await new Promise((ok,
 async function bdayMount(box){try{if(!box||!box.closest||!box.closest('#qslot'))return;const f=await bdayFile();if(!f.on)return;const now=bdayNow();if(!bdayAny(f,now).some(c=>c.s))return;if(!await bdayLib())return;
   /* the sticker rises from behind the Browse all builds button; the quote box is only the fallback when that button is not on the page */
   const hf=document.querySelector('.hero .hfind'),hb=hf&&hf.querySelector('.hbrowse');if(hb){PPBday.unmount(box);box=hf}
-  await PPBday.mount(box,f,{anchor:hb||null,now,force:!!bdayQ(),load:id=>getJSON('/content/genshin/stickers/'+encodeURIComponent(id)+'.json'),guide:id=>{const d=S.games.genshin||{};return(((d.posts||{}).builds||{})[id])?'/genshin/builds/'+id:null}})}catch(e){}}
+  await PPBday.mount(box,f,{anchor:hb||null,over:()=>document.getElementById('bnr'),now,force:!!bdayQ(),load:id=>getJSON('/content/genshin/stickers/'+encodeURIComponent(id)+'.json'),guide:id=>{const d=S.games.genshin||{};return(((d.posts||{}).builds||{})[id])?'/genshin/builds/'+id:null}})}catch(e){}}
 async function bdayCakes(n){try{const L=[...document.querySelectorAll('[data-bd]')];/* the page may not be on screen yet when this is first asked for */if(!L.length){if((n||0)<12)setTimeout(()=>bdayCakes((n||0)+1),150);return}const f=await bdayFile();if(!f.on)return;const now=bdayNow();if(!bdayAny(f,now).some(c=>L.some(e=>e.dataset.bd===c.id)))return;if(!await bdayLib())return;L.forEach(e=>PPBday.cake(e,f,e.dataset.bd,now))}catch(e){}}
 async function qHeader(){const w=$('#qwrap');if(!w)return;if(!qOn()){w.hidden=true;return}const home=location.pathname.replace(/\/+$/,'')==='';w.hidden=home;if(home)return;await loadQuotes();const q=qToday();if(!q){w.hidden=true;return}const a=qWho(q.c);$('#qbtn').innerHTML=qSt(a,'mini');$('#qbtn').title=(q.c==='Cyno'?'Cyno’s joke':q.c+'’s line')+' of the day'}
 /* ---------- router ---------- */

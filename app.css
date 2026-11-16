@@ -1610,3 +1610,31 @@ a.vx-who:hover b,a.vx-who:focus-visible b{color:var(--ac2);text-decoration:under
 .vx-src{font-size:11px;opacity:.55;margin:4px 0 10px}
 @media (max-width:560px){.voxbox{padding:4px 14px}.vx-it{grid-template-columns:1fr;gap:6px}}
 @media (prefers-reduced-motion:reduce){.voxbox .kb-ch{transition:none}}
+/* banner box on phones (15 Nov): one compact row with small portraits; tap to show the full box */
+.bnr-tog{display:none}
+.bnr-sw{display:none}
+@media (max-width:820px){
+ .bnr{padding:0}
+ .bnr-tog{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:8px 14px;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent}
+ .bnr-tog:focus-visible{outline:2px solid var(--e1);outline-offset:-2px;border-radius:16px}
+ .bnr-ms{display:flex;flex:none}
+ .bnr-mp{width:30px;height:30px;border-radius:50%;border:2px solid var(--c1,#8fa2d8);background:#10142a center/cover no-repeat;display:flex;align-items:center;justify-content:center;font:700 12px/1 var(--body);color:#dfe6ff;box-sizing:border-box}
+ .bnr-mp+.bnr-mp{margin-left:-8px}
+ .bnr-tt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+ .bnr-tt b{font:800 11px/1.1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--e1)}
+ .bnr-tt small{font:600 13px/1.2 var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.92}
+ .bnr-ch{flex:none;width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translate(-2px,-2px);transition:transform .18s ease;opacity:.8;margin-right:4px}
+ .bnr.open .bnr-ch{transform:rotate(-135deg)}
+ .bnr:not(.open) .bnr-body{display:none}
+ .bnr-body{padding:0 12px 10px}
+ .bnr-h{display:none}
+ .bnr.open .bnr-tt small{display:none}
+ .bnr.open .bnr-ms{display:none}
+ .bnr-sw{all:unset;display:block;margin:8px auto 2px;padding:8px 14px;min-height:28px;border-radius:999px;border:1px solid var(--line);font:700 12px/1.2 var(--body);color:var(--e1);cursor:pointer}
+ .bnr-sw:focus-visible{outline:2px solid var(--e1);outline-offset:2px}
+ .bnr.open .bnr-body{padding-top:2px}
+}
+@media (max-width:820px) and (prefers-reduced-motion:reduce){.bnr-ch{transition:none}}
+
+/* the birthday sticker rises from behind the banner box on phones: the box must sit in front of it */
+.bnr{z-index:1}
