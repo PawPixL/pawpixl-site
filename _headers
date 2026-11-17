@@ -2,7 +2,7 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: SAMEORIGIN
-  Content-Security-Policy: object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'
+  Content-Security-Policy: object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; script-src 'self' 'unsafe-hashes' 'sha256-9f8ZK5epjuMsYtXFjPqrgJI0L4QOAUYmJdHtT+RSH/c=' 'sha256-mW3/Dp1Czvttv72mYqmU/FYCSeC8fRbdAI2EXjyCk8A=' 'sha256-LdlORHyUW/rwezK0l13nW+IwcZmi78eWOCBjewMWRr4=' 'sha256-ozFsff0132hWaNKIcDOyQLVjW+MZe0a1AaxDGCYU6zs=' https://static.cloudflareinsights.com
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
 
 /app.js

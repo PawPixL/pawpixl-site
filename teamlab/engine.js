@@ -198,7 +198,10 @@ function make(D){const tags=(D.tags&&D.tags.chars)||{},roster=D.roster||[],RX=D.
    teams.push({name:t.name,owner:t.owner,ownerId:t.ownerId,keys:t.m,members:t.m.map((x,i)=>{const ci=info(x)||{name:t.names[i],el:'',key:x};return{key:x,name:ci.name,el:ci.el,icon:ci.icon||'',guide:ci.guide||'',role:t.roles[i]||''}}),text:t.text,alts})});
   teams.sort((a,b)=>(a.owner===c.name?0:1)-(b.owner===c.name?0:1));const fn=c.f?Object.keys(c.f).filter(t=>FN[t]).map(t=>({what:FN[t],from:ab(c,c.f[t])})):[];
   return{c,roles:c.roles,cons:c.cons,fn,selfheal:!!(c.f&&c.f.selfheal),teams,missing:[].concat(c.hasTags?[]:['PawPixl doesn\u2019t have '+c.name+'\u2019s kit on file yet.'],c.roles.length?[]:['There\u2019s no PawPixl build guide for '+c.name+' yet, so no guide role to show.'],teams.length?[]:[c.name+' isn\u2019t in a PawPixl guide team yet.'])}}
- return{info,all,doctor,subs,compare,favorite,reviewed,roleIn,reactions,key,consStep,atCons}}
+ /* My Roster: PawPixl's reviewed teams the player can field now, and the ones a single character away (with who is missing).
+    Owning four characters doesn't make a team good: only teams from PawPixl's guides are listed here. */
+ const playable=own=>{const has=k=>own.has(k)||/^traveler/.test(k),seen=new Set(),full=[],near=[];TEAMS.forEach(t=>{const sg=t.m.slice().sort().join('|');if(seen.has(sg))return;seen.add(sg);const miss=t.m.filter(k=>!has(k));if(!miss.length)full.push(t);else if(miss.length===1)near.push(Object.assign({miss:miss[0]},t))});return{full,near}};
+ return{info,all,doctor,subs,compare,favorite,reviewed,roleIn,reactions,key,consStep,atCons,playable}}
 /* PawPixl's reviewed guide data, as the website already has it in content/<game>/index.json */
 function guidesFrom(idx){const out=[],B=((idx||{}).posts||{}).builds||{},R=(idx||{}).roster||[];Object.keys(B).forEach(id=>{const v=(B[id].versions||[])[0];if(!v||!v.seo)return;const r=R.find(x=>x.id===id),name=r?r.name:(B[id].title||id),why=(v.why&&v.why.t)||[];
   const teams=(v.seo.teams||[]).map(t=>{const sig=(t.members||[]).map(norm).sort().join('|'),y=why.find(x=>x&&(x.members||[]).map(norm).sort().join('|')===sig)||{};return{name:t.name||'',members:t.members||[],roles:(t.members||[]).map(n=>{const i=(y.members||[]).findIndex(m=>norm(m)===norm(n));return i>=0&&y.roles?(y.roles[i]||''):''}),text:y.text||''}});

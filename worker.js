@@ -231,6 +231,12 @@ async function news(req, env, url, ctx) {
     const last = (await db.prepare('SELECT id, topic, subject, created FROM issues ORDER BY created DESC LIMIT 5').all()).results;
     return json({ ok: true, total: all.length, unconfirmed: pend, topics: by, today: await used(db), daily: DAILY, mail: !!env.RESEND_KEY, from: info.from, issues: last }, 200, CORS);
   }
+  if (p === 'growth') {
+    const ready = { sb: !!(env.SB_URL && env.SB_SERVICE_KEY), owner: !!env.OWNER_EMAIL, mail: !!env.RESEND_KEY };
+    if (!ready.sb) return json({ ok: true, ready, snap: null }, 200, CORS);
+    try { return json({ ok: true, ready, snap: await growthCheck(env, url.searchParams.get('now') === '1') }, 200, CORS); }
+    catch (e) { return json({ ok: false, ready, error: e.message }, 200, CORS); }
+  }
   if (p === 'insights') {
     const days = Math.max(1, Math.min(400, +url.searchParams.get('days') || 30));
     /* visits are saved under Eastern-time days, so the range starts on an Eastern-time day too (UTC is a day ahead every evening) */
@@ -489,7 +495,47 @@ async function api(req, env, url, ctx) {
     return env.ASSETS.fetch(req);
   }
 }
+/* ---- 5) Growth alerts (player accounts). Once a day the Worker asks the accounts database for totals only (no emails,
+   no names, no rosters: see pp_growth in supabase.sql) and emails the owner once when a free limit reaches 70% and again
+   at 90%, so there's time to upgrade calmly. Needs three secrets on this Worker: SB_URL, SB_SERVICE_KEY and OWNER_EMAIL.
+   PawPixl Studio shows the same numbers on its Visitor insights page (Growth meter). ---- */
+const PRO = 'Upgrade Supabase to Pro ($25 a month): supabase.com › your organization › Billing › Change plan › Pro. Keep the spend cap on.';
+const GROW = [
+  { k: 'db', t: 'Account database size', lim: 500 * 1048576, unit: 'MB', fix: PRO },
+  { k: 'mau', t: 'Players active in the last 30 days', lim: 50000, fix: PRO },
+  { k: 'reg', t: 'Regular players (active this week)', lim: 500, backup: true, fix: 'The free plan has no daily backups. With this many regular players, move to Supabase Pro ($25 a month) so their rosters are backed up every day: supabase.com › your organization › Billing › Change plan › Pro.' }
+];
+const lvlOf = (m, v) => { const p = v / m.lim; return m.backup ? (p >= 1 ? 90 : p >= 0.7 ? 70 : 0) : (p >= 0.9 ? 90 : p >= 0.7 ? 70 : 0); };
+async function growthCheck(env, force) {
+  if (!env.DB || !env.SB_URL || !env.SB_SERVICE_KEY) return null;
+  await init(env.DB);
+  await env.DB.prepare('CREATE TABLE IF NOT EXISTS growth (k TEXT PRIMARY KEY, v TEXT NOT NULL)').run();
+  const snap0 = await env.DB.prepare('SELECT v FROM growth WHERE k = ?').bind('snap').first();
+  if (!force && snap0) { try { const o = JSON.parse(snap0.v); if (Date.now() - Date.parse(o.at) < 10 * 60e3) return o; } catch (e) {} }
+  const r = await fetch(String(env.SB_URL).trim().replace(/\/+$/, '').replace(/\/rest\/v1$/i, '').replace(/\/+$/, '') + '/rest/v1/rpc/pp_growth', { method: 'POST', headers: { apikey: env.SB_SERVICE_KEY, authorization: 'Bearer ' + env.SB_SERVICE_KEY, 'content-type': 'application/json' }, body: '{}' });
+  if (!r.ok) throw new Error('accounts database answered ' + r.status + (r.status === 404 ? ' (run the latest supabase.sql)' : ''));
+  const g = await r.json(), val = { db: +g.db_bytes || 0, mau: +g.active30 || 0, reg: +g.active7 || 0 };
+  const rows = GROW.map(m => ({ k: m.k, t: m.t, v: val[m.k], lim: m.lim, unit: m.unit || '', lvl: lvlOf(m, val[m.k]), fix: m.fix }));
+  const snap = { at: new Date().toISOString(), accounts: +g.accounts || 0, rosters: +g.rosters || 0, top: (g.top_owned || []).slice(0, 10), rows };
+  const q = [env.DB.prepare('INSERT INTO growth (k, v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v').bind('snap', JSON.stringify(snap))];
+  const mail = [];
+  for (const x of rows) {
+    const was = await env.DB.prepare('SELECT v FROM growth WHERE k = ?').bind('lvl:' + x.k).first(), prev = was ? +was.v : 0;
+    if (x.lvl > prev) mail.push(x);
+    if (x.lvl !== prev) q.push(env.DB.prepare('INSERT INTO growth (k, v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v').bind('lvl:' + x.k, String(x.lvl)));
+  }
+  if (mail.length && env.RESEND_KEY && env.OWNER_EMAIL) {
+    const info = await siteInfo(env, 'https://localhost'), shown = x => x.unit === 'MB' ? Math.round(x.v / 1048576) + ' MB of ' + Math.round(x.lim / 1048576) + ' MB' : x.v.toLocaleString('en-US') + ' of ' + x.lim.toLocaleString('en-US');
+    const hi = mail.some(x => x.lvl >= 90);
+    const inner = '<h2 style="margin:0 0 12px">' + (hi ? 'Time to upgrade' : 'PawPixl is growing') + '</h2>' + mail.map(x => '<p style="margin:0 0 6px"><b>' + x.t + ':</b> ' + shown(x) + ' (' + Math.round(x.v / x.lim * 100) + '%)</p><p style="margin:0 0 14px;color:#b9bfd3">' + x.fix + '</p>').join('') + '<p style="color:#b9bfd3">' + (hi ? 'Please upgrade within a few days.' : 'Nothing breaks yet. Plan the upgrade in the next few weeks.') + ' The Growth meter in PawPixl Studio (Visitor insights) shows the same numbers.</p>';
+    try { await resend(env, '/emails', { from: info.from, to: [env.OWNER_EMAIL], subject: (hi ? 'Upgrade needed: ' : 'Heads-up: ') + mail.map(x => x.t.toLowerCase()).join(', ') + ' at ' + Math.max(...mail.map(x => Math.round(x.v / x.lim * 100))) + '%', html: shell(info, inner, 'Sent once per level by your website’s daily check.') }); snap.mailed = mail.map(x => x.k); }
+    catch (e) { /* the level isn't stored, so tomorrow's check tries the email again */ q.splice(1); }
+  }
+  await env.DB.batch(q);
+  return snap;
+}
 async function daily(event, env, ctx) {
+  try { await growthCheck(env, true); } catch (e) { console.log('growth check: ' + e.message); }
   {
     if (!env.DB || !env.RESEND_KEY) return;
     await init(env.DB);
