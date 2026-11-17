@@ -423,6 +423,35 @@ export default {
   async scheduled(event, env, ctx) { return daily(event, env, ctx); },
 };
 async function api(req, env, url, ctx) {
+  /* ---- Enka.Network showcase lookup for My Roster (player accounts). Enka's rules: our own User-Agent, keep each answer
+     for the ttl it gives, never mass-query UIDs. Only pawpixl.com pages may use it; the answer is cut down to what
+     My Roster reads (characters' levels, talents, constellations, weapon and artifacts) plus the nickname. ---- */
+  if (url.pathname.startsWith('/api/enka/')) {
+    if (req.method !== 'GET') return json({ ok: false }, 405);
+    const sf = req.headers.get('sec-fetch-site'), ref = req.headers.get('referer');
+    let fromUs = sameSite(req, url) && (sf ? sf === 'same-origin' : (() => { try { return new URL(ref).host === url.host; } catch (e) { return false; } })());
+    if (!fromUs) return json({ ok: false, error: 'forbidden' }, 403);
+    const uid = url.pathname.slice('/api/enka/'.length).replace(/\/$/, '');
+    if (!/^[1-9]\d{8,9}$/.test(uid)) return json({ ok: false, error: 'uid' }, 400);
+    const ck = new Request('https://pawpixl-cache.invalid/enka/' + uid);
+    const cache = (typeof caches !== 'undefined' && caches.default) || null;
+    const hit = cache && await cache.match(ck); if (hit) return hit;
+    /* at most 12 new lookups per visitor per hour, so nobody can use PawPixl to hammer Enka */
+    if (cache) { const ip = (req.headers.get('cf-connecting-ip') || 'x').replace(/[^0-9a-f:.]/gi, ''), hk = new Request('https://pawpixl-cache.invalid/enka-ip/' + ip + '/' + Math.floor(Date.now() / 3600e3));
+      const prev = await cache.match(hk), n = prev ? (+(await prev.text()) || 0) : 0; if (n >= 12) return json({ ok: false, error: 'busy' }, 200);
+      const cnt = new Response(String(n + 1), { headers: { 'cache-control': 'public, max-age=3600' } }); const put = cache.put(hk, cnt); if (ctx && ctx.waitUntil) ctx.waitUntil(put); else await put; }
+    let r; try { r = await fetch('https://enka.network/api/uid/' + uid + '/', { headers: { 'user-agent': 'PawPixl/1.0 (+https://pawpixl.com)', accept: 'application/json' } }); } catch (e) { return json({ ok: false, error: 'unreachable' }, 200); }
+    const codes = { 400: 'uid', 404: 'notfound', 424: 'maintenance', 429: 'busy' };
+    if (!r.ok) return json({ ok: false, error: codes[r.status] || 'enka', status: r.status }, 200);
+    let j; try { j = await r.json(); } catch (e) { return json({ ok: false, error: 'enka' }, 200); }
+    const ttl = Math.max(30, Math.min(600, +j.ttl || 60)), F = e => e && e.flat || {};
+    const body = { ok: true, ttl, at: new Date().toISOString(), player: { nickname: String((j.playerInfo || {}).nickname || '').slice(0, 40), level: +(j.playerInfo || {}).level || 0 },
+      avatars: (j.avatarInfoList || []).slice(0, 30).map(a => ({ avatarId: a.avatarId, skillDepotId: a.skillDepotId, lv: a.propMap && a.propMap['4001'] && a.propMap['4001'].val, asc: a.propMap && a.propMap['1002'] && a.propMap['1002'].val, cons: (a.talentIdList || []).length, skills: a.skillLevelMap || {},
+        equip: (a.equipList || []).slice(0, 6).map(e => ({ icon: F(e).icon, type: F(e).itemType, slot: F(e).equipType, weapon: e.weapon ? { level: e.weapon.level, promoteLevel: e.weapon.promoteLevel, affixMap: e.weapon.affixMap } : null, main: F(e).reliquaryMainstat || null, subs: F(e).reliquarySubstats || [] })) })) };
+    const out = json(body, 200); out.headers.set('cache-control', 'public, max-age=' + ttl);
+    if (cache) { const put = cache.put(ck, out.clone()); if (ctx && ctx.waitUntil) ctx.waitUntil(put); else await put; }
+    return out;
+  }
   {
     if (url.pathname.startsWith('/api/news/')) {
       try { return await news(req, env, url, ctx); } catch (e) { return json({ ok: false, error: 'server' }, 500, CORS); }
