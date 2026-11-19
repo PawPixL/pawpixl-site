@@ -107,20 +107,89 @@ end $$;
 drop trigger if exists teams_guard on public.teams;
 create trigger teams_guard before insert or update on public.teams for each row execute function public.teams_guard();
 
+-- owner and test accounts (18 Nov): left out of every account total, and a browser that signs in with one of them stops
+-- being counted in Visitor insights. Only the service key (the website Worker, from PawPixl Studio) can see or change them.
+create table if not exists public.pp_excluded (
+  user_id uuid primary key references auth.users on delete cascade,
+  why text not null default 'test',
+  added timestamptz not null default now()
+);
+alter table public.pp_excluded enable row level security;
+revoke all on public.pp_excluded from anon, authenticated;
+-- one row per account per day it was used (no times, no pages), for "returning players" over 7 and 30 days
+create table if not exists public.pp_days (
+  user_id uuid not null references auth.users on delete cascade,
+  d date not null,
+  primary key (user_id, d)
+);
+alter table public.pp_days enable row level security;
+revoke all on public.pp_days from anon, authenticated;
+-- only logs the day; it never touches profiles.last_seen, which is the bell's "notifications seen up to" marker
+create or replace function public.pp_seen() returns void language sql security definer set search_path = public as $$
+  insert into public.pp_days (user_id, d) values (auth.uid(), (now() at time zone 'America/New_York')::date)
+    on conflict do nothing;
+$$;
+revoke all on function public.pp_seen() from public, anon;
+grant execute on function public.pp_seen() to authenticated;
+create or replace function public.pp_exclude(em text, why text default 'test') returns boolean language plpgsql security definer set search_path = public, auth as $$
+declare uid uuid;
+begin
+  select id into uid from auth.users where lower(email) = lower(em) limit 1;
+  if uid is null then return false; end if;
+  insert into public.pp_excluded (user_id, why) values (uid, coalesce(nullif(why, ''), 'test'))
+    on conflict (user_id) do update set why = excluded.why;
+  return true;
+end $$;
+create or replace function public.pp_unexclude(uid uuid) returns void language sql security definer set search_path = public as $$
+  delete from public.pp_excluded where user_id = uid;
+$$;
+create or replace function public.pp_excluded_list() returns json language sql security definer set search_path = public, auth as $$
+  select coalesce(json_agg(json_build_object('id', x.user_id, 'email', u.email, 'why', x.why, 'added', x.added) order by x.added), '[]'::json)
+  from public.pp_excluded x join auth.users u on u.id = x.user_id
+$$;
+revoke all on function public.pp_exclude(text, text) from public, anon, authenticated;
+revoke all on function public.pp_unexclude(uuid) from public, anon, authenticated;
+revoke all on function public.pp_excluded_list() from public, anon, authenticated;
+grant execute on function public.pp_exclude(text, text) to service_role;
+grant execute on function public.pp_unexclude(uuid) to service_role;
+grant execute on function public.pp_excluded_list() to service_role;
+
 -- growth totals for the daily check and the Studio Growth meter: counts only, no emails, no names, no rosters.
 -- Callable only with the service key (kept as a secret on the website Worker).
-create or replace function public.pp_growth() returns json language sql security definer set search_path = public, auth as $$
+-- owner = the owner's email (from the Worker's OWNER_EMAIL secret): that account and test accounts are left out.
+-- Running this file again replaces the older version of this function.
+drop function if exists public.pp_growth();
+create or replace function public.pp_growth(owner text default '') returns json language sql security definer set search_path = public, auth as $$
+  with acc as (
+    select u.id, u.created_at from auth.users u
+    where u.id not in (select user_id from public.pp_excluded)
+      and (coalesce(owner, '') = '' or lower(coalesce(u.email, '')) <> lower(owner))
+  )
   select json_build_object(
-    'accounts',  (select count(*) from auth.users),
-    'active30',  (select count(*) from public.profiles where last_seen > now() - interval '30 days'),
-    'active7',   (select count(*) from public.profiles where last_seen > now() - interval '7 days'),
-    'rosters',   (select count(distinct user_id) from public.roster),
-    'teams',     (select count(*) from public.teams),
-    'db_bytes',  pg_database_size(current_database()),
-    'top_owned', (select coalesce(json_agg(t), '[]'::json) from (
-                    select char_id, count(*) as n from public.roster where data->>'o' = '1'
-                    group by char_id having count(*) >= 3 order by n desc limit 10) t)
+    'accounts',     (select count(*) from acc),
+    'accounts_all', (select count(*) from auth.users),
+    'excluded',     (select count(*) from auth.users) - (select count(*) from acc),
+    -- active = used the site while signed in (one row per player per day in pp_days). profiles.last_seen is not used:
+    -- it only moves when a player opens the notifications bell, so it never meant "active".
+    'active30',     (select count(distinct d.user_id) from public.pp_days d join acc on acc.id = d.user_id where d.d > (now() at time zone 'America/New_York')::date - 30),
+    'active7',      (select count(distinct d.user_id) from public.pp_days d join acc on acc.id = d.user_id where d.d > (now() at time zone 'America/New_York')::date - 7),
+    'returning7',   (select count(*) from (select d.user_id from public.pp_days d join acc on acc.id = d.user_id
+                       where d.d > (now() at time zone 'America/New_York')::date - 7 group by d.user_id having count(*) >= 2) t),
+    'returning30',  (select count(*) from (select d.user_id from public.pp_days d join acc on acc.id = d.user_id
+                       where d.d > (now() at time zone 'America/New_York')::date - 30 group by d.user_id having count(*) >= 2) t),
+    'days_from',    (select min(d) from public.pp_days),
+    'rosters',      (select count(distinct r.user_id) from public.roster r join acc on acc.id = r.user_id),
+    'team_users',   (select count(distinct t.user_id) from public.teams t join acc on acc.id = t.user_id),
+    'teams',        (select count(*) from public.teams t join acc on acc.id = t.user_id),
+    'launch',       (select min(created_at) from auth.users),
+    'new_daily',    (select coalesce(json_agg(json_build_object('d', d, 'n', n) order by d), '[]'::json) from (
+                       select (created_at at time zone 'America/New_York')::date as d, count(*) as n from acc
+                       where created_at > now() - interval '120 days' group by 1) t),
+    'db_bytes',     pg_database_size(current_database()),
+    'top_owned',    (select coalesce(json_agg(t), '[]'::json) from (
+                       select r.char_id, count(*) as n from public.roster r join acc on acc.id = r.user_id where r.data->>'o' = '1'
+                       group by r.char_id having count(*) >= 3 order by n desc limit 10) t)
   )
 $$;
-revoke all on function public.pp_growth() from public, anon, authenticated;
-grant execute on function public.pp_growth() to service_role;
+revoke all on function public.pp_growth(text) from public, anon, authenticated;
+grant execute on function public.pp_growth(text) to service_role;

@@ -4,6 +4,14 @@
 //    which pages, what hour in Eastern time). No cookies, no IP addresses, nothing that identifies a person.
 // 3) Guide feedback: visitors can send a comment, question or correction from any guide page; only
 //    PawPixl Studio (with the NEWS_KEY password) can read them.
+// 6) Owner exclusion (18 Nov): the owner's own browsers are never counted. A browser is excluded by an HttpOnly cookie
+//    (pp_x, a random token only this Worker can read; only its SHA-256 is stored) that it gets either from a one-time link
+//    made in PawPixl Studio (Insights › Your devices) or automatically when the owner (OWNER_EMAIL) or a test account signs
+//    in. Visitors who share the owner's IP address are counted as usual: nothing here looks at IP addresses.
+// 7) Counting v2 (18 Nov): visits are 30-minute sessions across tabs, a refresh is not a new page view, real visitors are
+//    counted once per day / week / month per browser, landing pages and channels (search / social / direct / other sites)
+//    are kept per visit type, plus engaged visits, guide-to-guide/Lab moves and a few tool events. Same daily totals, no
+//    IDs. Old totals stay untouched under their old names; the new ones are stored under names starting with "2.".
 // 2) The Paw Post: email sign-ups (double opt-in), unsubscribe / change topics, and sending updates
 //    from PawPixl Studio. Emails go out through Resend (free plan: 100 a day). Needs two secrets on
 //    this Worker: RESEND_KEY (from resend.com) and NEWS_KEY (the password PawPixl Studio uses).
@@ -20,6 +28,9 @@ function init(db) {
     db.prepare('CREATE TABLE IF NOT EXISTS notes (id TEXT PRIMARY KEY, created TEXT NOT NULL, page TEXT NOT NULL, title TEXT NOT NULL DEFAULT \'\', kind TEXT NOT NULL, msg TEXT NOT NULL, contact TEXT NOT NULL DEFAULT \'\', done INTEGER NOT NULL DEFAULT 0)'),
     db.prepare('CREATE TABLE IF NOT EXISTS noterate (k TEXT PRIMARY KEY, n INTEGER NOT NULL DEFAULT 0, t TEXT NOT NULL)'),
     db.prepare('CREATE TABLE IF NOT EXISTS ins (d TEXT NOT NULL, k TEXT NOT NULL, v TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (d, k, v))'),
+    db.prepare('CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT NOT NULL)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS xdev (id TEXT PRIMARY KEY, th TEXT NOT NULL UNIQUE, label TEXT NOT NULL, how TEXT NOT NULL, created TEXT NOT NULL, seen TEXT NOT NULL)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS xpair (ch TEXT PRIMARY KEY, label TEXT NOT NULL, exp INTEGER NOT NULL)'),
   ]).catch(e => { ready = null; throw e; });
   return ready;
 }
@@ -68,6 +79,125 @@ async function insight(db, req, b, url) {
   }
   if (Math.random() < 0.01) { const old = new Date(Date.now() - 400 * 864e5).toISOString().slice(0, 10); q.push(db.prepare('DELETE FROM ins WHERE d < ?').bind(old)) }
   return q;
+}
+/* ---------------- Counting v2 ---------------- */
+const BOTS = /bot\b|bot\/|crawl|spider|slurp|preview|headless|lighthouse|inspectiontool|pagespeed|gtmetrix|pingdom|uptime|monitor|facebookexternalhit|bytespider|petalbot|ahrefs|semrush|yandex|baiduspider|python|curl|wget|phantom|selenium|puppeteer|playwright|webdriver|go-http|okhttp|axios|node-fetch/i;
+const SEARCH = new Set(['Google', 'Bing', 'DuckDuckGo', 'Yahoo', 'Yandex', 'Baidu', 'Ecosia', 'Brave Search', 'Naver']);
+const SOCIAL = new Set(['TikTok', 'YouTube', 'Twitch', 'Instagram', 'Discord', 'Facebook', 'X / Twitter', 'Reddit', 'Threads', 'Bluesky', 'Pinterest', 'Hoyolab']);
+function source2(ref, app, host, utm) {
+  const u = String(utm || '').toLowerCase().replace(/[^a-z0-9_.-]/g, '').slice(0, 30);
+  const U = { tiktok: 'TikTok', tt: 'TikTok', youtube: 'YouTube', yt: 'YouTube', x: 'X / Twitter', twitter: 'X / Twitter', instagram: 'Instagram', ig: 'Instagram', discord: 'Discord', twitch: 'Twitch', reddit: 'Reddit', facebook: 'Facebook', fb: 'Facebook', google: 'Google', hoyolab: 'Hoyolab', threads: 'Threads', bluesky: 'Bluesky', newsletter: 'Paw Post email', email: 'Paw Post email' };
+  if (u) return U[u] || u;
+  const h = String(ref || '').toLowerCase().replace(/^www\./, '');
+  if (/(^|\.)yahoo\./.test(h)) return 'Yahoo'; if (/yandex\./.test(h)) return 'Yandex'; if (/baidu\./.test(h)) return 'Baidu'; if (/ecosia/.test(h)) return 'Ecosia'; if (/search\.brave/.test(h)) return 'Brave Search'; if (/naver\./.test(h)) return 'Naver';
+  if (/threads\.net/.test(h)) return 'Threads'; if (/bsky\.app/.test(h)) return 'Bluesky'; if (/pinterest/.test(h)) return 'Pinterest'; if (/hoyolab/.test(h)) return 'Hoyolab';
+  if (/(^|\.)(x|twitter)\.com$|^t\.co$/.test(h)) return 'X / Twitter';
+  return sourceOf(ref, app, host);
+}
+const chanOf = s => !s ? 'direct' : SEARCH.has(s) ? 'search' : SOCIAL.has(s) ? 'social' : s === 'Direct or unknown' ? 'direct' : s === 'Paw Post email' ? 'email' : 'other';
+const isoWeek = d => { const t = new Date(d + 'T12:00:00Z'), w = (t.getUTCDay() + 6) % 7; t.setUTCDate(t.getUTCDate() - w + 3); const y = t.getUTCFullYear(), j = new Date(Date.UTC(y, 0, 4)); return y + '-W' + String(1 + Math.round(((t - j) / 864e5 - 3 + ((j.getUTCDay() + 6) % 7)) / 7)).padStart(2, '0'); };
+const NAV = /^(g2g|g2lab|g2tl|g2ros|g2acct|g2arena|lab2g|tl2g)$/;
+const EV2 = /^(signup:(guide|other)|lab:mine|lab:save|lab:cmp|tl:save|tl:mine|ros:add|ros:import|ros:uid|tm:save|bvar:open|foryou)$/;
+let V2SEEN = false;
+async function insight2(db, req, b, url) {
+  const d = nyDay(), q = [], add = (k, v) => { v = String(v == null ? '' : v).slice(0, 160); if (v !== '') q.push(db.prepare('INSERT INTO ins (d, k, v, n) VALUES (?, ?, ?, 1) ON CONFLICT(d, k, v) DO UPDATE SET n = n + 1').bind(d, k, v)) };
+  const cf = req.cf || {}, ua = req.headers.get('user-agent') || '', u = uaBits(ua);
+  const page0 = String(b.p || '').split('?')[0].replace(/[^\w\-\/%.]/g, '').slice(0, 120), page = page0[0] === '/' ? page0 : '';
+  if (page) add('2.pv', page);
+  if (NAV.test(String(b.n || ''))) add('2.nav', b.n);
+  if (EV2.test(String(b.ev || ''))) add('2.ev', b.ev);
+  if (b.e) add('2.eng', '1');
+  if (b.u === 'n' || b.u === 'r') add('2.u', b.u === 'n' ? 'new' : 'ret');
+  if (b.w) add('2.uw', isoWeek(d));
+  if (b.m) add('2.um', d.slice(0, 7));
+  if (b.s && page) {
+    const c = /^[A-Z]{2}$/.test(cf.country || '') && cf.country !== 'XX' && cf.country !== 'T1' ? cf.country : '??';
+    const who = b.f ? 'new' : 'ret', src = source2(b.r, u.app, url.host, b.q), chan = chanOf(src);
+    add('2.vt', who + '|' + chan); add('2.land', who + '|' + chan + '|' + page); add('2.country', c); if (c !== '??' && cf.region) add('2.region', c + '|' + String(cf.region).slice(0, 60));
+    add('2.dev', u.device + '|' + u.os + '|' + u.browser); add('2.lang', /^[a-z]{2}$/.test(b.l || '') ? b.l : 'en');
+    const bl = (req.headers.get('accept-language') || '').split(',')[0].trim().slice(0, 12); if (/^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,4})?$/.test(bl)) add('2.blang', bl.toLowerCase());
+    add('2.src', src || 'Direct or unknown'); add('2.hour', String(nyHour()));
+  }
+  if (!V2SEEN) { V2SEEN = true; q.push(db.prepare("INSERT OR IGNORE INTO meta (k, v) VALUES ('v2start', ?)").bind(d)); }
+  if (Math.random() < 0.01) { const old = new Date(Date.now() - 400 * 864e5).toISOString().slice(0, 10); q.push(db.prepare('DELETE FROM ins WHERE d < ?').bind(old), db.prepare('DELETE FROM xpair WHERE exp < ?').bind(Date.now())) }
+  return q;
+}
+/* ---------------- Owner exclusion ---------------- */
+const sha = async s => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(s))))].map(x => x.toString(16).padStart(2, '0')).join('');
+const rnd = n => { const a = new Uint8Array(n); crypto.getRandomValues(a); return [...a].map(x => x.toString(16).padStart(2, '0')).join(''); };
+const cookieOf = (req, k) => { const m = (req.headers.get('cookie') || '').match(new RegExp('(?:^|;\\s*)' + k + '=([^;]*)')); return m ? m[1] : ''; };
+const XC = 'pp_x', xCookie = t => XC + '=' + t + '; Path=/api; Max-Age=34560000; HttpOnly; Secure; SameSite=Lax', xClear = XC + '=; Path=/api; Max-Age=0; HttpOnly; Secure; SameSite=Lax';
+const xKey = th => new Request('https://pawpixl-cache.invalid/x/' + th);
+/* is this browser one of the owner's? Only browsers with the cookie are looked up (one tiny read, then cached 10 minutes) */
+async function xDevice(env, req) {
+  const t = cookieOf(req, XC); if (!/^[a-f0-9]{64}$/.test(t) || !env.DB) return null;
+  const th = await sha(t), cache = (typeof caches !== 'undefined' && caches.default) || null;
+  if (cache) { const h = await cache.match(xKey(th)); if (h) { const v = await h.text(); return v ? { th, id: v } : null; } }
+  await init(env.DB); const r = await env.DB.prepare('SELECT id, seen FROM xdev WHERE th = ?').bind(th).first();
+  if (r && r.seen !== nyDay()) await env.DB.prepare('UPDATE xdev SET seen = ? WHERE id = ?').bind(nyDay(), r.id).run();
+  if (cache) await cache.put(xKey(th), new Response(r ? r.id : '', { headers: { 'cache-control': 'public, max-age=600' } }));
+  return r ? { th, id: r.id } : null;
+}
+const uaLabel = ua => { const u = uaBits(ua || ''); return u.browser + ' on ' + u.os; };
+async function xAdd(env, label, how) {
+  const tok = rnd(32), now = new Date().toISOString();
+  await env.DB.batch([
+    env.DB.prepare('INSERT INTO xdev (id, th, label, how, created, seen) VALUES (?, ?, ?, ?, ?, ?)').bind(rnd(6), await sha(tok), String(label || 'My device').slice(0, 80), how, now, nyDay()),
+    env.DB.prepare("INSERT OR IGNORE INTO meta (k, v) VALUES ('xstart', ?)").bind(now),
+  ]);
+  return tok;
+}
+let HOSTC = null;
+async function prodHost(env, url) { if (HOSTC && Date.now() - HOSTC.t < 600e3) return HOSTC.h; const i = await siteInfo(env, url.origin); let h = ''; try { h = /^https?:\/\//.test(i.url) && !/localhost|127\.0\.0\.1/.test(i.url) ? new URL(i.url).host.replace(/^www\./, '') : ''; } catch (e) {} HOSTC = { t: Date.now(), h }; return h; }
+const sbBase = env => String(env.SB_URL || '').trim().replace(/\/+$/, '').replace(/\/rest\/v1$/i, '').replace(/\/+$/, '');
+async function sbRpc(env, fn, body) { return fetch(sbBase(env) + '/rest/v1/rpc/' + fn, { method: 'POST', headers: { apikey: env.SB_SERVICE_KEY, authorization: 'Bearer ' + env.SB_SERVICE_KEY, 'content-type': 'application/json' }, body: JSON.stringify(body || {}) }); }
+async function meApi(req, env, url, ctx) {
+  const p = url.pathname.slice('/api/me'.length).replace(/\/$/, ''), info = await siteInfo(env, url.origin);
+  if (!env.DB) return json({ ok: false }, 503);
+  await init(env.DB);
+  const html = (title, body, extra) => { const r = page(info, title, body); r.headers.set('cache-control', 'no-store'); r.headers.set('x-robots-tag', 'noindex'); r.headers.set('referrer-policy', 'no-referrer'); if (extra) for (const [k, v] of Object.entries(extra)) r.headers.append(k, v); return r; };
+  /* a one-time link from PawPixl Studio: the page asks first (so a chat app's link preview can't use it up) */
+  if (p === '/exclude') {
+    const code = String(url.searchParams.get('c') || (req.method === 'POST' ? new URLSearchParams(await req.text()).get('c') : '') || '').replace(/[^a-z0-9]/gi, '').slice(0, 40);
+    if (req.method === 'POST') {
+      if (!sameSite(req, url)) return json({ ok: false }, 403);
+      const ch = await sha(code), row = code && await env.DB.prepare('SELECT label, exp FROM xpair WHERE ch = ?').bind(ch).first();
+      if (!row || row.exp < Date.now()) return html('Link expired', '<h1>This link has expired</h1><p>Links from PawPixl Studio work once, for 15 minutes. Make a new one in <b>Studio › Insights › Your devices</b>.</p>');
+      await env.DB.prepare('DELETE FROM xpair WHERE ch = ?').bind(ch).run();
+      const tok = await xAdd(env, row.label, 'link');
+      return html('Not counted', '<h1>✓ This browser isn’t counted</h1><p><b>' + esc(row.label) + '</b> is now one of your devices. Your visits from this browser won’t show up in Visitor insights, even after you close it.</p><p class="m">It stays excluded until you remove it in Studio or clear this browser’s cookies. Other browsers on this device (and private windows) need their own link.</p><p><a href="/">Go to ' + esc(info.name) + '</a></p>', { 'set-cookie': xCookie(tok) });
+    }
+    return html('Exclude this browser', '<h1>Stop counting this browser?</h1><p>Your own visits from this browser won’t be counted in Visitor insights.</p><form method="post" action="/api/me/exclude"><input type="hidden" name="c" value="' + esc(code) + '"><button type="submit">Yes, don’t count this browser</button></form><p class="m">Only the owner of ' + esc(info.name) + ' gets these links.</p>');
+  }
+  if (p === '' || p === '/status') {
+    const x = await xDevice(env, req), row = x && await env.DB.prepare('SELECT label, how, created FROM xdev WHERE id = ?').bind(x.id).first();
+    if (!row) return html('Counted', '<h1>This browser is counted</h1><p>It’s counted like any visitor. To exclude it, make a link in <b>PawPixl Studio › Insights › Your devices</b>, or sign in on this browser with your owner account.</p>');
+    return html('Not counted', '<h1>✓ This browser isn’t counted</h1><p>It’s one of your devices: <b>' + esc(row.label) + '</b> (since ' + esc(String(row.created).slice(0, 10)) + ').</p><form method="post" action="/api/me/forget"><button type="submit">Count this browser again</button></form>');
+  }
+  if (p === '/forget' && req.method === 'POST') {
+    if (!sameSite(req, url)) return json({ ok: false }, 403);
+    const x = await xDevice(env, req); if (x) { await env.DB.prepare('DELETE FROM xdev WHERE id = ?').bind(x.id).run(); const c = (typeof caches !== 'undefined' && caches.default); if (c) await c.delete(xKey(x.th)); }
+    return html('Counted', '<h1>This browser is counted again</h1><p>It’s counted like any visitor from now on.</p>', { 'set-cookie': xClear });
+  }
+  /* signed in on the website: the owner's account (OWNER_EMAIL, confirmed) or an account marked as a test account in Studio
+     excludes this browser. Everyone gets the same answer, so nobody can find out which account is the owner's. */
+  if (p === '/owner' && req.method === 'POST') {
+    if (!sameSite(req, url)) return json({ ok: false }, 403);
+    const tokn = (req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
+    if (!env.SB_URL || !env.SB_SERVICE_KEY || !/^[\w-]+\.[\w-]+\.[\w-]+$/.test(tokn)) return json({ ok: true });
+    if (await xDevice(env, req)) return json({ ok: true });
+    const cache = (typeof caches !== 'undefined' && caches.default) || null;
+    if (cache) { const ih = (await sha((req.headers.get('cf-connecting-ip') || 'x') + nyDay())).slice(0, 16), hk = new Request('https://pawpixl-cache.invalid/own/' + ih + '/' + Math.floor(Date.now() / 3600e3)), prev = await cache.match(hk), n = prev ? (+(await prev.text()) || 0) : 0;
+      if (n >= 20) return json({ ok: true }); await cache.put(hk, new Response(String(n + 1), { headers: { 'cache-control': 'public, max-age=3600' } })); }
+    let user = null; try { const r = await fetch(sbBase(env) + '/auth/v1/user', { headers: { apikey: env.SB_SERVICE_KEY, authorization: 'Bearer ' + tokn } }); if (r.ok) user = await r.json(); } catch (e) {}
+    if (!user || !user.id) return json({ ok: true });
+    const own = !!env.OWNER_EMAIL && String(user.email || '').toLowerCase() === String(env.OWNER_EMAIL).trim().toLowerCase() && !!(user.email_confirmed_at || user.confirmed_at);
+    let test = false; if (!own) { try { const r = await fetch(sbBase(env) + '/rest/v1/pp_excluded?select=user_id&user_id=eq.' + encodeURIComponent(user.id), { headers: { apikey: env.SB_SERVICE_KEY, authorization: 'Bearer ' + env.SB_SERVICE_KEY } }); if (r.ok) test = ((await r.json()) || []).length > 0; } catch (e) {} }
+    if (!own && !test) return json({ ok: true });
+    const tok = await xAdd(env, (own ? 'Owner sign-in' : 'Test account sign-in') + ' · ' + uaLabel(req.headers.get('user-agent')), own ? 'owner' : 'test');
+    return json({ ok: true }, 200, { 'set-cookie': xCookie(tok), 'cache-control': 'no-store' });
+  }
+  return json({ ok: false }, 404);
 }
 /* same-site check that never throws: a missing Origin is allowed (same-origin GET/POST from older browsers), anything else must match */
 const sameSite = (req, url) => { const o = req.headers.get('origin'); if (!o) return true; try { return new URL(o).host === url.host; } catch (e) { return false; } };
@@ -237,6 +367,31 @@ async function news(req, env, url, ctx) {
     try { return json({ ok: true, ready, snap: await growthCheck(env, url.searchParams.get('now') === '1') }, 200, CORS); }
     catch (e) { return json({ ok: false, ready, error: e.message }, 200, CORS); }
   }
+  /* ---- your devices (owner exclusion): list, make a one-time link, remove ---- */
+  if (p === 'xdev') {
+    let b = {}; if (req.method === 'POST') { try { b = await req.json(); } catch (e) {} }
+    if (b.revoke) { const r = await db.prepare('SELECT th FROM xdev WHERE id = ?').bind(String(b.revoke)).first(); await db.prepare('DELETE FROM xdev WHERE id = ?').bind(String(b.revoke)).run(); const c = (typeof caches !== 'undefined' && caches.default); if (r && c) await c.delete(xKey(r.th)); }
+    let link = null;
+    if (b.label !== undefined && !b.revoke) {
+      const label = String(b.label || '').replace(/[\u0000-\u001f]/g, '').trim().slice(0, 80) || 'My device', code = rnd(12), exp = Date.now() + 15 * 60e3;
+      await db.prepare('INSERT INTO xpair (ch, label, exp) VALUES (?, ?, ?)').bind(await sha(code), label, exp).run();
+      link = { url: info.url + '/api/me/exclude?c=' + code, exp: new Date(exp).toISOString(), label };
+    }
+    const [dv, mt] = await db.batch([db.prepare('SELECT id, label, how, created, seen FROM xdev ORDER BY created'), db.prepare('SELECT k, v FROM meta')]);
+    const meta = {}; for (const r of mt.results) meta[r.k] = r.v;
+    return json({ ok: true, devices: dv.results, link, xstart: meta.xstart || null, auto: { owner: !!(env.OWNER_EMAIL && env.SB_URL && env.SB_SERVICE_KEY), sb: !!(env.SB_URL && env.SB_SERVICE_KEY) } }, 200, { ...CORS, 'cache-control': 'no-store' });
+  }
+  /* ---- test accounts (left out of account totals, and their browsers aren't counted once they sign in) ---- */
+  if (p === 'xacct') {
+    if (!env.SB_URL || !env.SB_SERVICE_KEY) return json({ ok: false, error: 'no-accounts' }, 200, CORS);
+    let b = {}; if (req.method === 'POST') { try { b = await req.json(); } catch (e) {} }
+    try {
+      if (b.email) { const r = await sbRpc(env, 'pp_exclude', { em: String(b.email).trim().toLowerCase().slice(0, 254), why: String(b.why || 'test').slice(0, 40) }); if (!r.ok) throw new Error(r.status === 404 ? 'run-sql' : 'accounts ' + r.status); if (!(await r.json())) return json({ ok: false, error: 'not-found' }, 200, CORS); }
+      if (b.remove) { const r = await sbRpc(env, 'pp_unexclude', { uid: String(b.remove) }); if (!r.ok) throw new Error(r.status === 404 ? 'run-sql' : 'accounts ' + r.status); }
+      const r = await sbRpc(env, 'pp_excluded_list', {}); if (!r.ok) throw new Error(r.status === 404 ? 'run-sql' : 'accounts ' + r.status);
+      return json({ ok: true, list: await r.json(), owner: env.OWNER_EMAIL ? String(env.OWNER_EMAIL).replace(/^(.).*(@.*)$/, '$1…$2') : '' }, 200, CORS);
+    } catch (e) { return json({ ok: false, error: e.message }, 200, CORS); }
+  }
   if (p === 'insights') {
     const days = Math.max(1, Math.min(400, +url.searchParams.get('days') || 30));
     /* visits are saved under Eastern-time days, so the range starts on an Eastern-time day too (UTC is a day ahead every evening) */
@@ -250,7 +405,31 @@ async function news(req, env, url, ctx) {
     ]);
     const allTime = { countries: {}, totals: {} }; for (const r of allc.results) allTime.countries[r.c] = r.n; for (const r of cnt.results) allTime.totals[r.k] = r.n;
     const by = {}; for (const r of tot.results) (by[r.k] = by[r.k] || {})[r.v] = r.n;
-    return json({ ok: true, days, since, first: (first.results[0] || {}).d || null, today: nyDay(), data: by, daily: daily.results, allTime }, 200, CORS);
+    /* counting v2: every day of this range and the one before it (for the comparison), the previous range's guides and
+       sources, unique visitors per calendar week and month, and today's / yesterday's database writes (free plan: 100,000 a day) */
+    /* the comparison uses whole days: the range ends yesterday (today is still going), except for "Today" */
+    const end = days === 1 ? nyDay() : nyDay(Date.now() - 864e5), endT = Date.parse(end + 'T12:00:00Z');
+    const cur0 = nyDay(endT - (days - 1) * 864e5), prev0 = nyDay(endT - (2 * days - 1) * 864e5), yday = nyDay(Date.now() - 864e5);
+    const KS = "('2.pv', '2.land', '2.src', '2.nav', '2.ev', '2.vt', '2.u', '2.eng')";
+    const [d2, p2, c2, pvd, tl, mt, nx, wk, wt, wy] = await db.batch([
+      db.prepare("SELECT d, k, v, SUM(n) AS n FROM ins WHERE d >= ? AND k IN ('2.vt', '2.u', '2.eng', '2.nav', '2.ev', 'visits', 'views') GROUP BY d, k, v ORDER BY d").bind(prev0),
+      db.prepare('SELECT k, v, SUM(n) AS n FROM ins WHERE d >= ? AND d < ? AND k IN ' + KS + ' GROUP BY k, v').bind(prev0, cur0),
+      db.prepare('SELECT k, v, SUM(n) AS n FROM ins WHERE d >= ? AND d <= ? AND k IN ' + KS + ' GROUP BY k, v').bind(cur0, end),
+      db.prepare("SELECT d, SUM(n) AS n FROM ins WHERE d >= ? AND k = '2.pv' GROUP BY d").bind(prev0),
+      db.prepare("SELECT d, k, v, SUM(n) AS n FROM ins WHERE d >= ? AND k IN ('page', '2.pv', '2.ev') AND (v LIKE '%/lab' OR v LIKE '%/teamlab' OR v LIKE '%/roster' OR v LIKE 'lab:%' OR v LIKE 'tl:%' OR v LIKE 'ros:%') GROUP BY d, k, v").bind(nyDay(Date.now() - 120 * 864e5)),
+      db.prepare('SELECT k, v FROM meta'),
+      db.prepare('SELECT COUNT(*) AS n FROM xdev'),
+      db.prepare("SELECT k, v, SUM(n) AS n FROM ins WHERE k IN ('2.uw', '2.um') AND d >= ? GROUP BY k, v").bind(nyDay(Date.now() - 75 * 864e5)),
+      db.prepare('SELECT SUM(n) AS n FROM ins WHERE d = ?').bind(nyDay()),
+      db.prepare('SELECT SUM(n) AS n FROM ins WHERE d = ?').bind(yday),
+    ]);
+    const meta = {}; for (const r of mt.results) meta[r.k] = r.v;
+    const prev = {}, cur = {}; for (const r of p2.results) (prev[r.k] = prev[r.k] || {})[r.v] = r.n; for (const r of c2.results) (cur[r.k] = cur[r.k] || {})[r.v] = r.n;
+    const dly = d2.results.concat(pvd.results.map(r => ({ d: r.d, k: '2.pv', v: '*', n: r.n })));
+    const uniq = { week: {}, month: {} }; for (const r of wk.results) uniq[r.k === '2.uw' ? 'week' : 'month'][r.v] = r.n;
+    const w = x => Math.round(((x.results[0] || {}).n || 0) * 1.15);   // each counted thing is one database write, plus ~15% for the all-time counters
+    return json({ ok: true, days, since, first: (first.results[0] || {}).d || null, today: nyDay(), data: by, daily: daily.results, allTime,
+      v2: { from: prev0, cur0, end, daily: dly, prev, cur, uniq, tools: tl.results, week: isoWeek(nyDay()), v2start: meta.v2start || null, xstart: meta.xstart || null, devices: (nx.results[0] || {}).n || 0, writes: { today: w(wt), yesterday: w(wy), limit: 100000 } } }, 200, CORS);
   }
   if (p === 'feedback') {
     if (req.method === 'POST') {
@@ -453,6 +632,9 @@ async function api(req, env, url, ctx) {
     return out;
   }
   {
+    if (url.pathname === '/api/me' || url.pathname.startsWith('/api/me/')) {
+      try { return await meApi(req, env, url, ctx); } catch (e) { return json({ ok: false, error: 'server' }, 500); }
+    }
     if (url.pathname.startsWith('/api/news/')) {
       try { return await news(req, env, url, ctx); } catch (e) { return json({ ok: false, error: 'server' }, 500, CORS); }
     }
@@ -486,8 +668,12 @@ async function api(req, env, url, ctx) {
       let b = {};
       try { b = JSON.parse((await req.text()).slice(0, 600)); } catch (e) {}
       const ua = req.headers.get('user-agent') || '';
-      if (/bot|crawl|spider|slurp|preview|headless/i.test(ua)) return json({ ok: true });
+      if (!ua || BOTS.test(ua)) return json({ ok: true });
       try {
+        /* the owner's own browsers are dropped before anything is written */
+        if (await xDevice(env, req)) return json({ ok: true, owner: 1 });
+        /* preview copies of the site (workers.dev, pages.dev) and local tests share this database: only the real address counts */
+        const ph = await prodHost(env, url); if (ph && url.host.replace(/^www\./, '') !== ph) return json({ ok: true, ignored: 'host' });
         await init(env.DB);
         const q = [];
         if (b.v) {
@@ -497,7 +683,8 @@ async function api(req, env, url, ctx) {
             q.push(env.DB.prepare('INSERT INTO countries (c, n) VALUES (?, 1) ON CONFLICT(c) DO UPDATE SET n = n + 1').bind(c));
         }
         if (b.g) q.push(bump(env.DB, 'views'));
-        if (b.s || b.p || b.a) q.push(...await insight(env.DB, req, b, url));
+        if (b.c2) q.push(...await insight2(env.DB, req, b, url));
+        else if (b.s || b.p || b.a) q.push(...await insight(env.DB, req, b, url));   // older pages still open in browsers, and Arena events
         if (q.length) await env.DB.batch(q);
       } catch (e) { return json({ ok: false }, 500); }
       return json({ ok: true });
@@ -532,6 +719,7 @@ const PRO = 'Upgrade Supabase to Pro ($25 a month): supabase.com › your organi
 const GROW = [
   { k: 'db', t: 'Account database size', lim: 500 * 1048576, unit: 'MB', fix: PRO },
   { k: 'mau', t: 'Players active in the last 30 days', lim: 50000, fix: PRO },
+  { k: 'd1w', t: 'Visitor counter: database writes yesterday (estimate)', lim: 100000, fix: 'Cloudflare’s free plan allows 100,000 database writes a day; above it, counting pauses until midnight UTC (the website keeps working). Workers Paid ($5 a month) raises it to 50 million a month: dash.cloudflare.com › Workers & Pages › Plans.' },
   { k: 'reg', t: 'Regular players (active this week)', lim: 500, backup: true, fix: 'The free plan has no daily backups. With this many regular players, move to Supabase Pro ($25 a month) so their rosters are backed up every day: supabase.com › your organization › Billing › Change plan › Pro.' }
 ];
 const lvlOf = (m, v) => { const p = v / m.lim; return m.backup ? (p >= 1 ? 90 : p >= 0.7 ? 70 : 0) : (p >= 0.9 ? 90 : p >= 0.7 ? 70 : 0); };
@@ -541,11 +729,16 @@ async function growthCheck(env, force) {
   await env.DB.prepare('CREATE TABLE IF NOT EXISTS growth (k TEXT PRIMARY KEY, v TEXT NOT NULL)').run();
   const snap0 = await env.DB.prepare('SELECT v FROM growth WHERE k = ?').bind('snap').first();
   if (!force && snap0) { try { const o = JSON.parse(snap0.v); if (Date.now() - Date.parse(o.at) < 10 * 60e3) return o; } catch (e) {} }
-  const r = await fetch(String(env.SB_URL).trim().replace(/\/+$/, '').replace(/\/rest\/v1$/i, '').replace(/\/+$/, '') + '/rest/v1/rpc/pp_growth', { method: 'POST', headers: { apikey: env.SB_SERVICE_KEY, authorization: 'Bearer ' + env.SB_SERVICE_KEY, 'content-type': 'application/json' }, body: '{}' });
+  /* the newer pp_growth leaves out the owner's account and test accounts and adds daily sign-ups; until the owner runs the
+     latest supabase.sql, the older one (all accounts) answers instead, and the Studio says so */
+  let r = await sbRpc(env, 'pp_growth', { owner: String(env.OWNER_EMAIL || '').trim().toLowerCase() }), v1 = false;
+  if (r.status === 404 || r.status === 400) { r = await sbRpc(env, 'pp_growth', {}); v1 = true; }
   if (!r.ok) throw new Error('accounts database answered ' + r.status + (r.status === 404 ? ' (run the latest supabase.sql)' : ''));
-  const g = await r.json(), val = { db: +g.db_bytes || 0, mau: +g.active30 || 0, reg: +g.active7 || 0 };
+  const g = await r.json(), wy = await env.DB.prepare('SELECT SUM(n) AS n FROM ins WHERE d = ?').bind(nyDay(Date.now() - 864e5)).first();
+  const val = { db: +g.db_bytes || 0, mau: +g.active30 || 0, reg: +g.active7 || 0, d1w: Math.round(((wy && wy.n) || 0) * 1.15) };
   const rows = GROW.map(m => ({ k: m.k, t: m.t, v: val[m.k], lim: m.lim, unit: m.unit || '', lvl: lvlOf(m, val[m.k]), fix: m.fix }));
-  const snap = { at: new Date().toISOString(), accounts: +g.accounts || 0, rosters: +g.rosters || 0, top: (g.top_owned || []).slice(0, 10), rows };
+  const snap = { at: new Date().toISOString(), accounts: +g.accounts || 0, rosters: +g.rosters || 0, top: (g.top_owned || []).slice(0, 10), rows, v1,
+    acct: v1 ? null : { all: +g.accounts_all || 0, excluded: +g.excluded || 0, teams: +g.team_users || 0, active30: +g.active30 || 0, active7: +g.active7 || 0, ret7: g.returning7 == null ? null : +g.returning7, ret30: g.returning30 == null ? null : +g.returning30, daysFrom: g.days_from || null, daily: (g.new_daily || []).slice(-120), launch: g.launch || null } };
   const q = [env.DB.prepare('INSERT INTO growth (k, v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v').bind('snap', JSON.stringify(snap))];
   const mail = [];
   for (const x of rows) {
