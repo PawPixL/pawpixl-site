@@ -1,6 +1,6 @@
 {
  "name": "PawPixl",
- "tagline": "Your Genshin Adventure Starts Here",
+ "tagline": "Genshin Builds, Teams & Tools Made Simple",
  "bio": "Build smarter. Play better. Have fun.",
  "avatar": "content/avatar-mvt8ghho.jpg",
  "accent": "Anemo",
@@ -70,7 +70,7 @@
    "email"
   ]
  },
- "announcement": "NEWS New Mitya + Valeriy guides are live ✦",
+ "announcement": "NEWS Updated Zibai + Linnea guides are live ✦",
  "url": "https://pawpixl.com",
  "stats": true,
  "donate": {
@@ -150,7 +150,7 @@
   "src": "genshin-db 5.2.15"
  },
  "live": {
-  "url": "",
+  "url": "https://www.twitch.tv/pawpixl",
   "special": []
  },
  "gsv": "",
