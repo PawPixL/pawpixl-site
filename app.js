@@ -1791,6 +1791,8 @@ function afterMaterials(gid){dbAll(gid).then(X=>{const grid=$('#dbgrid');if(!gri
 
 async function pMaterial(gid,id){if(!dbOn())return pDbSoon(gid,'Materials');let X,C;try{X=await dbAll(gid);C=await dbGet(gid,'chars')}catch(e){return pDbSoon(gid,'Materials')}const m=X.M.list.find(x=>x.id===id);if(!m)return pMissing();nav(gid,'');setTheme(gameMeta(gid)&&gameMeta(gid).el);
  meta(m.n+' · Genshin Impact material',m.n+': '+(m.src||[]).join('. ')+(m.days.length?' Available on '+m.days.join(', ')+'.':''));
+ /* a TBD placeholder page works for visitors but isn't offered to search engines (nothing on it is real yet) */
+ if(m.tbd){const r=document.createElement('meta');r.name='robots';r.content='noindex';r.dataset.nf='1';document.head.appendChild(r)}
  let W=null;try{W=await dbGet(gid,'weapons')}catch(e){}
  const doms=m.dom.map(k=>X.D.list.find(d=>d.id===k)).filter(Boolean),bos=m.boss.map(k=>X.B.list.find(b=>b.id===k)).filter(Boolean);
  const fc=facesOf(gid,C,m.uc,15),wl=W?m.uw.map(id=>W.list.find(w=>w.id===id)).filter(Boolean):[];
@@ -1800,7 +1802,7 @@ async function pMaterial(gid,id){if(!dbOn())return pDbSoon(gid,'Materials');let 
   +(doms.length?'<div class="msub">Domain</div><div class="mchips">'+doms.map(d=>chipLink('/'+gid+'/domains/'+esc(d.id),'',4,N(d),gid)).join('')+'</div>':'')
   +(bos.length?'<div class="msub">Dropped by</div><div class="mchips">'+bos.map(b=>chipLink('/'+gid+'/bosses/'+esc(b.id),b.ic,b.k==='weekly'?5:4,N(b),gid)).join('')+'</div>':'')+'</div>'
   +(m.days.length?'<div class="panel"><div class="eyebrow" style="margin-bottom:10px">Domain open on</div><div class="days">'+dayChips(m.days)+'</div><p class="muted" style="font-size:12.5px;margin:10px 0 0">Days follow the server reset at 4 AM server time.</p></div>':'')+'</div>'
-  +'<div class="side"><div class="panel dbhead"><div class="row" style="gap:8px;flex-wrap:wrap">'+stars(m.r)+'<span class="chip ghost" data-nt>'+esc(TX(m,'ty'))+'</span>'+(m.ph?'<span class="chip">'+esc(tt('Not released yet'))+'</span>':'')+'</div><h1 class="disp" style="font-size:clamp(34px,5vw,54px);margin:10px 0 6px" data-nt>'+esc(N(m))+'</h1>'+(TX(m,'d')?'<p class="muted" style="margin:0;line-height:1.6" data-nt>'+esc(TX(m,'d'))+'</p>':'')+'</div>'
+  +'<div class="side"><div class="panel dbhead"><div class="row" style="gap:8px;flex-wrap:wrap">'+stars(m.r)+'<span class="chip ghost" data-nt>'+esc(TX(m,'ty'))+'</span>'+(m.tbd?'<span class="chip">'+esc(tt('To be determined'))+'</span>':m.ph?'<span class="chip">'+esc(tt('Not released yet'))+'</span>':'')+'</div><h1 class="disp" style="font-size:clamp(34px,5vw,54px);margin:10px 0 6px" data-nt>'+esc(N(m))+'</h1>'+(TX(m,'d')?'<p class="muted" style="margin:0;line-height:1.6" data-nt>'+esc(TX(m,'d'))+'</p>':'')+'</div>'
   +(wl.length?'<div class="panel"><div class="eyebrow" style="margin-bottom:10px">Weapons that use it</div><div class="mchips">'+wl.slice(0,24).map(w=>chipLink('/'+gid+'/weapons/'+esc(w.id),w.ic,w.r,N(w),gid)).join('')+(wl.length>24?'<span class="muted" style="font-size:12.5px;align-self:center">+'+(wl.length-24)+' <span>more</span></span>':'')+'</div></div>':'')+'</div></div>'
   +'<div class="dbbelow">'+(fc.n?'<div class="panel popw"><div class="eyebrow" style="margin-bottom:10px">Characters who use it</div><div class="pop-g">'+fc.h+'</div>'+moreBtn(fc.n)+'</div>':'')+fbHTML(m.n+' (material)')+'</div></section>'}
 
