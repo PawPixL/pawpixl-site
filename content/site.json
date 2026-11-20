@@ -1,7 +1,7 @@
 {
  "name": "PawPixl",
- "tagline": "Genshin Builds, Teams & Tools Made Simple",
- "bio": "Build smarter. Play better. Have fun.",
+ "tagline": "Genshin Builds Made Simple",
+ "bio": "Enjoy the journey, Travelers! ✨",
  "avatar": "content/avatar-mvt8ghho.jpg",
  "accent": "Anemo",
  "socials": [
@@ -150,7 +150,7 @@
   "src": "genshin-db 5.2.15"
  },
  "live": {
-  "url": "https://www.twitch.tv/pawpixl",
+  "url": "",
   "special": []
  },
  "gsv": "",
