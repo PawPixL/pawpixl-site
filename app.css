@@ -1833,3 +1833,19 @@ select:disabled,input:disabled,textarea:disabled{opacity:1;color:#9aa2bb;backgro
 .imp-diff{margin:8px 0 0}.imp-diff summary{cursor:pointer;font-weight:700;min-height:32px}.imp-diff ul,.imp-note{margin:6px 0 0 18px;padding:0;font-size:13.5px;line-height:1.5}.imp-note{color:var(--mut)}
 .imp-hand{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:999px;border:1px solid #f2c45a;color:#f2c45a}
 @media (max-width:640px){.ros-ed{left:0;right:0;bottom:0;width:auto;max-height:86vh;border-radius:18px 18px 0 0;padding:16px}.ros-eh{top:-16px;margin:-16px -16px 12px;padding:12px 16px 10px}}
+
+/* update 6: creator page. The preview is the main thing: large, sticky on desktop, first on phones. */
+.cg{grid-template-columns:minmax(270px,330px) minmax(0,1fr);gap:26px}
+.cg-side{gap:8px;padding:14px;border:1px solid var(--line);border-radius:18px;background:rgba(12,15,28,.6)}
+.cg-stage{position:sticky;top:84px;gap:12px}
+.cg-zoom{appearance:none;border:0;padding:0;margin:0;background:none;cursor:zoom-in;display:block;max-width:100%;border-radius:14px}
+.cg-zoom:focus-visible{outline:3px solid var(--e1,#7fe6d3);outline-offset:3px}
+.cg-frame canvas{max-height:calc(100vh - 190px);width:auto;max-width:100%}
+.cg-frame[data-fmt=l] canvas{width:100%;height:auto;max-height:none}
+.cg-stagebar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}.cg-stagebar .btn{width:auto;min-height:44px;padding:0 20px}
+.cg-more{border-top:1px solid var(--line);margin-top:6px;padding-top:6px}.cg-more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center}
+#cgroot[data-busy="1"] .cg-frame canvas{opacity:.55;transition:opacity .15s}
+.cg-full{position:fixed;inset:0;z-index:200;background:rgba(4,6,12,.94);display:flex;align-items:center;justify-content:center;padding:14px;cursor:zoom-out}
+.cg-full img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 20px 70px rgba(0,0,0,.6)}.cg-fullx{position:absolute;top:12px;right:12px;width:auto;min-height:44px;padding:0 18px}
+@media (max-width:860px){.cg{grid-template-columns:1fr;gap:14px}.cg-stage{position:static;order:-1}.cg-frame canvas{max-height:58vh}.cg-frame[data-fmt=l] canvas{max-height:none}
+ .cg-stagebar{position:sticky;bottom:8px;z-index:5;padding:8px;border-radius:14px;background:rgba(9,12,23,.9);border:1px solid var(--line);width:100%}.cg-stagebar .btn{flex:1 1 auto}}
