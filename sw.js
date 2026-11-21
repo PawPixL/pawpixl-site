@@ -11,10 +11,13 @@
 
    SWV is replaced with the website version when PawPixl Studio packages the site, so every website update also
    clears out the previous version's saved files. */
-const SWV = '2026.11.20-5c4b7';
-const C_STATIC = 'pp-static-' + SWV, C_PAGES = 'pp-pages-' + SWV, C_DATA = 'pp-data-' + SWV, C_IMG = 'pp-img-v1';
+const SWV = '2026.11.20-3ac1e';
+/* Only the site's own code is tied to the website version. Saved pages, guide data and pictures keep their place
+   across website updates, so a new release never empties what someone saved for offline reading. (They are
+   always refreshed from the network when there is one, so they cannot go stale.) */
+const C_STATIC = 'pp-static-' + SWV, C_PAGES = 'pp-pages-v1', C_DATA = 'pp-data-v1', C_IMG = 'pp-img-v1';
 const KEEP = new Set([C_STATIC, C_PAGES, C_DATA, C_IMG]);
-const MAX_PAGES = 40, MAX_IMG = 220, MAX_DATA = 60;
+const MAX_PAGES = 60, MAX_IMG = 220, MAX_DATA = 260;
 /* '/offline' (no .html): Cloudflare serves the file at that address without a redirect */
 const SHELL = ['/offline', '/offline.js', '/app.css', '/favicon.png', '/icons/icon-192.png',
   '/fonts/anton-latin-400-normal.woff2', '/fonts/poppins-latin-400-normal.woff2', '/fonts/poppins-latin-600-normal.woff2',
@@ -33,7 +36,13 @@ self.addEventListener('install', e => {
 
 self.addEventListener('activate', e => {
   e.waitUntil((async () => {
-    for (const k of await caches.keys()) if (k.startsWith('pp-') && !KEEP.has(k)) await caches.delete(k);
+    for (const k of await caches.keys()) {
+      if (!k.startsWith('pp-') || KEEP.has(k)) continue;
+      /* the first version kept pages and guide data in per-version boxes: move them over before clearing those out */
+      const to = k.startsWith('pp-pages-') ? C_PAGES : k.startsWith('pp-data-') ? C_DATA : '';
+      if (to) { try { const from = await caches.open(k), dest = await caches.open(to); for (const req of await from.keys()) { if (!(await dest.match(req))) { const r = await from.match(req); if (r) await dest.put(req, r); } } } catch (err) {} }
+      await caches.delete(k);
+    }
     if (self.registration.navigationPreload) { try { await self.registration.navigationPreload.enable(); } catch (err) {} }
     await self.clients.claim();
   })());
@@ -50,7 +59,7 @@ async function trim(name, max) {
   try { const c = await caches.open(name), keys = await c.keys(); for (let i = 0; i < keys.length - max; i++) await c.delete(keys[i]); } catch (e) {}
 }
 async function save(name, req, res, max) {
-  try { const c = await caches.open(name); await c.put(req, res); if (max && Math.random() < 0.15) trim(name, max); } catch (e) {}
+  try { const c = await caches.open(name); await c.delete(req); await c.put(req, res); if (max && Math.random() < 0.15) trim(name, max); } catch (e) {}
 }
 const isImg = p => /\.(webp|png|jpe?g|gif|avif|svg)$/i.test(p);
 /* the same address with any ?v= removed, so a saved copy is found whichever version asked for it */
