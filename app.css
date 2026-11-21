@@ -1755,3 +1755,32 @@ footer .frow a,footer .frow .flink{display:inline-flex;align-items:center;min-he
 /* phones: the account button shows only its picture, but keeps its name for screen readers (it used to have none) */
 @media (max-width:480px){.ibtn.lbl span:not(.accic){display:block;position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
 #bellN::after{content:attr(data-n)}
+
+/* ---- My Characters (installed app) ---- */
+.myc{margin-top:16px;padding:12px 14px 14px}
+.myc-h{display:flex;align-items:center;gap:10px;min-height:36px}
+.myc-h .sp{flex:1}
+.myc-h a{font-weight:700;font-size:13px}
+.myc-h .ibtn{width:36px;height:36px;flex:none}
+.myc-n{color:var(--mut);font-size:12.5px;font-weight:600}
+.myc-row{display:flex;gap:10px;overflow-x:auto;padding:8px 2px 6px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.myc-c{flex:none;width:84px;display:flex;flex-direction:column;align-items:center;gap:4px;scroll-snap-align:start}
+.myc-a{display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;width:100%}
+.myc-i{position:relative;width:60px;height:60px;border-radius:16px;overflow:hidden;background:linear-gradient(150deg,color-mix(in srgb,var(--c0) 55%,#0b0e1a),color-mix(in srgb,var(--c1) 35%,#0b0e1a));border:1px solid var(--line2);display:block}
+.myc-i img{width:100%;height:100%;object-fit:cover;display:block}
+.myc-i i{position:absolute;right:3px;bottom:3px;font:800 10px/1 var(--body);font-style:normal;padding:3px 5px;border-radius:6px;background:rgba(8,10,20,.82);color:#fff}
+.myc-a b{font-size:12.5px;line-height:1.2;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.myc-a:focus-visible .myc-i,.myc-a:hover .myc-i{border-color:var(--e1)}
+.myc-m{font-size:11.5px;font-weight:600;color:var(--mut);min-height:28px;display:inline-flex;align-items:center;padding:0 6px}
+.myc-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.myc-links .btn{height:40px;flex:1 1 auto;width:auto}
+.myc-sub{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;min-height:36px}
+.myc-sub>span{font:800 11px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--e2)}
+.myc-sub em{font-style:normal;font-size:12.5px}
+.myc-chip{display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--line2);background:rgba(9,12,24,.6);text-decoration:none;font-weight:600;font-size:13px}
+.myc-chip:hover{border-color:var(--e1)}
+@media (max-width:560px){.myc-m{min-height:32px}.myc-chip{min-height:36px}}
+.myc-h>*{white-space:nowrap}
+.myc-h .card-h,.myc-h h2{min-width:0;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:420px){.myc-h{gap:8px}.myc-h .card-h,.myc-h h2{letter-spacing:.08em}}
+.myc-h a{min-height:36px;display:inline-flex;align-items:center}

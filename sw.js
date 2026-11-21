@@ -11,7 +11,7 @@
 
    SWV is replaced with the website version when PawPixl Studio packages the site, so every website update also
    clears out the previous version's saved files. */
-const SWV = '2026.11.20-3ac1e';
+const SWV = '2026.11.21-50580';
 /* Only the site's own code is tied to the website version. Saved pages, guide data and pictures keep their place
    across website updates, so a new release never empties what someone saved for offline reading. (They are
    always refreshed from the network when there is one, so they cannot go stale.) */
