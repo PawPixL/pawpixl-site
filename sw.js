@@ -11,7 +11,7 @@
 
    SWV is replaced with the website version when PawPixl Studio packages the site, so every website update also
    clears out the previous version's saved files. */
-const SWV = '2026.11.21-50580';
+const SWV = '2026.11.21-01686';
 /* Only the site's own code is tied to the website version. Saved pages, guide data and pictures keep their place
    across website updates, so a new release never empties what someone saved for offline reading. (They are
    always refreshed from the network when there is one, so they cannot go stale.) */
@@ -29,7 +29,7 @@ self.addEventListener('install', e => {
     /* one missing file must not stop the install */
     await Promise.all(SHELL.map(u => fetch(u, { cache: 'reload' }).then(r => { if (r.ok) return clean(r).then(x => c.put(u, x)); }).catch(() => {})));
     /* the app itself, so the very first visit already leaves a working offline copy (taken from the browser's own cache: no second download) */
-    await Promise.all(['/app.js', '/evtext.js', '/endgame.js'].map(u => fetch(u).then(r => { if (r.ok) return clean(r).then(x => c.put(u, x)); }).catch(() => {})));
+    await Promise.all(['/app.js', '/evtext.js', '/endgame.js', '/create.js'].map(u => fetch(u).then(r => { if (r.ok) return clean(r).then(x => c.put(u, x)); }).catch(() => {})));
     await self.skipWaiting();
   })());
 });
