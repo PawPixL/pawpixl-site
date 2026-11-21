@@ -97,7 +97,7 @@ function source2(ref, app, host, utm) {
 const chanOf = s => !s ? 'direct' : SEARCH.has(s) ? 'search' : SOCIAL.has(s) ? 'social' : s === 'Direct or unknown' ? 'direct' : s === 'Paw Post email' ? 'email' : 'other';
 const isoWeek = d => { const t = new Date(d + 'T12:00:00Z'), w = (t.getUTCDay() + 6) % 7; t.setUTCDate(t.getUTCDate() - w + 3); const y = t.getUTCFullYear(), j = new Date(Date.UTC(y, 0, 4)); return y + '-W' + String(1 + Math.round(((t - j) / 864e5 - 3 + ((j.getUTCDay() + 6) % 7)) / 7)).padStart(2, '0'); };
 const NAV = /^(g2g|g2lab|g2tl|g2ros|g2acct|g2arena|lab2g|tl2g)$/;
-const EV2 = /^(signup:(guide|other)|lab:mine|lab:save|lab:cmp|tl:save|tl:mine|ros:add|ros:import|ros:uid|tm:save|bvar:open|foryou)$/;
+const EV2 = /^(signup:(guide|other)|lab:mine|lab:save|lab:cmp|tl:save|tl:mine|ros:add|ros:import|ros:uid|tm:save|bvar:open|foryou|kofi:(see|top|home|foot)|pick:(see|click)|pwa:(install|open))$/;
 let V2SEEN = false;
 async function insight2(db, req, b, url) {
   const d = nyDay(), q = [], add = (k, v) => { v = String(v == null ? '' : v).slice(0, 160); if (v !== '') q.push(db.prepare('INSERT INTO ins (d, k, v, n) VALUES (?, ?, ?, 1) ON CONFLICT(d, k, v) DO UPDATE SET n = n + 1').bind(d, k, v)) };
@@ -106,6 +106,8 @@ async function insight2(db, req, b, url) {
   if (page) add('2.pv', page);
   if (NAV.test(String(b.n || ''))) add('2.nav', b.n);
   if (EV2.test(String(b.ev || ''))) add('2.ev', b.ev);
+  /* PawPixl Picks: which item was opened, its category, and the page the click came from (totals only) */
+  if (/^[\w-]{1,40}$/.test(String(b.pk || ''))) { add('2.pick', b.pk); const pc = String(b.pc || '').replace(/[^\w &'\-]/g, '').trim().slice(0, 40); if (pc) add('2.pickcat', pc); const pf = String(b.pf || '').split('?')[0].replace(/[^\w\-\/%.]/g, '').slice(0, 120); if (pf[0] === '/') add('2.pickfrom', pf); }
   if (b.e) add('2.eng', '1');
   if (b.u === 'n' || b.u === 'r') add('2.u', b.u === 'n' ? 'new' : 'ret');
   if (b.w) add('2.uw', isoWeek(d));
@@ -410,7 +412,7 @@ async function news(req, env, url, ctx) {
     /* the comparison uses whole days: the range ends yesterday (today is still going), except for "Today" */
     const end = days === 1 ? nyDay() : nyDay(Date.now() - 864e5), endT = Date.parse(end + 'T12:00:00Z');
     const cur0 = nyDay(endT - (days - 1) * 864e5), prev0 = nyDay(endT - (2 * days - 1) * 864e5), yday = nyDay(Date.now() - 864e5);
-    const KS = "('2.pv', '2.land', '2.src', '2.nav', '2.ev', '2.vt', '2.u', '2.eng')";
+    const KS = "('2.pv', '2.land', '2.src', '2.nav', '2.ev', '2.vt', '2.u', '2.eng', '2.pick', '2.pickcat', '2.pickfrom')";
     const [d2, p2, c2, pvd, tl, mt, nx, wk, wt, wy] = await db.batch([
       db.prepare("SELECT d, k, v, SUM(n) AS n FROM ins WHERE d >= ? AND k IN ('2.vt', '2.u', '2.eng', '2.nav', '2.ev', 'visits', 'views') GROUP BY d, k, v ORDER BY d").bind(prev0),
       db.prepare('SELECT k, v, SUM(n) AS n FROM ins WHERE d >= ? AND d < ? AND k IN ' + KS + ' GROUP BY k, v').bind(prev0, cur0),
