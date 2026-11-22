@@ -1849,3 +1849,7 @@ select:disabled,input:disabled,textarea:disabled{opacity:1;color:#9aa2bb;backgro
 .cg-full img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 20px 70px rgba(0,0,0,.6)}.cg-fullx{position:absolute;top:12px;right:12px;width:auto;min-height:44px;padding:0 18px}
 @media (max-width:860px){.cg{grid-template-columns:1fr;gap:14px}.cg-stage{position:static;order:-1}.cg-frame canvas{max-height:58vh}.cg-frame[data-fmt=l] canvas{max-height:none}
  .cg-stagebar{position:sticky;bottom:8px;z-index:5;padding:8px;border-radius:14px;background:rgba(9,12,23,.9);border:1px solid var(--line);width:100%}.cg-stagebar .btn{flex:1 1 auto}}
+
+/* update 7: one small fan-site line under the footer links, and the headings of the copyright page */
+footer .fdis{margin:14px auto 0;max-width:760px;font-size:12px;line-height:1.5;color:var(--mut);opacity:.85;text-align:center}
+.prose.legal h3{font-size:18px;margin:22px 0 6px;color:var(--tx)}
