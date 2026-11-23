@@ -238,5 +238,456 @@
   "items": 752,
   "at": "2026-11-16T02:49:20.294Z",
   "lang": "en"
+ },
+ "shop": {
+  "on": true,
+  "intro": "A small drop of original PawPixl designs, starring my cat and Hugo. Each one is printed when you order it.",
+  "items": [
+   {
+    "id": "tee",
+    "name": "PawPixl Heart Cat Tee",
+    "type": "tee",
+    "img": "https://images.printify.com/mockup/6b0357863ebb158313055181/18542/102044/pawpixl-heart-cat-tee.jpg",
+    "desc": "Soft Bella+Canvas 3001 tee in black or white, sizes S to 2XL.",
+    "price": "$25.99",
+    "url": "https://pawpixl.printify.me/product/34894102",
+    "alt": "White tee with a happy cat holding a big pink heart above the PawPixl name"
+   },
+   {
+    "id": "mug",
+    "name": "Hugo’s Stream Crew Mug",
+    "type": "mug",
+    "img": "https://images.printify.com/mockup/6b035a793ebb158313055435/65216/6312/hugos-stream-crew-mug.jpg",
+    "desc": "11 oz white ceramic mug with Hugo on one side and the PawPixl cat on the other.",
+    "price": "$14.99",
+    "url": "https://pawpixl.printify.me/product/34894096",
+    "alt": "White mug with Hugo the dog holding a heart above the words Hugo’s Stream Crew"
+   },
+   {
+    "id": "sticker-cat",
+    "name": "Heart Cat Sticker",
+    "type": "sticker",
+    "img": "https://images.printify.com/mockup/6b035b7110952bae960a96db/45750/16655/heart-cat-sticker.jpg",
+    "desc": "Kiss-cut vinyl sticker, 3 × 3 in.",
+    "price": "$4.49",
+    "url": "https://pawpixl.printify.me/product/34894099",
+    "alt": "Sticker of a cheering cat holding a pink heart"
+   },
+   {
+    "id": "sticker-hugo",
+    "name": "Hugo Heart Sticker",
+    "type": "sticker",
+    "img": "https://images.printify.com/mockup/6b035bd827184f8ac60887c9/45750/16655/hugo-heart-sticker.jpg",
+    "desc": "Kiss-cut vinyl sticker, 3 × 3 in.",
+    "price": "$4.49",
+    "url": "https://pawpixl.printify.me/product/34894097",
+    "alt": "Sticker of Hugo the dog cheering with a pink heart"
+   },
+   {
+    "id": "d11-let-me-cook-tee",
+    "name": "Let Me Cook Tee",
+    "type": "tee",
+    "img": "content/shop/d11-let-me-cook-tee.webp",
+    "desc": "A paw, a 50/50 and a toaster. What could possibly go wrong?",
+    "price": "$25.99",
+    "url": "https://pawpixl.printify.me/product/34917278"
+   },
+   {
+    "id": "d11-let-me-cook-sticker",
+    "name": "Let Me Cook Sticker",
+    "type": "sticker",
+    "img": "content/shop/d11-let-me-cook-sticker.webp",
+    "desc": "A paw, a 50/50 and a toaster. What could possibly go wrong?",
+    "price": "$3.99",
+    "url": "https://pawpixl.printify.me/product/34916018"
+   },
+   {
+    "id": "d11-let-me-cook-mug",
+    "name": "Let Me Cook Mug",
+    "type": "mug",
+    "img": "content/shop/d11-let-me-cook-mug.webp",
+    "desc": "A paw, a 50/50 and a toaster. What could possibly go wrong?",
+    "price": "$11.99",
+    "url": "https://pawpixl.printify.me/product/34917297"
+   },
+   {
+    "id": "d11-cozy-mode-tee",
+    "name": "Cozy Mode Tee",
+    "type": "tee",
+    "img": "content/shop/d11-cozy-mode-tee.webp",
+    "desc": "Blanket on, controller in paws. Do not disturb.",
+    "price": "$25.99",
+    "url": "https://pawpixl.printify.me/product/34917270"
+   },
+   {
+    "id": "d11-cozy-mode-sticker",
+    "name": "Cozy Mode Sticker",
+    "type": "sticker",
+    "img": "content/shop/d11-cozy-mode-sticker.webp",
+    "desc": "Blanket on, controller in paws. Do not disturb.",
+    "price": "$3.99",
+    "url": "https://pawpixl.printify.me/product/34916019"
+   },
+   {
+    "id": "d11-cozy-mode-mug",
+    "name": "Cozy Mode Mug",
+    "type": "mug",
+    "img": "content/shop/d11-cozy-mode-mug.webp",
+    "desc": "Blanket on, controller in paws. Do not disturb.",
+    "price": "$11.99",
+    "url": "https://pawpixl.printify.me/product/34917156"
+   },
+   {
+    "id": "d11-pull-again-tee",
+    "name": "We Can Stop Here Tee",
+    "type": "tee",
+    "img": "content/shop/d11-pull-again-tee.webp",
+    "desc": "“We can stop here.” The paw has other plans.",
+    "price": "$25.99",
+    "url": "https://pawpixl.printify.me/product/34917275"
+   },
+   {
+    "id": "d11-pull-again-sticker",
+    "name": "We Can Stop Here Sticker",
+    "type": "sticker",
+    "img": "content/shop/d11-pull-again-sticker.webp",
+    "desc": "“We can stop here.” The paw has other plans.",
+    "price": "$3.99",
+    "url": "https://pawpixl.printify.me/product/34916023"
+   },
+   {
+    "id": "d11-pull-again-mug",
+    "name": "We Can Stop Here Mug",
+    "type": "mug",
+    "img": "content/shop/d11-pull-again-mug.webp",
+    "desc": "“We can stop here.” The paw has other plans.",
+    "price": "$11.99",
+    "url": "https://pawpixl.printify.me/product/34917144"
+   },
+   {
+    "id": "d11-brought-the-co-op-tee",
+    "name": "I Brought the Co-op Tee",
+    "type": "tee",
+    "img": "content/shop/d11-brought-the-co-op-tee.webp",
+    "desc": "The goodest teammate, reporting for co-op duty.",
+    "price": "$25.99",
+    "url": "https://pawpixl.printify.me/product/34917269"
+   },
+   {
+    "id": "d11-brought-the-co-op-sticker",
+    "name": "I Brought the Co-op Sticker",
+    "type": "sticker",
+    "img": "content/shop/d11-brought-the-co-op-sticker.webp",
+    "desc": "The goodest teammate, reporting for co-op duty.",
+    "price": "$3.99",
+    "url": "https://pawpixl.printify.me/product/34916020"
+   },
+   {
+    "id": "d11-brought-the-co-op-mug",
+    "name": "I Brought the Co-op Mug",
+    "type": "mug",
+    "img": "content/shop/d11-brought-the-co-op-mug.webp",
+    "desc": "The goodest teammate, reporting for co-op duty.",
+    "price": "$11.99",
+    "url": "https://pawpixl.printify.me/product/34917157"
+   },
+   {
+    "id": "d11-explain-my-build-tee",
+    "name": "I Can Explain My Build Tee",
+    "type": "tee",
+    "img": "content/shop/d11-explain-my-build-tee.webp",
+    "desc": "The chart is very convincing. Please do not ask follow-up questions.",
+    "price": "$25.99",
+    "url": "https://pawpixl.printify.me/product/34917277"
+   },
+   {
+    "id": "d11-explain-my-build-sticker",
+    "name": "I Can Explain My Build Sticker",
+    "type": "sticker",
+    "img": "content/shop/d11-explain-my-build-sticker.webp",
+    "desc": "The chart is very convincing. Please do not ask follow-up questions.",
+    "price": "$3.99",
+    "url": "https://pawpixl.printify.me/product/34916022"
+   },
+   {
+    "id": "d11-explain-my-build-mug",
+    "name": "I Can Explain My Build Mug",
+    "type": "mug",
+    "img": "content/shop/d11-explain-my-build-mug.webp",
+    "desc": "The chart is very convincing. Please do not ask follow-up questions.",
+    "price": "$11.99",
+    "url": "https://pawpixl.printify.me/product/34917143"
+   },
+   {
+    "id": "d11-f2p-royalty-tee",
+    "name": "F2P Royalty Tee",
+    "type": "tee",
+    "img": "content/shop/d11-f2p-royalty-tee.webp",
+    "desc": "A paper crown, a jar of saved pulls and absolutely no regrets.",
+    "price": "$25.99",
+    "url": "https://pawpixl.printify.me/product/34917276"
+   },
+   {
+    "id": "d11-f2p-royalty-sticker",
+    "name": "F2P Royalty Sticker",
+    "type": "sticker",
+    "img": "content/shop/d11-f2p-royalty-sticker.webp",
+    "desc": "A paper crown, a jar of saved pulls and absolutely no regrets.",
+    "price": "$3.99",
+    "url": "https://pawpixl.printify.me/product/34917145"
+   },
+   {
+    "id": "d11-f2p-royalty-mug",
+    "name": "F2P Royalty Mug",
+    "type": "mug",
+    "img": "content/shop/d11-f2p-royalty-mug.webp",
+    "desc": "A paper crown, a jar of saved pulls and absolutely no regrets.",
+    "price": "$11.99",
+    "url": "https://pawpixl.printify.me/product/34917147"
+   },
+   {
+    "id": "d11-one-ten-pull-tee",
+    "name": "Just One Ten-Pull Tee",
+    "type": "tee",
+    "img": "content/shop/d11-one-ten-pull-tee.webp",
+    "desc": "Famous last words, said with total confidence.",
+    "price": "$25.99",
+    "url": "https://pawpixl.printify.me/product/34917273"
+   },
+   {
+    "id": "d11-one-ten-pull-sticker",
+    "name": "Just One Ten-Pull Sticker",
+    "type": "sticker",
+    "img": "content/shop/d11-one-ten-pull-sticker.webp",
+    "desc": "Famous last words, said with total confidence.",
+    "price": "$3.99",
+    "url": "https://pawpixl.printify.me/product/34916024"
+   },
+   {
+    "id": "d11-one-ten-pull-mug",
+    "name": "Just One Ten-Pull Mug",
+    "type": "mug",
+    "img": "content/shop/d11-one-ten-pull-mug.webp",
+    "desc": "Famous last words, said with total confidence.",
+    "price": "$11.99",
+    "url": "https://pawpixl.printify.me/product/34917149"
+   },
+   {
+    "id": "d11-farmed-all-week-tee",
+    "name": "I Farmed All Week Tee",
+    "type": "tee",
+    "img": "content/shop/d11-farmed-all-week-tee.webp",
+    "desc": "Dug all week. Found flat DEF. Still smiling.",
+    "price": "$25.99",
+    "url": "https://pawpixl.printify.me/product/34917314"
+   },
+   {
+    "id": "d11-farmed-all-week-sticker",
+    "name": "I Farmed All Week Sticker",
+    "type": "sticker",
+    "img": "content/shop/d11-farmed-all-week-sticker.webp",
+    "desc": "Dug all week. Found flat DEF. Still smiling.",
+    "price": "$3.99",
+    "url": "https://pawpixl.printify.me/product/34916025"
+   },
+   {
+    "id": "d11-farmed-all-week-mug",
+    "name": "I Farmed All Week Mug",
+    "type": "mug",
+    "img": "content/shop/d11-farmed-all-week-mug.webp",
+    "desc": "Dug all week. Found flat DEF. Still smiling.",
+    "price": "$11.99",
+    "url": "https://pawpixl.printify.me/product/34917158"
+   },
+   {
+    "id": "d11-still-on-the-quest-tee",
+    "name": "I’m Still on the Quest Tee",
+    "type": "tee",
+    "img": "content/shop/d11-still-on-the-quest-tee.webp",
+    "desc": "For when the dialogue has no skip button.",
+    "price": "$25.99",
+    "url": "https://pawpixl.printify.me/product/34917272"
+   },
+   {
+    "id": "d11-still-on-the-quest-sticker",
+    "name": "I’m Still on the Quest Sticker",
+    "type": "sticker",
+    "img": "content/shop/d11-still-on-the-quest-sticker.webp",
+    "desc": "For when the dialogue has no skip button.",
+    "price": "$3.99",
+    "url": "https://pawpixl.printify.me/product/34916026"
+   },
+   {
+    "id": "d11-still-on-the-quest-mug",
+    "name": "I’m Still on the Quest Mug",
+    "type": "mug",
+    "img": "content/shop/d11-still-on-the-quest-mug.webp",
+    "desc": "For when the dialogue has no skip button.",
+    "price": "$11.99",
+    "url": "https://pawpixl.printify.me/product/34917150"
+   },
+   {
+    "id": "d11-controller-nap-cat-tee",
+    "name": "Controller Nap Cat Tee",
+    "type": "tee",
+    "img": "content/shop/d11-controller-nap-cat-tee.webp",
+    "desc": "Saving energy for the next session.",
+    "price": "$25.99",
+    "url": "https://pawpixl.printify.me/product/34917312"
+   },
+   {
+    "id": "d11-controller-nap-cat-sticker",
+    "name": "Controller Nap Cat Sticker",
+    "type": "sticker",
+    "img": "content/shop/d11-controller-nap-cat-sticker.webp",
+    "desc": "Saving energy for the next session.",
+    "price": "$3.99",
+    "url": "https://pawpixl.printify.me/product/34916027"
+   },
+   {
+    "id": "d11-controller-nap-cat-mug",
+    "name": "Controller Nap Cat Mug",
+    "type": "mug",
+    "img": "content/shop/d11-controller-nap-cat-mug.webp",
+    "desc": "Saving energy for the next session.",
+    "price": "$11.99",
+    "url": "https://pawpixl.printify.me/product/34917290"
+   },
+   {
+    "id": "d11-everything-is-fine-tee",
+    "name": "Everything Is Fine Tee",
+    "type": "tee",
+    "img": "content/shop/d11-everything-is-fine-tee.webp",
+    "desc": "One spoon, one very large boss, one sliver of HP. Totally under control.",
+    "price": "$25.99",
+    "url": "https://pawpixl.printify.me/product/34917311"
+   },
+   {
+    "id": "d11-everything-is-fine-sticker",
+    "name": "Everything Is Fine Sticker",
+    "type": "sticker",
+    "img": "content/shop/d11-everything-is-fine-sticker.webp",
+    "desc": "One spoon, one very large boss, one sliver of HP. Totally under control.",
+    "price": "$3.99",
+    "url": "https://pawpixl.printify.me/product/34916028"
+   },
+   {
+    "id": "d11-everything-is-fine-mug",
+    "name": "Everything Is Fine Mug",
+    "type": "mug",
+    "img": "content/shop/d11-everything-is-fine-mug.webp",
+    "desc": "One spoon, one very large boss, one sliver of HP. Totally under control.",
+    "price": "$11.99",
+    "url": "https://pawpixl.printify.me/product/34917291"
+   },
+   {
+    "id": "d11-its-fine-cat-tee",
+    "name": "It’s Fine. We’re Cool. Tee",
+    "type": "tee",
+    "img": "content/shop/d11-its-fine-cat-tee.webp",
+    "desc": "A calm little sign for after the 50/50.",
+    "price": "$25.99",
+    "url": "https://pawpixl.printify.me/product/34917310"
+   },
+   {
+    "id": "d11-its-fine-cat-sticker",
+    "name": "It’s Fine. We’re Cool. Sticker",
+    "type": "sticker",
+    "img": "content/shop/d11-its-fine-cat-sticker.webp",
+    "desc": "A calm little sign for after the 50/50.",
+    "price": "$3.99",
+    "url": "https://pawpixl.printify.me/product/34916032"
+   },
+   {
+    "id": "d11-its-fine-cat-mug",
+    "name": "It’s Fine. We’re Cool. Mug",
+    "type": "mug",
+    "img": "content/shop/d11-its-fine-cat-mug.webp",
+    "desc": "A calm little sign for after the 50/50.",
+    "price": "$11.99",
+    "url": "https://pawpixl.printify.me/product/34917293"
+   },
+   {
+    "id": "d11-i-had-a-plan-tee",
+    "name": "I Had a Plan Tee",
+    "type": "tee",
+    "img": "content/shop/d11-i-had-a-plan-tee.webp",
+    "desc": "C0R1 was the plan. The toggle had other ideas.",
+    "price": "$25.99",
+    "url": "https://pawpixl.printify.me/product/34917271"
+   },
+   {
+    "id": "d11-i-had-a-plan-sticker",
+    "name": "I Had a Plan Sticker",
+    "type": "sticker",
+    "img": "content/shop/d11-i-had-a-plan-sticker.webp",
+    "desc": "C0R1 was the plan. The toggle had other ideas.",
+    "price": "$3.99",
+    "url": "https://pawpixl.printify.me/product/34916033"
+   },
+   {
+    "id": "d11-i-had-a-plan-mug",
+    "name": "I Had a Plan Mug",
+    "type": "mug",
+    "img": "content/shop/d11-i-had-a-plan-mug.webp",
+    "desc": "C0R1 was the plan. The toggle had other ideas.",
+    "price": "$11.99",
+    "url": "https://pawpixl.printify.me/product/34917155"
+   },
+   {
+    "id": "d11-controller-nap-dog-tee",
+    "name": "Controller Nap Dog Tee",
+    "type": "tee",
+    "img": "content/shop/d11-controller-nap-dog-tee.webp",
+    "desc": "Good dog, comfy bed, controller within reach.",
+    "price": "$25.99",
+    "url": "https://pawpixl.printify.me/product/34917305"
+   },
+   {
+    "id": "d11-controller-nap-dog-sticker",
+    "name": "Controller Nap Dog Sticker",
+    "type": "sticker",
+    "img": "content/shop/d11-controller-nap-dog-sticker.webp",
+    "desc": "Good dog, comfy bed, controller within reach.",
+    "price": "$3.99",
+    "url": "https://pawpixl.printify.me/product/34917088"
+   },
+   {
+    "id": "d11-controller-nap-dog-mug",
+    "name": "Controller Nap Dog Mug",
+    "type": "mug",
+    "img": "content/shop/d11-controller-nap-dog-mug.webp",
+    "desc": "Good dog, comfy bed, controller within reach.",
+    "price": "$11.99",
+    "url": "https://pawpixl.printify.me/product/34917296"
+   },
+   {
+    "id": "d11-good-vibes-only-tee",
+    "name": "Good Vibes Only Tee",
+    "type": "tee",
+    "img": "content/shop/d11-good-vibes-only-tee.webp",
+    "desc": "A sleepy cat, a heart and nothing else on the schedule.",
+    "price": "$25.99",
+    "url": "https://pawpixl.printify.me/product/34917304"
+   },
+   {
+    "id": "d11-good-vibes-only-sticker",
+    "name": "Good Vibes Only Sticker",
+    "type": "sticker",
+    "img": "content/shop/d11-good-vibes-only-sticker.webp",
+    "desc": "A sleepy cat, a heart and nothing else on the schedule.",
+    "price": "$3.99",
+    "url": "https://pawpixl.printify.me/product/34917087"
+   },
+   {
+    "id": "d11-good-vibes-only-mug",
+    "name": "Good Vibes Only Mug",
+    "type": "mug",
+    "img": "content/shop/d11-good-vibes-only-mug.webp",
+    "desc": "A sleepy cat, a heart and nothing else on the schedule.",
+    "price": "$11.99",
+    "url": "https://pawpixl.printify.me/product/34917298"
+   }
+  ]
  }
 }
