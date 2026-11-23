@@ -1865,3 +1865,63 @@ a.shcard:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.22)}
 .shsoon{white-space:nowrap;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);border:1px solid var(--line);border-radius:999px;padding:3px 9px}
 .shcard.soon .shim img{opacity:.9}
 @media (max-width:520px){.shgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.shtx{padding:10px 11px 12px}.shtx small{display:none}.shsoon{font-size:9.5px;padding:2px 7px;letter-spacing:.06em}}
+
+/* update 9: phone menu */
+.menubtn{display:none}
+.menubtn svg{width:20px;height:20px}
+.mdr-scrim{position:fixed;inset:0;background:rgba(3,5,12,.6);z-index:200}
+.mdr{position:fixed;top:0;right:0;bottom:0;width:min(86vw,340px);z-index:201;background:var(--bg2);border-left:1px solid var(--line);box-shadow:-20px 0 60px rgba(0,0,0,.5);padding:12px 14px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:6px;overflow-y:auto;overscroll-behavior:contain}
+.mdr-h{display:flex;align-items:center;justify-content:space-between;padding:2px 2px 8px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.mdr-h b{font:400 22px/1 var(--display);letter-spacing:.02em}
+.mdr-g{display:grid;gap:2px}
+.mdr-n a{display:flex;align-items:center;min-height:46px;padding:0 12px;border-radius:12px;text-decoration:none;color:var(--tx);font-weight:600;font-size:15.5px}
+.mdr-n a:hover,.mdr-n a:focus-visible{background:rgba(255,255,255,.07)}
+.mdr-n a[aria-current=page]{background:color-mix(in srgb,var(--e1) 16%,transparent);color:var(--e2);box-shadow:inset 3px 0 0 var(--e1)}
+.mdr-l{font:700 11px var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--mut);padding:12px 12px 4px}
+.mdr-more{margin-top:6px;padding-top:6px;border-top:1px solid var(--line)}
+.mdr-lang{display:grid;gap:6px;margin-top:auto;padding:14px 4px 0;border-top:1px solid var(--line)}
+.mdr-lang span{font-size:12.5px;color:var(--mut);font-weight:600}
+.mdr-lang .lang{width:100%;height:44px}
+@media (prefers-reduced-motion:no-preference){.mdr{animation:mdrin .18s ease-out}}
+@keyframes mdrin{from{transform:translateX(18px);opacity:0}}
+@media (max-width:820px){.menubtn{display:inline-flex}header.top #lang{display:none}}
+@media (max-width:420px){.menubtn span{display:none}.menubtn{padding:0 10px}}
+/* update 9: home shortcuts under "Browse all builds" (phones) */
+.htools{display:none}
+@media (max-width:820px){.hfind{flex-wrap:wrap}.htools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;flex:1 0 100%;grid-column:1/-1;margin-top:2px}
+ .htool{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:58px;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:var(--glass);color:var(--tx);text-decoration:none;font:inherit;text-align:left;cursor:pointer}
+ .htool b{font-size:14px;font-weight:700}.htool small{font-size:11.5px;color:var(--mut);line-height:1.3}}
+/* update 9: guide header on phones */
+.gmh{display:none}
+@media (max-width:820px){.gmh{display:grid;gap:10px;margin-top:12px;padding:14px;border-radius:var(--r);border:1px solid var(--line);background:var(--glass)}
+ .gmh-t{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}.gmh-t>b{font:400 26px/1.05 var(--display);letter-spacing:.01em}
+ .gmh-c{display:flex;flex-wrap:wrap;gap:6px}
+ .gmh-j{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:6px}
+ .gmh-j a{display:flex;align-items:center;justify-content:center;min-height:42px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.04);text-decoration:none;color:var(--tx);font-weight:700;font-size:13.5px}
+ .gmh-a{display:grid;grid-template-columns:1fr 1fr;gap:6px}.gmh-a .btn{min-height:42px;padding:0 10px;font-size:13px;justify-content:center}
+ #gtext,[id^="why-"]{scroll-margin-top:84px}}
+/* update 9: Build Lab result explanation */
+.lab-what{margin-top:8px}
+/* update 9: guide tiles keep their Save control outside the link */
+.tilew{position:relative;display:flex;flex-direction:column;min-width:0}
+.tilew>.tile{flex:1}
+.tilew>.bm{z-index:2}
+/* update 9: Preview label in the search drop-down */
+.findr small .chip.pvc{font-size:9.5px;padding:1px 6px;margin-right:4px;vertical-align:1px}
+/* update 9: news ticker pause control */
+.tpause{flex:0 0 auto;width:34px;height:34px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.05);color:inherit;cursor:pointer;margin-left:6px}
+.tpause svg{width:15px;height:15px}
+.banner.tick.paused .ttrack{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.tpause{display:none}}
+/* update 9: Team Lab on phones: smaller slots and steps so reviewed teams come up the screen */
+@media (max-width:640px){.tl-steps{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:4px}.tl-steps li{padding:4px 8px;font-size:10.5px;letter-spacing:.06em;white-space:nowrap}
+ .tl-slots{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+ .tl-slot{min-height:0}.tl-slot.empty{min-height:86px;gap:2px;text-align:center;padding:4px}.tl-slot.empty b{font-size:10.5px;line-height:1.15;font-weight:700}
+ .tl-slotb{padding:10px 2px 6px;gap:2px}.tl-slotb b{font-size:11.5px}
+ .tl-slot .tl-pic.big{width:min(52px,80%)}.tl-slot .tl-pic.big i{font-size:18px}.tl-slot .tl-meta .tl-wt{display:none}
+ .tl-slot .tl-step{gap:2px;padding:0 2px 8px}.tl-slot .tl-step .tl-lv{min-width:20px;font-size:12px}.tl-slot .tl-step button{width:24px;height:28px;border-radius:8px}}
+/* update 9: on phones the empty slots are already "Add character" buttons, so the extra one under them goes (browsers without :has keep it) */
+@media (max-width:640px){.tl-team:has(.tl-slot.empty) .tl-ta .tl-cta[data-add]{display:none}.tl-team:has(.tl-slot.empty) .tl-ta{justify-content:flex-end}}
+/* update 9: jump to the reviewed teams (phones and tablets only: on wide screens they sit beside the team) */
+.tl-jump{display:none}
+@media (max-width:900px){.tl-jump{display:block;width:100%;margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid rgba(246,199,92,.45);background:rgba(246,199,92,.08);color:#f6c75c;font-weight:700;font-size:14px;cursor:pointer}}
