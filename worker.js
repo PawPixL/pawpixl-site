@@ -606,7 +606,7 @@ export default {
 async function api(req, env, url, ctx) {
   /* ---- Enka.Network showcase lookup for My Roster (player accounts). Enka's rules: our own User-Agent, keep each answer
      for the ttl it gives, never mass-query UIDs. Only pawpixl.com pages may use it; the answer is cut down to what
-     My Roster reads (characters' levels, talents, constellations, weapon and artifacts) plus the nickname. ---- */
+     My Roster reads (characters' levels, talents, constellations, weapon, artifacts and the stat totals the game reports) plus the nickname. ---- */
   if (url.pathname.startsWith('/api/enka/')) {
     if (req.method !== 'GET') return json({ ok: false }, 405);
     const sf = req.headers.get('sec-fetch-site'), ref = req.headers.get('referer');
@@ -626,9 +626,12 @@ async function api(req, env, url, ctx) {
     if (!r.ok) return json({ ok: false, error: codes[r.status] || 'enka', status: r.status }, 200);
     let j; try { j = await r.json(); } catch (e) { return json({ ok: false, error: 'enka' }, 200); }
     const ttl = Math.max(30, Math.min(600, +j.ttl || 60)), F = e => e && e.flat || {};
-    const body = { ok: true, ttl, at: new Date().toISOString(), player: { nickname: String((j.playerInfo || {}).nickname || '').slice(0, 40), level: +(j.playerInfo || {}).level || 0 },
-      avatars: (j.avatarInfoList || []).slice(0, 30).map(a => ({ avatarId: a.avatarId, skillDepotId: a.skillDepotId, lv: a.propMap && a.propMap['4001'] && a.propMap['4001'].val, asc: a.propMap && a.propMap['1002'] && a.propMap['1002'].val, cons: (a.talentIdList || []).length, skills: a.skillLevelMap || {},
-        equip: (a.equipList || []).slice(0, 6).map(e => ({ icon: F(e).icon, type: F(e).itemType, slot: F(e).equipType, weapon: e.weapon ? { level: e.weapon.level, promoteLevel: e.weapon.promoteLevel, affixMap: e.weapon.affixMap } : null, main: F(e).reliquaryMainstat || null, subs: F(e).reliquarySubstats || [] })) })) };
+    /* update 14: the totals the game reports for each character (its own numbered stat list), cut down to the ones PawPixl keeps */
+    const FPK = ['1', '4', '7', '2000', '2001', '2002', '20', '22', '23', '26', '28', '30', '40', '41', '42', '43', '44', '45', '46'];
+    const FP = m => { const o = {}; if (m && typeof m === 'object') FPK.forEach(k => { const v = +m[k]; if (isFinite(v)) o[k] = Math.round(v * 1e5) / 1e5; }); return o; };
+    const body = { ok: true, v: 2, ttl, at: new Date().toISOString(), player: { nickname: String((j.playerInfo || {}).nickname || '').slice(0, 40), level: +(j.playerInfo || {}).level || 0 },
+      avatars: (j.avatarInfoList || []).slice(0, 30).map(a => ({ avatarId: a.avatarId, skillDepotId: a.skillDepotId, lv: a.propMap && a.propMap['4001'] && a.propMap['4001'].val, asc: a.propMap && a.propMap['1002'] && a.propMap['1002'].val, cons: (a.talentIdList || []).length, skills: a.skillLevelMap || {}, fp: FP(a.fightPropMap),
+        equip: (a.equipList || []).slice(0, 6).map(e => ({ icon: F(e).icon, type: F(e).itemType, slot: F(e).equipType, rank: +F(e).rankLevel || null, lvl: e.reliquary ? Math.max(0, (+e.reliquary.level || 1) - 1) : null, weapon: e.weapon ? { level: e.weapon.level, promoteLevel: e.weapon.promoteLevel, affixMap: e.weapon.affixMap } : null, main: F(e).reliquaryMainstat || null, subs: F(e).reliquarySubstats || [] })) })) };
     const out = json(body, 200); out.headers.set('cache-control', 'public, max-age=' + ttl);
     if (cache) { const put = cache.put(ck, out.clone()); if (ctx && ctx.waitUntil) ctx.waitUntil(put); else await put; }
     return out;
