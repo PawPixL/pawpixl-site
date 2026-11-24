@@ -2044,3 +2044,10 @@ a.egt-n{color:inherit;text-decoration:none}a.egt-n:hover,a.egt-n:focus-visible{t
 
 /* update 15 m10 rc: what this result assumes */
 .lab-asm{margin:10px 0 12px;padding:12px 14px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(255,255,255,.03)}.lab-asm .eyebrow{margin-bottom:4px}.lab-asrc{margin:0 0 8px;font-size:.92rem}.lab-asd{margin-top:6px}.lab-asd summary{cursor:pointer;font-weight:700}.lab-asd ul{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px}.lab-asd li{padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.04);overflow-wrap:anywhere}.lab-asd li small{display:block;margin-top:3px;opacity:.78;font-size:.82rem}.lab-asg{font-weight:600}.lab-asv{margin-left:6px;color:var(--gold,#e8c36a)}.lab-asgo{float:right;margin-left:8px;min-height:32px;padding:4px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:transparent;color:inherit;font:inherit;font-size:.82rem;cursor:pointer}.lab-asgo:focus-visible{outline:2px solid var(--teal,#4fd6c0);outline-offset:2px}
+
+/* update 15, release candidate 2 */
+.lab-nosug{display:inline-block;margin-top:.35rem}
+.lab-warn{border:1px solid #d9a441;border-radius:10px;padding:.6rem .8rem;margin:.6rem 0;background:rgba(217,164,65,.08)}
+.lab-warn ul{margin:.35rem 0 0 1.1rem;padding:0}
+.lab-maxn b,#lab-maxex{color:#e8c56a}
+/* a long name pushes the Change button onto its own line; the explanation must start below it, not under it */.lab-asd li small{clear:both}
