@@ -209,7 +209,7 @@
   "src": "genshin-db 5.2.15"
  },
  "teamlab": {
-  "on": true,
+  "on": false,
   "arena": false
  },
  "endgame": {
