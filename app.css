@@ -2586,5 +2586,16 @@ main label:not([class]):has(>input[type=checkbox]){display:inline-flex;align-ite
 /* Team Lab step 6 (private) */
 .tl-work{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;margin:16px 0;padding:14px 16px;border-radius:18px;border:1px solid color-mix(in srgb,var(--teal,#35d0ba) 55%,transparent);background:rgba(53,208,186,.07)}.tl-work b{display:block;font-size:15px}.tl-work small{color:var(--mut);font-size:13px}
 
-/* public build: Team Lab is not part of it, so nothing links to it */
-a[href^="/genshin/teamlab"]{display:none!important}
+/* Splash-art stage: the art fills its panel top to bottom, framed on the face and upper body (centre x, upper-centre y).
+   One rule for Build Lab's showcase and the character view. --fx / --fy are the focal point (percent); a character can override them. */
+.lh-stage{min-height:440px}
+.lh-stage .lh-art{position:absolute;left:0;top:0;width:100%;height:100%;max-height:860px;padding:0;object-fit:cover;object-position:var(--fx,50%) var(--fy,18%);filter:none;-webkit-mask-image:linear-gradient(180deg,#000 78%,transparent 100%),linear-gradient(90deg,#000 82%,transparent 100%);-webkit-mask-composite:source-in;mask-image:linear-gradient(180deg,#000 78%,transparent 100%),linear-gradient(90deg,#000 82%,transparent 100%);mask-composite:intersect}
+.lh-stage::before{z-index:0}
+.cv-stage .cv-art{left:0;top:0;bottom:auto;transform:none;width:100%;min-width:0;height:100%;object-fit:cover;object-position:var(--fx,50%) var(--fy,16%);-webkit-mask-image:linear-gradient(180deg,#000 70%,rgba(0,0,0,.35) 88%,transparent 100%);mask-image:linear-gradient(180deg,#000 70%,rgba(0,0,0,.35) 88%,transparent 100%)}
+@media (max-width:980px){
+ .lh-stage{min-height:0}
+ .lh-stage .lh-art{position:absolute;height:100%;max-height:none;object-position:var(--fx,50%) var(--fy,14%);-webkit-mask-image:linear-gradient(180deg,#000 72%,transparent 100%);mask-image:linear-gradient(180deg,#000 72%,transparent 100%);-webkit-mask-composite:source-over;mask-composite:add}
+}
+@media (max-width:860px){
+ .cv-stage .cv-art{position:relative;width:100%;height:min(62vw,280px);object-fit:cover;object-position:var(--fx,50%) var(--fy,14%)}
+}
