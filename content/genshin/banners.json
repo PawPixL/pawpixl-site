@@ -1,27 +1,8 @@
 {
  "format": "pawpixl-banners/1",
  "v": 1,
- "updated": "2026-11-15T02:36:41.164Z",
+ "updated": "2026-11-25T18:14:05.786Z",
  "phases": [
-  {
-   "id": "bmwh7wf4f0zd",
-   "label": "Phase 1",
-   "start": "2026-11-04T21:32",
-   "end": "2026-11-24T21:33",
-   "sync": true,
-   "chars": [
-    {
-     "id": "mitya",
-     "name": "Mitya",
-     "rerun": false
-    },
-    {
-     "id": "furina",
-     "name": "Furina",
-     "rerun": true
-    }
-   ]
-  },
   {
    "id": "bmwh800jq4dj",
    "label": "Phase 2",
@@ -37,6 +18,25 @@
     {
      "id": "linnea",
      "name": "Linnea",
+     "rerun": false
+    }
+   ]
+  },
+  {
+   "id": "bmwh7wf4f0zd",
+   "label": "7.3 Phase 1",
+   "start": "2026-12-16T21:32",
+   "end": "2027-01-06T21:33",
+   "sync": true,
+   "chars": [
+    {
+     "id": "anastasya",
+     "name": "Anastasya",
+     "rerun": false
+    },
+    {
+     "id": "danica",
+     "name": "Danica",
      "rerun": false
     }
    ]
