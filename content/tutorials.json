@@ -126,6 +126,59 @@
    "siteVersion": "help2-dev",
    "reviewed": "2026-11-26",
    "version": 1
+  },
+  {
+   "id": "next-upgrades",
+   "status": "published",
+   "title": "Your Next Upgrades",
+   "desc": "What to work on next for each character, and where each suggestion comes from.",
+   "durLabel": "1:33",
+   "video": "/content/tutorials/next-upgrades.mp4",
+   "vtt": "/content/tutorials/next-upgrades.en.vtt",
+   "chapters": [
+    [
+     0,
+     "Welcome"
+    ],
+    [
+     10.03,
+     "Opening a character"
+    ],
+    [
+     17.03,
+     "The summary"
+    ],
+    [
+     27.8,
+     "Calculated suggestions"
+    ],
+    [
+     41.93,
+     "Ideas from the guide"
+    ],
+    [
+     54.57,
+     "What it leaves out"
+    ],
+    [
+     64.2,
+     "Looking strong"
+    ],
+    [
+     74.2,
+     "Not assessed yet"
+    ],
+    [
+     86.83,
+     "All set"
+    ]
+   ],
+   "transcript": "/content/tutorials/next-upgrades.transcript.txt",
+   "poster": "/content/tutorials/next-upgrades.poster.jpg",
+   "audio": true,
+   "siteVersion": "help2-dev",
+   "reviewed": "2026-11-26",
+   "version": 1
   }
  ]
 }

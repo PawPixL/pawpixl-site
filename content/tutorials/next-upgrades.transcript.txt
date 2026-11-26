@@ -1,0 +1,29 @@
+Your Next Upgrades
+What to work on next for each character, and where each suggestion comes from.
+
+[0:00] Welcome
+Not sure what to farm next? Your Next Upgrades looks at your saved build, suggests what to work on, and tells you why.
+
+[0:10] Opening a character
+In My Roster, switch to edit details and open a character. I'll open a demo Wanderer.
+
+[0:17] The summary
+At the top is a quick summary. This Wanderer has room to grow and it says why: two key things from the guide are still open.
+
+[0:27] Calculated suggestions
+The top priority is ascending his weapon, still at level 70. This one is Calculated: PawPixl tried that single change in Build Lab and measured about three percent more on his three biggest modelled hits.
+
+[0:41] Ideas from the guide
+Below are ideas worth exploring. These come from the guide, like an Elemental damage goblet instead of attack percent. If you have a spare piece, preview it in Build Lab first.
+
+[0:54] What it leaves out
+Open What this looks at to see the limits. It measures single hits in Baseline. Team buffs, reactions and rotations are not included.
+
+[1:04] Looking strong
+When nothing PawPixl can check stands out you'll see looking strong like this Furina. Your team and real fights might still suggest other tweaks.
+
+[1:14] Not assessed yet
+And if gear isn't saved like this Bennett's artifacts, PawPixl says not assessed yet and sticks to what the guide says. Add the gear, and it can take a proper look.
+
+[1:26] All set
+Keep your roster up to date and your next upgrades stay accurate. Happy farming traveler!!!
