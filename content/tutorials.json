@@ -179,6 +179,55 @@
    "siteVersion": "help2-dev",
    "reviewed": "2026-11-26",
    "version": 1
+  },
+  {
+   "id": "team-lab",
+   "status": "published",
+   "title": "Team Lab",
+   "desc": "Build a team, see what each teammate adds, switch on realistic buffs and compare two setups, without treating estimates as team DPS.",
+   "durLabel": "1:41",
+   "video": "/content/tutorials/team-lab.mp4",
+   "vtt": "/content/tutorials/team-lab.en.vtt",
+   "chapters": [
+    [
+     0,
+     "Welcome"
+    ],
+    [
+     7.4,
+     "Building a team"
+    ],
+    [
+     25.57,
+     "Roles and contributions"
+    ],
+    [
+     40.7,
+     "Conditional synergies"
+    ],
+    [
+     66.1,
+     "Comparing setups"
+    ],
+    [
+     82.37,
+     "Reading the results"
+    ],
+    [
+     90.33,
+     "Saving and sharing"
+    ],
+    [
+     95.47,
+     "All set"
+    ]
+   ],
+   "transcript": "/content/tutorials/team-lab.transcript.txt",
+   "poster": "/content/tutorials/team-lab.poster.jpg",
+   "audio": true,
+   "siteVersion": "help2-dev",
+   "reviewed": "2026-11-26",
+   "version": 1
   }
  ]
 }

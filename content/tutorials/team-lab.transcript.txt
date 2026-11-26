@@ -1,0 +1,26 @@
+Team Lab
+Build a team, see what each teammate adds, switch on realistic buffs and compare two setups, without treating estimates as team DPS.
+
+[0:00] Welcome
+Hey Traveler! Team Lab shows what each teammate really brings with honest numbers and clear labels.
+
+[0:07] Building a team
+Let's Start with four empty slots. Turn on Use my characters to see only who you own. I'll pick Xiangling, Bennett, Kazooha and Furina for Vaporize. Each uses my saved build, and gaps are filled from a labelled Guide Example.
+
+[0:25] Roles and contributions
+Each teammate's buffs are either Calculated, with a number when switched on, or Described: real, just not a number yet. Team Lab also reads roles and reactions, like Vaporize and Swirl, labelled as a suggestion.
+
+[0:40] Conditional synergies
+What your teammates add compares each character's biggest hits, alone and with the buffs you choose. I'll switch on Bennett's Burst and Kazuha's Pyro Swirl buff. Only pick buffs you'd really have up together. Xiangling's hits jump. These are single-hit estimates under those conditions, not team damage. Add a reaction share, and keep that assumption realistic.
+
+[1:06] Comparing setups
+To compare pin Setup A and change one thing, like Kazuha at constellation two. You'll see what changed, what's verified, and what stays unknown. Each teammate's full list shows what isn't modelled yet, like parts of Furina's kit.
+
+[1:22] Reading the results
+Remember: single-hit comparisons, not team DPS. Uptimes, swaps and energy aren't simulated, so real rotations differ.
+
+[1:30] Saving and sharing
+Happy with it? Save the team, or download a share card.
+
+[1:35] All set
+Build the team that's fun for you. See you next time!
