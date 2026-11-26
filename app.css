@@ -2646,3 +2646,6 @@ main label:not([class]):has(>input[type=checkbox]){display:inline-flex;align-ite
 
 /* RC3.1 Build Lab: offer to load My Build */
 .lh-offer{margin:.3rem 0 0;font-size:.92rem;color:var(--mut,#a9b0c6)}.lh-offer button.flink{font:inherit;background:none;border:0;padding:0;cursor:pointer;color:var(--acc,#7fe3c4);text-decoration:underline}
+
+/* RC3.4 Preferred team controls (Create a Graphic) */
+.cg-pt-slots{display:grid;gap:8px;margin:8px 0 10px}.cg-pt-s{display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:8px}.cg-pt-s>b{font-weight:800;color:var(--mut,#a9b0c6);text-align:center}.cg-pt-s select{font:inherit;font-weight:500;width:100%;min-width:0;min-height:44px;padding:8px 12px;border-radius:12px;border:1px solid var(--line2);background:#141a2b;color:inherit}.cg-pt-f{padding:9px 10px;border-radius:10px;background:rgba(255,255,255,.04)}.cg-pt-f small{color:var(--mut,#a9b0c6)}.cg-pt-mv{display:flex;gap:4px}.cg-pt-mv .btn{min-width:44px;min-height:44px;padding:6px 10px}

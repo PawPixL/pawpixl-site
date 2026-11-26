@@ -2141,7 +2141,7 @@ async function ppCard(gid,k,src,GW,name,art){const R=rosAll()[k]||{},guide=src==
  if(wv&&(guide||m.src.w))weapon={name:N(wv),icu:ic(wv.ic),r:wv.r,ref:wref?(guide?(m.L.ri||0)+1:(R.wr||1)):0,refAssumed:guide&&!!m.rAssumed,lv:guide?'90':(R.wl||'')};
  /* the weapon's base ATK and secondary stat at its level: the same row of the weapon table labStats adds */
  if(weapon){const W0=m.L.w,wl=W0&&W0.lv?W0.lv[Math.min(m.L.wli||0,W0.lv.length-1)]:null;if(wl){weapon.atk=Math.round(wl[2]).toLocaleString('en-US');if(W0.ms&&wl[3])weapon.sub=[SN(W0.ms),PCT(W0.ms)?(Math.round(wl[3]*1000)/10).toFixed(1)+'%':Math.round(wl[3]).toLocaleString('en-US')]}}
- const sets=[],s1=guide?m.L.s1:a.s1,s2=guide?(m.L.mode==='22'?m.L.s2:''):(a.mode==='22'?a.s2:'');[[s1,s2?2:4],[s2,2]].forEach(([id,n])=>{const x=id&&setOf(id);if(x)sets.push({name:N(x),icu:x.p&&x.p.flower?ic(x.p.flower.ic):'',n})});
+ const sets=[],s1=guide?m.L.s1:a.s1,s2=guide?(m.L.mode==='22'?m.L.s2:''):(a.mode==='22'?a.s2:'');[[s1,s2?2:4],[s2,2]].forEach(([id,n])=>{const x=id&&setOf(id);if(x)sets.push({name:N(x),icu:x.p&&x.p.flower?ic(x.p.flower.ic):'',n,e2:String(x.e2||''),e4:n===4?String(x.e4||''):''})});
  const mk=guide?{s:m.L.sands,g:m.L.goblet,c:m.L.circlet}:{s:a.sands,g:a.goblet,c:a.circlet},mains=mk.s||mk.g||mk.c?{s:mk.s?SN(mk.s):'',g:mk.g?SN(mk.g):'',c:mk.c?SN(mk.c):''}:null;
  const pf=(q,v)=>PCT(q)?(Math.round(v*10)/10).toFixed(1)+'%':Math.round(v).toLocaleString('en-US');
  const QMAX={hp:298.75,atk:19.45,def:23.15,hp_:5.83,atk_:5.83,def_:7.29,em:23.31,er:6.48,cr:3.89,cd:7.77},QU=new Set();feat.forEach(q=>{const k={atk:'atk_',hp:'hp_',def:'def_'}[q]||q;if(QMAX[k])QU.add(k)});if(!QU.size){QU.add('cr');QU.add('cd')}
