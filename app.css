@@ -2649,3 +2649,38 @@ main label:not([class]):has(>input[type=checkbox]){display:inline-flex;align-ite
 
 /* RC3.4 Preferred team controls (Create a Graphic) */
 .cg-pt-slots{display:grid;gap:8px;margin:8px 0 10px}.cg-pt-s{display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:8px}.cg-pt-s>b{font-weight:800;color:var(--mut,#a9b0c6);text-align:center}.cg-pt-s select{font:inherit;font-weight:500;width:100%;min-width:0;min-height:44px;padding:8px 12px;border-radius:12px;border:1px solid var(--line2);background:#141a2b;color:inherit}.cg-pt-f{padding:9px 10px;border-radius:10px;background:rgba(255,255,255,.04)}.cg-pt-f small{color:var(--mut,#a9b0c6)}.cg-pt-mv{display:flex;gap:4px}.cg-pt-mv .btn{min-width:44px;min-height:44px;padding:6px 10px}
+
+/* RC3.5: where build-card settings are saved */
+.cg-sync{margin:10px 0 0;font-size:13px;line-height:1.45;color:rgba(232,236,248,.72)}.cg-sync.bad{color:#f2c45a}.cg-sync a{color:inherit;text-decoration:underline}
+.cg-diff{margin-top:12px;padding:12px 14px;border:1px solid rgba(242,196,90,.45);border-radius:14px;background:rgba(242,196,90,.07)}.cg-diff p{margin:0 0 8px;font-size:14px;line-height:1.45}.cg-diff .btn{min-height:44px}
+
+/* RC3.5: the roster editor on phones: 16px fields (no iPhone zoom on tap), the sheet sits on top of the keyboard and never taller than what is visible */
+@media (max-width:860px){
+ .ros-ed input,.ros-ed select,.ros-ed textarea{font-size:16px}
+ .ros-ed,.ros-ed.cvw{bottom:var(--kbb,0px);max-height:min(92vh,calc(var(--vvh,100vh) - 8px));scroll-padding:56px 0}
+ html.pp-kb .ros-ed,html.pp-kb .ros-ed.cvw{max-height:calc(var(--vvh,100vh) - 4px);border-radius:16px 16px 0 0}
+ #lab input:not([type=checkbox]):not([type=radio]):not([type=range]),#lab select,#lab textarea{font-size:16px}
+}
+
+/* RC3.5: player name / UID panel */
+.cg-me{margin-top:14px}.cg-me>summary{cursor:pointer;list-style:none;min-height:44px;display:flex;align-items:center;gap:6px}.cg-me>summary::-webkit-details-marker{display:none}.cg-me>summary small{font-weight:600;letter-spacing:0;text-transform:none;opacity:.7}.cg-mh{font-size:13px;margin:6px 0}
+.cg-me input[type=text]{width:100%;min-height:44px;font-size:16px;background:#141a2b;color:inherit;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-family:inherit}
+
+/* RC3.5: My Roster ownership control and menu */
+.ros-hint{margin:6px 0 12px;font-size:14px}
+.rc-cell{position:relative;display:flex;min-width:0}.rc-cell>.rc{flex:1;width:100%;min-width:0}
+.rc-own{position:absolute;left:6px;top:6px;z-index:2;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:800 14px/1 var(--body);cursor:pointer;color:#fff;background:rgba(8,10,20,.78);border:1.5px solid rgba(255,255,255,.4);padding:0}
+.rc-own::after{content:"";position:absolute;inset:-7px}
+.rc-own.own{background:#1fbf8f;border-color:#bff5df;color:#04160f}.rc-own.not{color:rgba(232,236,248,.85)}.rc-own.unk{border-style:dashed;color:rgba(232,236,248,.75)}
+.rc-own:focus-visible{outline:2px solid var(--gold,#f6c75c);outline-offset:2px}
+.rc-cell .rc-f{left:42px}
+.rc-om{position:fixed;z-index:80;min-width:210px;max-width:min(280px,calc(100vw - 16px));padding:8px;border-radius:14px;background:#12151f;border:1px solid var(--line);box-shadow:0 18px 50px rgba(0,0,0,.55)}
+.rc-omh{display:block;padding:6px 10px 8px;font-size:14px}
+.rc-om [data-ov]{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:8px 10px;border:0;border-radius:10px;background:transparent;color:inherit;font:600 15px var(--body);text-align:left;cursor:pointer}
+.rc-om [data-ov]:hover,.rc-om [data-ov]:focus-visible{background:rgba(255,255,255,.07);outline:none}
+.rc-om [data-ov] span{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;border:1.5px solid rgba(255,255,255,.35);font-size:12px}
+.rc-om [aria-checked="true"]{background:rgba(31,191,143,.14)}.rc-om [aria-checked="true"] span{background:#1fbf8f;color:#04160f;border-color:#bff5df}
+.rc-omn{margin:6px 10px 4px;font-size:12.5px;color:rgba(232,236,248,.7);line-height:1.4}
+.cv-pt,.cv-var{margin:10px 0 0;font-size:14px}.cv-pt b,.cv-var b{display:inline-block;margin-right:6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--e1)}
+.tl-ask{margin:12px 0}.tl-askb{display:flex;flex-wrap:wrap;gap:8px}
+@media (max-width:640px){.rc-own{width:32px;height:32px;left:4px;top:4px}}
