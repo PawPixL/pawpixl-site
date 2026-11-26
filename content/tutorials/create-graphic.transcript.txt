@@ -1,0 +1,20 @@
+Create a Graphic
+Turn a saved build or a team into a shareable image, with Guide Examples clearly labelled.
+
+[0:00] Welcome
+Want to show off a build? Create a Graphic turns your roster into a shareable image in seconds.
+
+[0:08] Build cards
+Pick Build card and a character. My Build uses exactly what you saved in My Roster, so there's nothing to type. Switch to Guide Example for PawPixl's example build. It's labelled on the card, so nobody mistakes it for your own.
+
+[0:25] Templates and sizes
+Then Choose a template... Showcase is made for sharing, and Detailed build shows every piece and stat. Anything you haven't saved shows as missing, never invented. Pick a size, vertical, square or landscape, and choose what to show, like constellation, level or stats.
+
+[0:43] Team cards
+Team cards work the same way. Any numbers on a team card are modelled estimates, not team DPS.
+
+[0:51] Sharing
+Then download the PNG, or copy the image. Cards are made in your browser, and only show build details and pawpixl.com, never your UID or email.
+
+[1:02] All set
+now go show off that build Traveler! See you around!

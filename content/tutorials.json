@@ -228,6 +228,47 @@
    "siteVersion": "help2-dev",
    "reviewed": "2026-11-26",
    "version": 1
+  },
+  {
+   "id": "create-graphic",
+   "status": "published",
+   "title": "Create a Graphic",
+   "desc": "Turn a saved build or a team into a shareable image, with Guide Examples clearly labelled.",
+   "durLabel": "1:07",
+   "video": "/content/tutorials/create-graphic.mp4",
+   "vtt": "/content/tutorials/create-graphic.en.vtt",
+   "chapters": [
+    [
+     0,
+     "Welcome"
+    ],
+    [
+     8.17,
+     "Build cards"
+    ],
+    [
+     25.53,
+     "Templates and sizes"
+    ],
+    [
+     43.67,
+     "Team cards"
+    ],
+    [
+     51.43,
+     "Sharing"
+    ],
+    [
+     62.57,
+     "All set"
+    ]
+   ],
+   "transcript": "/content/tutorials/create-graphic.transcript.txt",
+   "poster": "/content/tutorials/create-graphic.poster.jpg",
+   "audio": true,
+   "siteVersion": "help2-dev",
+   "reviewed": "2026-11-26",
+   "version": 1
   }
  ]
 }
