@@ -1,0 +1,182 @@
+WEBVTT
+
+1
+00:00:00.300 --> 00:00:04.118
+Hi, Traveler! In about three minutes,
+let’s set up My Roster, so PawPixl knows
+
+2
+00:00:04.168 --> 00:00:05.358
+exactly who you’ve built.
+
+3
+00:00:08.467 --> 00:00:12.907
+My Roster is your character list. Build
+Lab, Team Lab and your share cards all reed
+
+4
+00:00:12.957 --> 00:00:13.339
+from it.
+
+5
+00:00:16.233 --> 00:00:19.434
+Let’s start by hand. Type
+a name in the search box
+
+6
+00:00:21.367 --> 00:00:25.310
+and tap the character to mark them as
+owned. That’s it, they’re on your roster.
+
+7
+00:00:28.000 --> 00:00:32.153
+Open edit details to add level,
+constellation, talents, weapon and artifacts.
+
+8
+00:00:32.203 --> 00:00:36.356
+Anything you skip just stays empty, and
+you never need an extension for this.
+
+9
+00:00:38.367 --> 00:00:43.436
+Got lots of characters? A GOOD file fills
+them in at once. It’s a small dot J S O N
+
+10
+00:00:43.486 --> 00:00:48.494
+file listing your characters, weapons and
+artifacts, in a format Genshin Optimizer
+
+11
+00:00:48.544 --> 00:00:50.159
+and many other tools share.
+
+12
+00:00:53.233 --> 00:00:57.860
+Not sure where to get one? Press Help me
+get my file. It walks you through every
+
+13
+00:00:57.910 --> 00:00:58.152
+step.
+
+14
+00:01:01.000 --> 00:01:05.446
+One free option is a Chrome extension
+called Genshin GOOD Exporter. It’s made by a
+
+15
+00:01:05.496 --> 00:01:09.997
+third party, not PawPixl or HoYoverse, and
+we haven’t security-audited it, so check
+
+16
+00:01:10.047 --> 00:01:13.396
+its listing, permissions and
+reviews, and decide for yourself.
+
+17
+00:01:16.267 --> 00:01:20.259
+Prefer not to install anything? That’s
+completely fine. Adding characters by hand
+
+18
+00:01:20.309 --> 00:01:22.904
+always works, and so does
+filling in from your U I D.
+
+19
+00:01:26.267 --> 00:01:30.124
+Sign in to HoYoLAB yourself and open your
+Genshin Battle Chronicle. PawPixl never
+
+20
+00:01:30.174 --> 00:01:33.693
+sees your sign-in, and will never ask
+for your password, codes or cookies.
+
+21
+00:01:37.400 --> 00:01:41.765
+Click the extension, check your U I D and
+server, and choose Export GOOD JSON. Save
+
+22
+00:01:41.815 --> 00:01:43.573
+it somewhere easy, like Downloads.
+
+23
+00:01:46.267 --> 00:01:50.535
+Back in My Roster, press Import and pick
+that file. It’s read right here in your
+
+24
+00:01:50.585 --> 00:01:52.532
+browser, and isn’t uploaded anywhere.
+
+25
+00:01:55.133 --> 00:01:59.075
+Before anything changes, you get a preview:
+what the file found, who’s new, and what
+
+26
+00:01:59.125 --> 00:02:01.213
+would change for characters
+you already have.
+
+27
+00:02:04.400 --> 00:02:08.990
+Then choose. Add and update uses the file’s
+levels, talents, weapons and artifacts,
+
+28
+00:02:09.040 --> 00:02:13.127
+and keeps your notes and favorites.
+Or only add new characters, or cancel.
+
+29
+00:02:15.167 --> 00:02:16.278
+And there they are.
+
+30
+00:02:18.567 --> 00:02:22.418
+Open a character, and their weapon and
+refinement came across from the file
+
+31
+00:02:24.433 --> 00:02:28.238
+and under Advanced, every equipped artifact
+piece, with its main stat and substats.
+
+32
+00:02:30.300 --> 00:02:34.508
+One catch: HoYoLAB only shows what
+characters are wearing, so spare weapons and
+
+33
+00:02:34.558 --> 00:02:38.875
+unequipped artifacts aren’t in the file.
+Add those by hand, and the Traveler too,
+
+34
+00:02:38.925 --> 00:02:39.306
+for now.
+
+35
+00:02:42.167 --> 00:02:46.514
+To update later, just import a fresh file
+and you’ll get the same preview. Download
+
+36
+00:02:46.564 --> 00:02:49.268
+my data saves a backup of
+everything you’ve entered.
+
+37
+00:02:52.167 --> 00:02:56.963
+That’s it! Your roster is ready for Build
+Lab, Team Lab and your share cards. Happy
+
+38
+00:02:57.013 --> 00:02:58.015
+building Traveler!

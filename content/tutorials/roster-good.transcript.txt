@@ -1,0 +1,41 @@
+My Roster & GOOD imports
+Add characters by hand or import a GOOD file, review the changes, and keep your roster up to date.
+
+[0:00] Welcome
+Hi, Traveler! In about three minutes, let’s set up My Roster, so PawPixl knows exactly who you’ve built.
+
+[0:08] What My Roster does
+My Roster is your character list. Build Lab, Team Lab and your share cards all reed from it.
+
+[0:15] Adding characters by hand
+Let’s start by hand. Type a name in the search box and tap the character to mark them as owned. That’s it, they’re on your roster. Open edit details to add level, constellation, talents, weapon and artifacts. Anything you skip just stays empty, and you never need an extension for this.
+
+[0:38] What a GOOD file is
+Got lots of characters? A GOOD file fills them in at once. It’s a small dot J S O N file listing your characters, weapons and artifacts, in a format Genshin Optimizer and many other tools share.
+
+[0:52] Finding the exporter
+Not sure where to get one? Press Help me get my file. It walks you through every step. One free option is a Chrome extension called Genshin GOOD Exporter. It’s made by a third party, not PawPixl or HoYoverse, and we haven’t security-audited it, so check its listing, permissions and reviews, and decide for yourself. Prefer not to install anything? That’s completely fine. Adding characters by hand always works, and so does filling in from your U I D.
+
+[1:25] HoYoLAB Battle Chronicle
+Sign in to HoYoLAB yourself and open your Genshin Battle Chronicle. PawPixl never sees your sign-in, and will never ask for your password, codes or cookies.
+
+[1:37] Exporting your file
+Click the extension, check your U I D and server, and choose Export GOOD JSON. Save it somewhere easy, like Downloads.
+
+[1:45] Importing into PawPixl
+Back in My Roster, press Import and pick that file. It’s read right here in your browser, and isn’t uploaded anywhere.
+
+[1:54] Reviewing the changes
+Before anything changes, you get a preview: what the file found, who’s new, and what would change for characters you already have. Then choose. Add and update uses the file’s levels, talents, weapons and artifacts, and keeps your notes and favorites. Or only add new characters, or cancel.
+
+[2:14] Weapons and artifacts
+And there they are. Open a character, and their weapon and refinement came across from the file and under Advanced, every equipped artifact piece, with its main stat and substats.
+
+[2:30] Why some items are missing
+One catch: HoYoLAB only shows what characters are wearing, so spare weapons and unequipped artifacts aren’t in the file. Add those by hand, and the Traveler too, for now.
+
+[2:41] Updating later
+To update later, just import a fresh file and you’ll get the same preview. Download my data saves a backup of everything you’ve entered.
+
+[2:51] All set
+That’s it! Your roster is ready for Build Lab, Team Lab and your share cards. Happy building Traveler!

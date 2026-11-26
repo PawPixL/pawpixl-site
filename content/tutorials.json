@@ -57,6 +57,75 @@
    "siteVersion": "help2-dev",
    "reviewed": "2026-11-26",
    "version": 1
+  },
+  {
+   "id": "roster-good",
+   "status": "published",
+   "title": "My Roster & GOOD imports",
+   "desc": "Add characters by hand or import a GOOD file, review the changes, and keep your roster up to date.",
+   "durLabel": "3:00",
+   "video": "/content/tutorials/roster-good.mp4",
+   "vtt": "/content/tutorials/roster-good.en.vtt",
+   "chapters": [
+    [
+     0,
+     "Welcome"
+    ],
+    [
+     8.17,
+     "What My Roster does"
+    ],
+    [
+     15.93,
+     "Adding characters by hand"
+    ],
+    [
+     38.07,
+     "What a GOOD file is"
+    ],
+    [
+     52.93,
+     "Finding the exporter"
+    ],
+    [
+     85.97,
+     "HoYoLAB Battle Chronicle"
+    ],
+    [
+     97.1,
+     "Exporting your file"
+    ],
+    [
+     105.97,
+     "Importing into PawPixl"
+    ],
+    [
+     114.83,
+     "Reviewing the changes"
+    ],
+    [
+     134.87,
+     "Weapons and artifacts"
+    ],
+    [
+     150,
+     "Why some items are missing"
+    ],
+    [
+     161.87,
+     "Updating later"
+    ],
+    [
+     171.87,
+     "All set"
+    ]
+   ],
+   "transcript": "/content/tutorials/roster-good.transcript.txt",
+   "poster": "/content/tutorials/roster-good.poster.jpg",
+   "audio": true,
+   "siteVersion": "help2-dev",
+   "reviewed": "2026-11-26",
+   "version": 1
   }
  ]
 }
