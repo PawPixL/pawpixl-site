@@ -2643,3 +2643,6 @@ main label:not([class]):has(>input[type=checkbox]){display:inline-flex;align-ite
 
 /* Team Lab: the "+N more" line has no icon; give it the full width */
 .tl-bc li.more{display:block}
+
+/* RC3.1 Build Lab: offer to load My Build */
+.lh-offer{margin:.3rem 0 0;font-size:.92rem;color:var(--mut,#a9b0c6)}.lh-offer button.flink{font:inherit;background:none;border:0;padding:0;cursor:pointer;color:var(--acc,#7fe3c4);text-decoration:underline}
