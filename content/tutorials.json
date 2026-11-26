@@ -1,0 +1,62 @@
+{
+ "v": 1,
+ "items": [
+  {
+   "id": "getting-started",
+   "status": "published",
+   "title": "Getting started with PawPixl",
+   "desc": "How My Roster feeds Build Lab, Your Next Upgrades, Team Lab and Create a Graphic, in about a minute and a half.",
+   "durLabel": "1:41",
+   "video": "/content/tutorials/getting-started.mp4",
+   "vtt": "/content/tutorials/getting-started.en.vtt",
+   "chapters": [
+    [
+     0,
+     "Welcome"
+    ],
+    [
+     7.4,
+     "One roster, every tool"
+    ],
+    [
+     23.77,
+     "The getting-started tour"
+    ],
+    [
+     41.17,
+     "My Roster"
+    ],
+    [
+     57.4,
+     "Build Lab"
+    ],
+    [
+     63.67,
+     "Your Next Upgrades"
+    ],
+    [
+     71.8,
+     "Team Lab"
+    ],
+    [
+     78.07,
+     "Create a Graphic"
+    ],
+    [
+     84.7,
+     "The Help Center"
+    ],
+    [
+     93.2,
+     "All set"
+    ]
+   ],
+   "transcript": "/content/tutorials/getting-started.transcript.txt",
+   "poster": "/content/tutorials/getting-started.poster.jpg",
+   "audio": true,
+   "siteVersion": "help2-dev",
+   "reviewed": "2026-11-26",
+   "version": 1
+  }
+ ]
+}
